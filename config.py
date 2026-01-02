@@ -9,7 +9,7 @@ load_dotenv()
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv('OPENAI_APIKEY')
-OPENAI_MODEL = 'gpt-4-vision-preview'
+OPENAI_MODEL = 'gpt-4-turbo'
 
 # Analysis Configuration
 ANALYSIS_PROMPT = """Analyze this image and provide detailed information about the following aspects:
