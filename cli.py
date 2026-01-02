@@ -82,7 +82,7 @@ def main():
     slide_parser.add_argument(
         '-p', '--profile',
         type=str,
-        choices=['faded', 'color_cast', 'aged', 'well_preserved', 'auto'],
+        choices=['faded', 'color_cast', 'red_cast', 'yellow_cast', 'aged', 'well_preserved', 'auto'],
         default='auto',
         help='Restoration profile (auto=auto-detect from analysis)'
     )

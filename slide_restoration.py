@@ -25,7 +25,7 @@ class SlideRestoration:
             'contrast': 1.6,        # Restore lost contrast
             'brightness': 1.15,     # Lift shadows
             'sharpness': 1.2,       # Enhance clarity
-            'color_balance': {'red': 1.05, 'green': 1.0, 'blue': 1.1},  # Counter fade
+            'color_balance': {'red': 1.0, 'green': 1.05, 'blue': 1.15},  # Neutral with cool boost
         },
         'color_cast': {
             'description': 'Strong color cast from aging (magenta, yellow, or cyan)',
@@ -35,13 +35,29 @@ class SlideRestoration:
             'sharpness': 1.15,      # Enhance details
             'color_balance': {'red': 1.0, 'green': 1.05, 'blue': 0.95},  # Neutral shift
         },
+        'red_cast': {
+            'description': 'Strong red/magenta color cast from aging',
+            'saturation': 1.25,     # Moderate saturation recovery
+            'contrast': 1.35,       # Restore contrast
+            'brightness': 1.1,      # Subtle lift
+            'sharpness': 1.15,      # Enhance clarity
+            'color_balance': {'red': 0.85, 'green': 1.08, 'blue': 1.12},  # Reduce red, boost green and blue
+        },
+        'yellow_cast': {
+            'description': 'Strong yellow color cast (warm aging)',
+            'saturation': 1.3,
+            'contrast': 1.35,
+            'brightness': 1.1,
+            'sharpness': 1.15,
+            'color_balance': {'red': 0.95, 'green': 1.0, 'blue': 1.15},  # Boost blue, reduce red slightly
+        },
         'aged': {
             'description': 'Moderately aged with some fading and contrast loss',
             'saturation': 1.25,
             'contrast': 1.3,
             'brightness': 1.08,
             'sharpness': 1.1,
-            'color_balance': {'red': 1.02, 'green': 1.0, 'blue': 1.03},
+            'color_balance': {'red': 1.0, 'green': 1.02, 'blue': 1.05},
         },
         'well_preserved': {
             'description': 'Well-preserved slide with minimal aging',
@@ -82,11 +98,20 @@ class SlideRestoration:
         color_info = enhancement.get('color_analysis', {})
         if isinstance(color_info, dict):
             color_temp = str(color_info.get('color_temperature', '')).lower()
-            if 'magenta' in color_temp or 'warm' in color_temp:
-                assessment['characteristics'].append('strong_color_cast')
-                assessment['notes'].append('Detected warm/magenta color cast typical of aged slides')
+            if 'magenta' in color_temp or 'red' in color_temp:
+                assessment['characteristics'].append('red_magenta_cast')
+                assessment['notes'].append('Detected red/magenta color cast typical of aged slides')
+                assessment['recommended_profile'] = 'red_cast'
+            elif 'warm' in color_temp and 'yellow' in color_temp:
+                assessment['characteristics'].append('yellow_cast')
+                assessment['notes'].append('Detected yellow/warm color cast')
+                assessment['recommended_profile'] = 'yellow_cast'
+            elif 'warm' in color_temp:
+                assessment['characteristics'].append('warm_cast')
+                assessment['notes'].append('Detected warm color cast')
+                assessment['recommended_profile'] = 'yellow_cast'
             elif 'cyan' in color_temp or 'cool' in color_temp:
-                assessment['characteristics'].append('strong_color_cast')
+                assessment['characteristics'].append('cool_cast')
                 assessment['notes'].append('Detected cool/cyan color cast typical of aged slides')
         
         # Check for fading indicators
@@ -114,13 +139,20 @@ class SlideRestoration:
         # Determine condition based on characteristics
         if len(assessment['characteristics']) >= 3:
             assessment['condition'] = 'heavily_aged'
-            assessment['recommended_profile'] = 'faded'
             assessment['confidence'] = 0.85
+        elif 'red_magenta_cast' in assessment['characteristics']:
+            assessment['condition'] = 'red_cast'
+            assessment['recommended_profile'] = 'red_cast'
+            assessment['confidence'] = 0.8
+        elif 'yellow_cast' in assessment['characteristics'] or 'warm_cast' in assessment['characteristics']:
+            assessment['condition'] = 'yellow_cast'
+            assessment['recommended_profile'] = 'yellow_cast'
+            assessment['confidence'] = 0.8
         elif 'faded_colors' in assessment['characteristics']:
             assessment['condition'] = 'faded'
             assessment['recommended_profile'] = 'faded'
             assessment['confidence'] = 0.8
-        elif 'strong_color_cast' in assessment['characteristics']:
+        elif 'cool_cast' in assessment['characteristics']:
             assessment['condition'] = 'color_cast'
             assessment['recommended_profile'] = 'color_cast'
             assessment['confidence'] = 0.75
