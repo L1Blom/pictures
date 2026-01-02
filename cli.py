@@ -10,6 +10,7 @@ from pathlib import Path
 from picture_analyzer import PictureAnalyzer
 from picture_enhancer import SmartEnhancer
 from slide_restoration import SlideRestoration
+from exif_handler import EXIFHandler
 
 
 def main():
@@ -112,7 +113,7 @@ def main():
     # Analyze and enhance command (combined)
     analyze_enhance_parser = subparsers.add_parser(
         'process',
-        help='Analyze and enhance an image in one step'
+        help='Analyze and enhance an image in one step (optionally restore slide)'
     )
     analyze_enhance_parser.add_argument(
         'image',
@@ -124,6 +125,13 @@ def main():
         type=str,
         help='Output directory for processed images',
         default=None
+    )
+    analyze_enhance_parser.add_argument(
+        '--restore-slide',
+        type=str,
+        nargs='?',
+        const='auto',
+        help='Also restore slide using profile (auto, faded, color_cast, red_cast, yellow_cast, aged, well_preserved). Use --restore-slide alone for auto-detection'
     )
     
     # Parse arguments
@@ -240,7 +248,7 @@ def cmd_enhance(args):
 
 
 def cmd_process(args):
-    """Analyze and enhance image in one step"""
+    """Analyze and enhance image in one step, optionally restore slide"""
     if not Path(args.image).exists():
         print(f"Error: Image file not found: {args.image}")
         return 1
@@ -256,6 +264,7 @@ def cmd_process(args):
     analyzed_path = f"{output_dir}/{image_stem}_analyzed.jpg"
     enhanced_path = f"{output_dir}/{image_stem}_enhanced.jpg"
     analysis_json = f"{output_dir}/{image_stem}_analyzed.json"
+    restored_path = f"{output_dir}/{image_stem}_restored.jpg" if args.restore_slide else None
     
     # Step 1: Analyze
     print(f"[1/2] Analyzing: {args.image}")
@@ -268,14 +277,45 @@ def cmd_process(args):
         result = enhancer.enhance_from_analysis(analyzed_path, analysis['enhancement'], enhanced_path)
         if result:
             print(f"✓ Enhancement complete: {result}")
+            # Copy EXIF to enhanced image
+            EXIFHandler.copy_exif(analyzed_path, enhanced_path, enhanced_path)
         else:
             print("⚠ Enhancement failed, but analysis was saved")
     else:
         print("⚠ No enhancement data found in analysis")
     
+    # Step 3: Optionally restore slide
+    if args.restore_slide:
+        step_num = 3
+        print(f"\n[{step_num}/3] Restoring slide")
+        
+        if args.restore_slide == 'auto':
+            # Auto-detect profile from analysis
+            result = SlideRestoration.auto_restore_slide(
+                analyzed_path,  # Restore from analyzed image, not enhanced
+                analysis,
+                restored_path
+            )
+        else:
+            # Use specified profile
+            result = SlideRestoration.restore_slide(
+                analyzed_path,  # Restore from analyzed image, not enhanced
+                profile=args.restore_slide,
+                output_path=restored_path
+            )
+        
+        if result:
+            print(f"✓ Slide restoration complete: {result}")
+            # Copy EXIF to restored image
+            EXIFHandler.copy_exif(analyzed_path, restored_path, restored_path)
+        else:
+            print("⚠ Slide restoration failed")
+    
     print(f"\nResults:")
     print(f"  Analyzed image: {analyzed_path}")
     print(f"  Enhanced image: {enhanced_path}")
+    if restored_path:
+        print(f"  Restored image: {restored_path}")
     print(f"  Analysis JSON: {analysis_json}")
     
     return 0

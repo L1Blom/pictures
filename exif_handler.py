@@ -87,6 +87,49 @@ class EXIFHandler:
                 return False
     
     @staticmethod
+    def copy_exif(source_image_path: str, target_image_path: str, output_path: str) -> bool:
+        """
+        Copy EXIF data from source image to target image
+        
+        Args:
+            source_image_path: Path to the image with EXIF data
+            target_image_path: Path to the image to add EXIF data to
+            output_path: Path to save the result
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Read EXIF from source
+            try:
+                exif_dict = piexif.load(source_image_path)
+            except:
+                # No EXIF to copy
+                return False
+            
+            # Open target image
+            image = Image.open(target_image_path)
+            
+            # Convert back to bytes and save
+            exif_bytes = piexif.dump(exif_dict)
+            
+            if image.format and image.format.upper() in ['JPEG', 'JPG']:
+                image.save(output_path, 'jpeg', exif=exif_bytes)
+            else:
+                # For non-JPEG formats, convert to JPEG
+                if image.mode in ('RGBA', 'LA', 'P'):
+                    rgb_image = Image.new('RGB', image.size, (255, 255, 255))
+                    rgb_image.paste(image, mask=image.split()[-1] if image.mode in ('RGBA', 'LA') else None)
+                    rgb_image.save(output_path, 'jpeg', exif=exif_bytes)
+                else:
+                    image.convert('RGB').save(output_path, 'jpeg', exif=exif_bytes)
+            
+            return True
+        except Exception as e:
+            print(f"Warning: Could not copy EXIF data: {e}")
+            return False
+    
+    @staticmethod
     def _prepare_exif_dict(exif_dict: Dict, analysis_data: Dict[str, Any]) -> Dict:
         """
         Prepare EXIF dictionary with metadata only (separates from enhancement data)
