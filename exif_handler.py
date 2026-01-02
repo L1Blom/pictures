@@ -65,16 +65,16 @@ class EXIFHandler:
             
             # Save image with EXIF data
             if image.format and image.format.upper() in ['JPEG', 'JPG']:
-                image.save(output_path, 'jpeg', exif=exif_bytes)
+                image.save(output_path, 'jpeg', exif=exif_bytes, quality=95)
             else:
                 # For non-JPEG formats, convert to JPEG
                 if image.mode in ('RGBA', 'LA', 'P'):
                     # Convert RGBA to RGB
                     rgb_image = Image.new('RGB', image.size, (255, 255, 255))
                     rgb_image.paste(image, mask=image.split()[-1] if image.mode in ('RGBA', 'LA') else None)
-                    rgb_image.save(output_path, 'jpeg', exif=exif_bytes)
+                    rgb_image.save(output_path, 'jpeg', exif=exif_bytes, quality=95)
                 else:
-                    image.convert('RGB').save(output_path, 'jpeg', exif=exif_bytes)
+                    image.convert('RGB').save(output_path, 'jpeg', exif=exif_bytes, quality=95)
             
             return True
         except Exception as e:
@@ -114,15 +114,15 @@ class EXIFHandler:
             exif_bytes = piexif.dump(exif_dict)
             
             if image.format and image.format.upper() in ['JPEG', 'JPG']:
-                image.save(output_path, 'jpeg', exif=exif_bytes)
+                image.save(output_path, 'jpeg', exif=exif_bytes, quality=95)
             else:
                 # For non-JPEG formats, convert to JPEG
                 if image.mode in ('RGBA', 'LA', 'P'):
                     rgb_image = Image.new('RGB', image.size, (255, 255, 255))
                     rgb_image.paste(image, mask=image.split()[-1] if image.mode in ('RGBA', 'LA') else None)
-                    rgb_image.save(output_path, 'jpeg', exif=exif_bytes)
+                    rgb_image.save(output_path, 'jpeg', exif=exif_bytes, quality=95)
                 else:
-                    image.convert('RGB').save(output_path, 'jpeg', exif=exif_bytes)
+                    image.convert('RGB').save(output_path, 'jpeg', exif=exif_bytes, quality=95)
             
             return True
         except Exception as e:
