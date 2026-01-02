@@ -166,19 +166,17 @@ class PictureAnalyzer:
     
     def _call_openai_vision(self, image_data: str) -> str:
         """Call OpenAI Vision API with the image"""
-        message = self.client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+        response = self.client.chat.completions.create(
+            model=self.model,
             max_tokens=1024,
             messages=[
                 {
                     "role": "user",
                     "content": [
                         {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": "image/jpeg",
-                                "data": image_data,
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_data}",
                             },
                         },
                         {
@@ -190,7 +188,7 @@ class PictureAnalyzer:
             ],
         )
         
-        return message.content[0].text
+        return response.choices[0].message.content
     
     def _parse_response(self, response: str) -> Dict[str, Any]:
         """Parse OpenAI response into structured format"""
