@@ -89,11 +89,11 @@ class EXIFHandler:
     @staticmethod
     def _prepare_exif_dict(exif_dict: Dict, analysis_data: Dict[str, Any]) -> Dict:
         """
-        Prepare EXIF dictionary with analysis data
+        Prepare EXIF dictionary with metadata only (separates from enhancement data)
         
         Args:
             exif_dict: Existing EXIF dictionary
-            analysis_data: Analysis results to embed
+            analysis_data: Analysis results (expected to have 'metadata' and 'enhancement' keys)
             
         Returns:
             Updated EXIF dictionary
@@ -104,15 +104,25 @@ class EXIFHandler:
         if "Exif" not in exif_dict:
             exif_dict["Exif"] = {}
         
-        # Convert analysis data to JSON string
-        analysis_json = json.dumps(analysis_data, indent=2)
+        # Extract metadata section if it exists, otherwise use entire analysis_data for backward compatibility
+        if isinstance(analysis_data, dict) and 'metadata' in analysis_data:
+            metadata = analysis_data['metadata']
+        else:
+            metadata = analysis_data
         
-        # Add analysis results to UserComment (0x927C)
-        exif_dict["Exif"][piexif.ExifIFD.UserComment] = analysis_json.encode('utf-8')
+        # Convert metadata only to JSON string
+        metadata_json = json.dumps(metadata, indent=2)
         
-        # Add description from analysis
-        if "objects" in analysis_data:
-            description = f"Objects: {', '.join(analysis_data.get('objects', [])[:5])}"
+        # Add metadata to UserComment (0x927C)
+        exif_dict["Exif"][piexif.ExifIFD.UserComment] = metadata_json.encode('utf-8')
+        
+        # Add description from metadata
+        if isinstance(metadata, dict) and "objects" in metadata:
+            objects = metadata.get('objects', [])
+            if isinstance(objects, list):
+                description = f"Objects: {', '.join(objects[:5])}"
+            else:
+                description = f"Objects: {str(objects)[:100]}"
             exif_dict["0th"][piexif.ImageIFD.ImageDescription] = description.encode('utf-8')
         
         return exif_dict

@@ -31,7 +31,7 @@ class PictureAnalyzer:
             image_path: Path to the image file
             
         Returns:
-            Dictionary containing analysis results
+            Dictionary containing analysis results with 'metadata' and 'enhancement' sections
         """
         # Validate file
         if not self._validate_image_file(image_path):
@@ -191,41 +191,72 @@ class PictureAnalyzer:
         return response.choices[0].message.content
     
     def _parse_response(self, response: str) -> Dict[str, Any]:
-        """Parse OpenAI response into structured format"""
+        """Parse OpenAI response into structured format with metadata and enhancement sections"""
         try:
             # Try to extract JSON from the response
-            # Look for JSON block in the response
             json_start = response.find('{')
             json_end = response.rfind('}') + 1
             
             if json_start != -1 and json_end > json_start:
                 json_str = response[json_start:json_end]
                 analysis = json.loads(json_str)
+                
+                # If response has metadata and enhancement sections, return as-is
+                if isinstance(analysis, dict) and ('metadata' in analysis or 'enhancement' in analysis):
+                    return analysis
+                else:
+                    # Backward compatibility: wrap old format response
+                    return {
+                        "metadata": analysis,
+                        "enhancement": {
+                            "note": "Enhancement data not available for this analysis"
+                        }
+                    }
             else:
                 # If no JSON found, create structured response from text
                 analysis = {
+                    "metadata": {
+                        "raw_response": response,
+                        "objects": [],
+                        "persons": "Not detected",
+                        "weather": "Unknown",
+                        "mood": "Unknown",
+                        "time_of_day": "Unknown",
+                        "season_date": "Unknown",
+                    },
+                    "enhancement": {
+                        "raw_response": response,
+                        "lighting_quality": "Unable to assess",
+                        "color_analysis": "Unable to assess",
+                        "sharpness_clarity": "Unable to assess",
+                        "contrast_level": "Unable to assess",
+                        "composition_issues": "Unable to assess",
+                        "recommended_enhancements": []
+                    }
+                }
+                return analysis
+        except json.JSONDecodeError:
+            analysis = {
+                "metadata": {
                     "raw_response": response,
                     "objects": [],
                     "persons": "Not detected",
                     "weather": "Unknown",
                     "mood": "Unknown",
                     "time_of_day": "Unknown",
-                    "date_season": "Unknown",
-                    "additional_notes": response
+                    "season_date": "Unknown",
+                },
+                "enhancement": {
+                    "raw_response": response,
+                    "lighting_quality": "Unable to assess",
+                    "color_analysis": "Unable to assess",
+                    "sharpness_clarity": "Unable to assess",
+                    "contrast_level": "Unable to assess",
+                    "composition_issues": "Unable to assess",
+                    "recommended_enhancements": []
                 }
-        except json.JSONDecodeError:
-            analysis = {
-                "raw_response": response,
-                "objects": [],
-                "persons": "Not detected",
-                "weather": "Unknown",
-                "mood": "Unknown",
-                "time_of_day": "Unknown",
-                "date_season": "Unknown",
-                "additional_notes": response
             }
-        
-        return analysis
+            return analysis
     
     def _get_image_files(self, directory: str) -> list:
         """Get all image files in a directory"""
