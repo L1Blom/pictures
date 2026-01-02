@@ -5,6 +5,7 @@ CLI tool for analyzing and enhancing pictures
 import argparse
 import json
 import sys
+import os
 from pathlib import Path
 from picture_analyzer import PictureAnalyzer
 from picture_enhancer import SmartEnhancer
@@ -121,9 +122,16 @@ def cmd_analyze(args):
     
     analyzer = PictureAnalyzer()
     print(f"Analyzing: {args.image}")
+    
+    # Handle output path - if it's a directory, generate filename
+    output_path = args.output
+    if output_path and Path(output_path).is_dir():
+        image_stem = Path(args.image).stem
+        output_path = os.path.join(output_path, f"{image_stem}_analyzed.jpg")
+    
     results = analyzer.analyze_and_save(
         args.image,
-        output_path=args.output,
+        output_path=output_path,
         save_json=not args.no_json
     )
     

@@ -47,7 +47,7 @@ EXIF_TAG_MAPPING = {
 }
 
 # Supported image formats
-SUPPORTED_FORMATS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
+SUPPORTED_FORMATS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic'}
 
 # Output Configuration
 OUTPUT_DIR = 'output'

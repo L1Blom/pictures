@@ -10,6 +10,14 @@ from openai import OpenAI
 from config import OPENAI_API_KEY, OPENAI_MODEL, ANALYSIS_PROMPT, SUPPORTED_FORMATS, OUTPUT_DIR
 from exif_handler import EXIFHandler
 
+# Try to import HEIC support
+try:
+    import pillow_heif
+    pillow_heif.register_heif_opener()
+    HEIC_SUPPORT = True
+except ImportError:
+    HEIC_SUPPORT = False
+
 
 class PictureAnalyzer:
     """Analyzes pictures using OpenAI Vision API"""
@@ -72,12 +80,18 @@ class PictureAnalyzer:
         if output_path is None:
             filename = Path(image_path).stem
             output_path = os.path.join(OUTPUT_DIR, f"{filename}_analyzed.jpg")
+        else:
+            # Ensure output is JPG format (HEIC becomes JPG)
+            output_path = str(Path(output_path).with_suffix('.jpg'))
         
         # Create output directory
         os.makedirs(os.path.dirname(output_path) or OUTPUT_DIR, exist_ok=True)
         
+        # Convert HEIC to JPG first if needed
+        converted_image_path = self._convert_heic_to_jpg(image_path)
+        
         # Save with EXIF data
-        success = self.exif_handler.write_exif(image_path, output_path, analysis)
+        success = self.exif_handler.write_exif(converted_image_path, output_path, analysis)
         
         if success:
             print(f"✓ Image saved with EXIF data: {output_path}")
@@ -149,8 +163,56 @@ class PictureAnalyzer:
     
     def _encode_image(self, image_path: str) -> str:
         """Encode image to base64 string"""
+        # Convert HEIC to JPG if needed
+        image_path = self._convert_heic_to_jpg(image_path)
+        
         with open(image_path, "rb") as image_file:
             return base64.b64encode(image_file.read()).decode('utf-8')
+    
+    def _convert_heic_to_jpg(self, image_path: str) -> str:
+        """
+        Convert HEIC image to JPG if needed
+        
+        Args:
+            image_path: Path to the image file
+            
+        Returns:
+            Path to the image (JPG if converted, original otherwise)
+        """
+        file_ext = Path(image_path).suffix.lower()
+        
+        if file_ext != '.heic':
+            return image_path
+        
+        if not HEIC_SUPPORT:
+            raise ImportError(
+                "HEIC support requires pillow-heif. "
+                "Install it with: pip install pillow-heif"
+            )
+        
+        try:
+            from PIL import Image
+            
+            # Open HEIC image
+            heic_image = Image.open(image_path)
+            
+            # Convert RGBA to RGB if needed
+            if heic_image.mode in ('RGBA', 'LA', 'P'):
+                rgb_image = Image.new('RGB', heic_image.size, (255, 255, 255))
+                rgb_image.paste(heic_image, mask=heic_image.split()[-1] if heic_image.mode in ('RGBA', 'LA') else None)
+                heic_image = rgb_image
+            elif heic_image.mode != 'RGB':
+                heic_image = heic_image.convert('RGB')
+            
+            # Save as JPG in temp directory (not in source directory to avoid permission issues)
+            os.makedirs(os.path.join(os.getcwd(), 'tmp'), exist_ok=True)
+            jpg_path = os.path.join(os.getcwd(), 'tmp', Path(image_path).stem + '.jpg')
+            heic_image.save(jpg_path, 'JPEG', quality=95)
+            
+            return jpg_path
+        except Exception as e:
+            print(f"Warning: Could not convert HEIC file: {e}")
+            raise
     
     def _get_image_media_type(self, image_path: str) -> str:
         """Get media type for the image file"""
