@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 from picture_analyzer import PictureAnalyzer
 from picture_enhancer import SmartEnhancer
+from slide_restoration import SlideRestoration
 
 
 def main():
@@ -71,6 +72,42 @@ def main():
         help='Output path for the enhanced image',
         default=None
     )
+        # Slide restoration command
+    slide_parser = subparsers.add_parser('restore-slide', help='Restore a scanned old slide/dia positive')
+    slide_parser.add_argument(
+        'image',
+        type=str,
+        help='Path to the scanned slide image'
+    )
+    slide_parser.add_argument(
+        '-p', '--profile',
+        type=str,
+        choices=['faded', 'color_cast', 'aged', 'well_preserved', 'auto'],
+        default='auto',
+        help='Restoration profile (auto=auto-detect from analysis)'
+    )
+    slide_parser.add_argument(
+        '-a', '--analysis',
+        type=str,
+        help='Path to JSON analysis file (required for auto profile)',
+        default=None
+    )
+    slide_parser.add_argument(
+        '-o', '--output',
+        type=str,
+        help='Output path for restored slide',
+        default=None
+    )
+    slide_parser.add_argument(
+        '--no-denoise',
+        action='store_true',
+        help='Skip noise reduction'
+    )
+    slide_parser.add_argument(
+        '--no-despeckle',
+        action='store_true',
+        help='Skip dust/speckle removal'
+    )
     
     # Analyze and enhance command (combined)
     analyze_enhance_parser = subparsers.add_parser(
@@ -108,6 +145,9 @@ def main():
         
         elif args.command == 'process':
             return cmd_process(args)
+        
+        elif args.command == 'restore-slide':
+            return cmd_restore_slide(args)
     
     except Exception as e:
         print(f"Error: {e}")
@@ -239,6 +279,66 @@ def cmd_process(args):
     print(f"  Analysis JSON: {analysis_json}")
     
     return 0
+
+
+def cmd_restore_slide(args):
+    """Restore a scanned old slide using specialized profiles"""
+    if not Path(args.image).exists():
+        print(f"Error: Image file not found: {args.image}")
+        return 1
+    
+    # Determine output path
+    if args.output is None:
+        output_path = str(Path(args.image).parent / f"{Path(args.image).stem}_restored.jpg")
+    else:
+        output_path = args.output if args.output.endswith(('.jpg', '.jpeg')) else f"{args.output}_restored.jpg"
+    
+    # Handle auto profile
+    if args.profile == 'auto':
+        # Need to analyze first
+        if not args.analysis:
+            # Try to find analysis file
+            image_stem = Path(args.image).stem
+            analysis_path = str(Path(args.image).parent / f"{image_stem}_analyzed.json")
+            if not Path(analysis_path).exists():
+                print("Error: Auto profile requires analysis. Please either:")
+                print("  1. Provide -a/--analysis path, or")
+                print("  2. Run 'analyze' command first, or")
+                print("  3. Specify a profile (--profile faded/color_cast/aged/well_preserved)")
+                return 1
+        else:
+            analysis_path = args.analysis
+        
+        if not Path(analysis_path).exists():
+            print(f"Error: Analysis file not found: {analysis_path}")
+            return 1
+        
+        # Load analysis and auto-detect profile
+        with open(analysis_path, 'r') as f:
+            analysis = json.load(f)
+        
+        result = SlideRestoration.auto_restore_slide(
+            args.image,
+            analysis,
+            output_path
+        )
+    else:
+        # Use specified profile
+        print(f"Restoring slide with '{args.profile}' profile: {args.image}")
+        result = SlideRestoration.restore_slide(
+            args.image,
+            profile=args.profile,
+            output_path=output_path,
+            denoise=not args.no_denoise,
+            despeckle=not args.no_despeckle
+        )
+    
+    if result:
+        print(f"\n✓ Slide restoration complete: {result}")
+        return 0
+    else:
+        print("✗ Slide restoration failed")
+        return 1
 
 
 if __name__ == '__main__':
