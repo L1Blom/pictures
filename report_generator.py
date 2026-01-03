@@ -253,7 +253,7 @@ class ReportGenerator:
                 for i, restored in enumerate(item['restored_imgs'][:2]):
                     img_path = restored.name
                     profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
-                    img_html = f"<img src='{img_path}' width='150' /><br>**{profile.title()}**"
+                    img_html = f"<img src='{img_path}' width='150' /> **{profile.title()}**"
                     
                     if i == 0:
                         restored_1 = img_html
