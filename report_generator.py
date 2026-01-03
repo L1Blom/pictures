@@ -172,6 +172,7 @@ class ReportGenerator:
         
         # Detailed analysis for each image
         for idx, item in enumerate(analyses, 1):
+            lines.append("")
             lines.append(f"## {idx}. {item['name']}")
             lines.append("")
             
@@ -183,6 +184,7 @@ class ReportGenerator:
                 lines.append("")
             
             # Image thumbnails
+            lines.append("")
             lines.append("### Images")
             lines.append("")
             
@@ -211,6 +213,7 @@ class ReportGenerator:
                 lines.append("")
             
             # Full metadata table
+            lines.append("")
             lines.append("### Full Analysis")
             lines.append("")
             
@@ -259,23 +262,32 @@ class ReportGenerator:
             # Enhancement recommendations
             enhancement = item['analysis'].get('enhancement', {})
             if enhancement:
+                lines.append("")
                 lines.append("### Enhancement Recommendations")
                 lines.append("")
                 lines.append("| Parameter | Recommendation |")
                 lines.append("|-----------|-----------------|")
                 
                 for param, value in enhancement.items():
-                    if param != 'summary':
-                        lines.append(f"| {param.title()} | {value} |")
+                    if param != 'summary' and param.lower() != 'raw_response':
+                        # Format value - avoid raw JSON
+                        if isinstance(value, (dict, list)):
+                            value_str = str(value)[:100] + "..." if len(str(value)) > 100 else str(value)
+                        else:
+                            value_str = str(value).replace('|', '\\|')
+                        lines.append(f"| {param.title()} | {value_str} |")
                 
                 if 'summary' in enhancement:
                     lines.append("")
                     lines.append(f"**Summary:** {enhancement['summary']}")
                     lines.append("")
+                
+                lines.append("")
             
             # Slide restoration profiles (if available)
             profiles = item['analysis'].get('slide_profiles', [])
             if profiles:
+                lines.append("")
                 lines.append("### Recommended Restoration Profiles")
                 lines.append("")
                 lines.append("| Profile | Confidence | Reason |")
