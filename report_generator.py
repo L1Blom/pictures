@@ -255,8 +255,8 @@ class ReportGenerator:
                     profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
                     restored_items.append(f"**{profile.title()}** ![{profile}]({restored.name})")
                 
-                # Join with pipe separator (no spaces around it to avoid breaks)
-                restored = " | ".join(restored_items)
+                # Join with escaped pipe separator to avoid table parsing issues
+                restored = " \\| ".join(restored_items)
             
             lines.append(f"| {idx} | {item['name']} | {original} | {enhanced} | {restored} |")
         
