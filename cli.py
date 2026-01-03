@@ -146,6 +146,20 @@ def main():
         help='Also restore slide using profile (auto, faded, color_cast, red_cast, yellow_cast, aged, well_preserved). Use --restore-slide alone for auto-detection'
     )
     
+    # Generate report command
+    report_parser = subparsers.add_parser('report', help='Generate markdown report from analysis results')
+    report_parser.add_argument(
+        'directory',
+        type=str,
+        help='Path to output directory containing analyzed images'
+    )
+    report_parser.add_argument(
+        '-o', '--output',
+        type=str,
+        help='Output path for markdown report',
+        default=None
+    )
+    
     # Parse arguments
     args = parser.parse_args()
     
@@ -168,6 +182,9 @@ def main():
         
         elif args.command == 'restore-slide':
             return cmd_restore_slide(args)
+        
+        elif args.command == 'report':
+            return cmd_report(args)
     
     except Exception as e:
         print(f"Error: {e}")
@@ -532,6 +549,32 @@ def cmd_restore_slide(args):
         print("✗ Slide restoration failed")
         return 1
 
+
+def cmd_report(args):
+    """Generate markdown report from analysis results"""
+    from report_generator import ReportGenerator
+    
+    directory = Path(args.directory)
+    
+    if not directory.exists():
+        print(f"✗ Directory not found: {directory}")
+        return 1
+    
+    # Determine output path
+    if args.output:
+        report_path = Path(args.output)
+    else:
+        report_path = directory / "analysis_report.md"
+    
+    print(f"Generating report from: {directory}")
+    print(f"Report will be saved to: {report_path}")
+    print("")
+    
+    generator = ReportGenerator()
+    generator.generate_report(directory, report_path)
+    
+    print(f"\n✓ Report generation complete: {report_path}")
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())

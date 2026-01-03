@@ -45,9 +45,10 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
 - 7-step restoration pipeline: despeckle → color balance → brightness → contrast → saturation → denoise → sharpness
 
 **CLI Tool**
-- 5 commands: `analyze`, `batch`, `enhance`, `process`, `restore-slide`
+- 6 commands: `analyze`, `batch`, `enhance`, `process`, `restore-slide`, `report`
 - `process` command: single image - analyze → enhance → optionally restore
 - `batch` command: multiple images with optional enhancement and restoration in one pass
+- `report` command: generate comprehensive markdown report with tables and image references
 - Extensive help and argument validation
 - Output directory organization with progress tracking
 - Error handling and success reporting
@@ -57,6 +58,14 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
 - EXIF copying between processed images
 - High-quality preservation (quality=95)
 - Separates metadata (for EXIF) from enhancement data (JSON only)
+
+**Report Generation**
+- Markdown report generation from analysis results
+- Summary table with numbered images and key details
+- Detailed analysis for each image with full metadata tables
+- Description.txt content integration
+- Image references and restoration profile recommendations
+- Enhancement suggestions display
 
 ### 🔜 Planned Features
 - Web interface for easier use
@@ -127,7 +136,47 @@ python cli.py process picture.jpg --restore-slide
 
 # Restore slide with specific profile only
 python cli.py restore-slide picture.jpg -p faded -o output/restored.jpg
+
+# Generate markdown report from analysis results
+python cli.py report output/
+
+# Generate report and save to specific location
+python cli.py report output/ -o my_report.md
 ```
+
+**Report Generation:**
+The `report` command creates a comprehensive markdown file from analysis results. The report includes:
+- **Summary Table**: Numbered images with key metadata (objects, persons, location, mood)
+- **Detailed Analysis** for each image:
+  - Description.txt content (if available)
+  - Image references (original, enhanced, restored)
+  - Complete metadata table (11 aspects)
+  - Enhancement recommendations
+  - Slide restoration profile recommendations with confidence scores
+
+# Generate markdown report from analysis results
+python cli.py report output/
+
+# Generate report and save to specific location
+python cli.py report output/ -o my_report.md
+```
+
+**Report Generation:**
+The `report` command creates a comprehensive markdown file from analysis results. The report includes:
+- **Summary Table**: Numbered images with key metadata (objects, persons, location, mood)
+- **Detailed Analysis** for each image:
+  - Description.txt content (if available)
+  - Image references (original, enhanced, restored)
+  - Complete metadata table (11 aspects)
+  - Enhancement recommendations
+  - Slide restoration profile recommendations with confidence scores
+
+**Example output with auto-detection:**
+When using `--restore-slide` without a profile on a slide image, the analysis provides recommendations:
+- Creates `*_restored_aged.jpg` if "aged" profile is recommended (confidence 75%)
+- Creates `*_restored_yellow_cast.jpg` if "yellow_cast" profile is recommended (confidence 60%)
+- All versions include EXIF metadata from analysis
+- Report includes links to all restored versions with profile names
 
 **Example output with auto-detection:**
 When using `--restore-slide` without a profile on a slide image, the analysis provides recommendations:
