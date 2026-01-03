@@ -24,7 +24,7 @@ class ReportGenerator:
         Generate markdown report from analysis results in output directory
         
         Args:
-            output_dir: Directory containing analyzed images and analysis.json files
+            output_dir: Directory containing analyzed images and analyzed.json files
             report_path: Optional path to save report. If None, returns as string
             
         Returns:
@@ -33,11 +33,50 @@ class ReportGenerator:
         output_dir = Path(output_dir)
         
         # Collect all image analysis results
-        image_dirs = [d for d in output_dir.iterdir() if d.is_dir()]
+        # Handle both flat structure (files in output_dir) and nested structure (in subdirs)
         analyses = []
         
+        # First, try to find JSON files directly in output_dir
+        for json_file in output_dir.glob("*_analyzed.json"):
+            with open(json_file, 'r') as f:
+                analysis = json.load(f)
+            
+            # Find corresponding image
+            base_name = json_file.stem.replace('_analyzed', '')
+            
+            # Look for images
+            analyzed_img = None
+            for ext in ['*.jpg', '*.png', '*.gif', '*.bmp', '*.tiff', '*.webp', '*.heic']:
+                for file in output_dir.glob(f"{base_name}*_analyzed.{ext.split('.')[-1]}"):
+                    analyzed_img = file
+                    break
+                if analyzed_img:
+                    break
+            
+            # Look for enhanced and restored versions
+            enhanced_img = None
+            for file in output_dir.glob(f"{base_name}*_enhanced.*"):
+                enhanced_img = file
+                break
+            
+            restored_imgs = []
+            for file in output_dir.glob(f"{base_name}*_restored*.jpg"):
+                restored_imgs.append(file)
+            
+            analyses.append({
+                'name': base_name,
+                'analysis': analysis,
+                'description': None,  # No description in flat structure
+                'analyzed_img': analyzed_img,
+                'enhanced_img': enhanced_img,
+                'restored_imgs': sorted(restored_imgs),
+                'dir': output_dir
+            })
+        
+        # Then, look for nested structure (subdirectories with image-specific results)
+        image_dirs = [d for d in output_dir.iterdir() if d.is_dir()]
         for img_dir in sorted(image_dirs):
-            analysis_file = img_dir / "analysis.json"
+            analysis_file = img_dir / "analyzed.json"
             if analysis_file.exists():
                 with open(analysis_file, 'r') as f:
                     analysis = json.load(f)
@@ -98,22 +137,36 @@ class ReportGenerator:
         # Summary table
         lines.append("## Summary")
         lines.append("")
-        lines.append("| # | Image | Objects | Persons | Location | Mood |")
-        lines.append("|---|-------|---------|---------|----------|------|")
+        lines.append("| # | Image | Objects | Persons | Weather | Mood |")
+        lines.append("|---|-------|---------|---------|---------|------|")
         
         for idx, item in enumerate(analyses, 1):
             metadata = item['analysis'].get('metadata', {})
-            objects = metadata.get('objects_subjects', 'N/A')[:20]
-            persons = metadata.get('persons_count', 'N/A')
-            location = metadata.get('location_setting', 'N/A')[:20]
-            mood = metadata.get('mood_atmosphere', 'N/A')[:15]
             
-            # Truncate for table
-            objects = (objects[:17] + "...") if len(str(objects)) > 20 else objects
-            location = (location[:17] + "...") if len(str(location)) > 20 else location
-            mood = (mood[:12] + "...") if len(str(mood)) > 15 else mood
+            # Extract and format fields
+            objects = metadata.get('objects', metadata.get('objects_subjects', 'N/A'))
+            if isinstance(objects, list):
+                objects = ', '.join(str(o) for o in objects[:3]) if objects else 'N/A'
+            objects = str(objects)
+            if len(objects) > 50:
+                objects = objects[:47] + "..."
             
-            lines.append(f"| {idx} | {item['name']} | {objects} | {persons} | {location} | {mood} |")
+            persons = metadata.get('persons', metadata.get('persons_count', 'N/A'))
+            persons = str(persons)
+            if len(persons) > 40:
+                persons = persons[:37] + "..."
+            
+            weather = metadata.get('weather', metadata.get('weather_conditions', 'N/A'))
+            weather = str(weather)
+            if len(weather) > 40:
+                weather = weather[:37] + "..."
+            
+            mood = metadata.get('mood_atmosphere', 'N/A')
+            mood = str(mood)
+            if len(mood) > 50:
+                mood = mood[:47] + "..."
+            
+            lines.append(f"| {idx} | {item['name']} | {objects} | {persons} | {weather} | {mood} |")
         
         lines.append("")
         
@@ -135,13 +188,20 @@ class ReportGenerator:
             
             # Analyzed image
             if item['analyzed_img'] and item['analyzed_img'].exists():
-                img_rel_path = item['analyzed_img'].relative_to(item['analyzed_img'].parent.parent)
+                # Handle both flat and nested structures
+                try:
+                    img_rel_path = item['analyzed_img'].relative_to(item['analyzed_img'].parent.parent)
+                except ValueError:
+                    img_rel_path = item['analyzed_img'].name
                 lines.append(f"**Original with EXIF:**  \n![Analyzed]({img_rel_path})")
                 lines.append("")
             
             # Enhanced image
             if item['enhanced_img'] and item['enhanced_img'].exists():
-                img_rel_path = item['enhanced_img'].relative_to(item['enhanced_img'].parent.parent)
+                try:
+                    img_rel_path = item['enhanced_img'].relative_to(item['enhanced_img'].parent.parent)
+                except ValueError:
+                    img_rel_path = item['enhanced_img'].name
                 lines.append(f"**Enhanced:**  \n![Enhanced]({img_rel_path})")
                 lines.append("")
             
@@ -151,7 +211,10 @@ class ReportGenerator:
                 lines.append("")
                 for restored in item['restored_imgs']:
                     profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
-                    img_rel_path = restored.relative_to(restored.parent.parent)
+                    try:
+                        img_rel_path = restored.relative_to(restored.parent.parent)
+                    except ValueError:
+                        img_rel_path = restored.name
                     lines.append(f"- **{profile.title()}:** ![{profile}]({img_rel_path})")
                 lines.append("")
             
@@ -163,12 +226,11 @@ class ReportGenerator:
             lines.append("| Aspect | Details |")
             lines.append("|--------|---------|")
             
-            # Map metadata to readable format
+            # Map metadata to readable format (handle both old and new field names)
             metadata_display = [
-                ("Objects & Subjects", metadata.get('objects_subjects', 'N/A')),
-                ("Persons Count", metadata.get('persons_count', 'N/A')),
-                ("Persons Position", metadata.get('persons_position', 'N/A')),
-                ("Weather", metadata.get('weather_conditions', 'N/A')),
+                ("Objects", metadata.get('objects', metadata.get('objects_subjects', 'N/A'))),
+                ("Persons", metadata.get('persons', metadata.get('persons_count', 'N/A'))),
+                ("Weather", metadata.get('weather', metadata.get('weather_conditions', 'N/A'))),
                 ("Mood & Atmosphere", metadata.get('mood_atmosphere', 'N/A')),
                 ("Time of Day", metadata.get('time_of_day', 'N/A')),
                 ("Season & Date", metadata.get('season_date', 'N/A')),
@@ -180,8 +242,24 @@ class ReportGenerator:
             ]
             
             for aspect, detail in metadata_display:
-                # Escape pipe characters in detail
-                detail_str = str(detail).replace('|', '\\|')
+                # Format detail - handle lists/dicts
+                if isinstance(detail, list):
+                    if detail and isinstance(detail[0], dict):
+                        # List of dicts - extract first description/value
+                        detail_str = detail[0].get('description', str(detail[0])) if detail else 'N/A'
+                    else:
+                        # Simple list
+                        detail_str = ', '.join(str(d) for d in detail[:3]) if detail else 'N/A'
+                elif isinstance(detail, dict):
+                    detail_str = str(detail)
+                else:
+                    detail_str = str(detail)
+                
+                # Escape pipe characters and truncate if too long
+                detail_str = detail_str.replace('|', '\\|')
+                if len(detail_str) > 200:
+                    detail_str = detail_str[:197] + "..."
+                
                 lines.append(f"| {aspect} | {detail_str} |")
             
             lines.append("")
