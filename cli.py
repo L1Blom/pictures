@@ -53,6 +53,18 @@ def main():
         help='Output directory for processed images',
         default=None
     )
+    batch_parser.add_argument(
+        '--enhance',
+        action='store_true',
+        help='Also enhance images based on analysis recommendations'
+    )
+    batch_parser.add_argument(
+        '--restore-slide',
+        type=str,
+        nargs='?',
+        const='auto',
+        help='Also restore slides using profile (auto, faded, color_cast, red_cast, yellow_cast, aged, well_preserved)'
+    )
     
     # Enhance command (from analysis recommendations)
     enhance_parser = subparsers.add_parser('enhance', help='Enhance an image using AI recommendations')
@@ -189,14 +201,93 @@ def cmd_analyze(args):
 
 
 def cmd_batch(args):
-    """Batch analyze images in a directory"""
+    """Batch analyze images in a directory, optionally enhance and restore"""
     if not Path(args.directory).is_dir():
         print(f"Error: Directory not found: {args.directory}")
         return 1
     
     analyzer = PictureAnalyzer()
-    print(f"Analyzing images in: {args.directory}")
-    results = analyzer.batch_analyze(args.directory, args.output)
+    enhancer = SmartEnhancer() if args.enhance else None
+    
+    # Determine output directory
+    output_dir = args.output or "output"
+    Path(output_dir).mkdir(exist_ok=True)
+    
+    # Get all supported image files
+    from config import SUPPORTED_FORMATS
+    image_files = []
+    for fmt in SUPPORTED_FORMATS:
+        image_files.extend(Path(args.directory).glob(f"*{fmt}"))
+        image_files.extend(Path(args.directory).glob(f"*{fmt.upper()}"))
+    
+    if not image_files:
+        print(f"No supported images found in: {args.directory}")
+        print(f"Supported formats: {', '.join(SUPPORTED_FORMATS)}")
+        return 1
+    
+    image_files = sorted(set(image_files))  # Remove duplicates and sort
+    total = len(image_files)
+    
+    print(f"Found {total} image(s) to process")
+    if args.enhance:
+        print("  + Enhancement enabled")
+    if args.restore_slide:
+        print(f"  + Slide restoration enabled ({args.restore_slide} profile)")
+    print()
+    
+    success_count = 0
+    for idx, image_path in enumerate(image_files, 1):
+        image_stem = image_path.stem
+        analysis_dir = Path(output_dir) / image_stem
+        analysis_dir.mkdir(exist_ok=True)
+        
+        analyzed_path = analysis_dir / f"{image_stem}_analyzed.jpg"
+        enhanced_path = analysis_dir / f"{image_stem}_enhanced.jpg" if args.enhance else None
+        restored_path = analysis_dir / f"{image_stem}_restored.jpg" if args.restore_slide else None
+        
+        print(f"[{idx}/{total}] Processing: {image_path.name}")
+        
+        try:
+            # Step 1: Analyze
+            analysis = analyzer.analyze_and_save(str(image_path), str(analyzed_path), save_json=True)
+            
+            # Step 2: Enhance (optional)
+            enhanced_exists = False
+            if args.enhance and 'enhancement' in analysis:
+                result = enhancer.enhance_from_analysis(str(analyzed_path), analysis['enhancement'], str(enhanced_path))
+                if result:
+                    EXIFHandler.copy_exif(str(analyzed_path), str(enhanced_path), str(enhanced_path))
+                    enhanced_exists = True
+            
+            # Step 3: Restore slide (optional)
+            if args.restore_slide:
+                restore_input = str(enhanced_path) if (args.enhance and enhanced_exists) else str(analyzed_path)
+                
+                if args.restore_slide == 'auto':
+                    SlideRestoration.auto_restore_slide(
+                        restore_input,
+                        analysis,
+                        str(restored_path)
+                    )
+                else:
+                    SlideRestoration.restore_slide(
+                        restore_input,
+                        profile=args.restore_slide,
+                        output_path=str(restored_path)
+                    )
+                
+                if Path(restored_path).exists():
+                    EXIFHandler.copy_exif(str(analyzed_path), str(restored_path), str(restored_path))
+            
+            success_count += 1
+            print(f"  ✓ Complete")
+            
+        except Exception as e:
+            print(f"  ✗ Error: {e}")
+    
+    print(f"\n{'='*50}")
+    print(f"Batch processing complete: {success_count}/{total} successful")
+    print(f"Output directory: {output_dir}")
     
     return 0
 
