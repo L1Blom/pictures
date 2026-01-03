@@ -7,289 +7,289 @@
 | # | Image | Objects | Persons | Weather | Mood |
 |---|-------|---------|---------|---------|------|
 | 1 | 20240906_230318887_iOS | pavement, lamps, bushes, fences, billboards, buildings, construction cranes, cars, street lights | Three individuals, two appearing in the distance walking and one sitting on steps | Sunny with clear skies | The image exudes a calm and somewhat urban industrial atmosphere with construction and clear skies combining a sense of growth and normalcy. |
-| 2 | 20240910_214630332_iOS | Display screen showing a technical presentation, Presentation contents including text and diagram, Room walls and possible shadows | No persons visible | Not visible/Not applicable | N/A |
-| 3 | 20240907_213019954_iOS | Old steam locomotive, Wooden fences, Wagon wheels, Scattered wooden and metal debris, Trees, Palms, Mountains in the background | No visible persons | Sunny with few clouds | N/A |
-| 4 | 20240907_204159536_iOS | Dry riverbed, Mountain ranges, Sky, Sand and rocks | No persons visible in the image | Sunny with some scattered clouds | N/A |
-| 5 | 20240912_180710880_iOS | Presentation slide showing information about NVIDIA NIM, Icons representing different AI models: Speech, Digital Human, Computer Vision, Biology, Simulation, Language, Regional Language, Vision Language, RAG, Red Hat OpenShift AI logo, TV or monitor displaying the slide | No real persons visible, only caricatured representations in the digital human and other model icons. | Indoor scene; external weather conditions not applicable. | N/A |
+| 2 | 20240910_214630332_iOS | Display screen showing a technical presentation, Presentation contents including text and diagram, Room walls and possible shadows | No persons visible | Not visible/Not applicable | Informative and professional, suitable for a technical or business presentation |
+| 3 | 20240907_213019954_iOS | Old steam locomotive, Wooden fences, Wagon wheels, Scattered wooden and metal debris, Trees, Palms, Mountains in the background | No visible persons | Sunny with few clouds | Historic, rustic, abandoned |
+| 4 | 20240907_204159536_iOS | Dry riverbed, Mountain ranges, Sky, Sand and rocks | No persons visible in the image | Sunny with some scattered clouds | Arid, desolate, yet majestic due to the vast wilderness and rugged terrain |
+| 5 | 20240912_180710880_iOS | Presentation slide showing information about NVIDIA NIM, Icons representing different AI models: Speech, Digital Human, Computer Vision, Biology, Simulation, Language, Regional Language, Vision Language, RAG, Red Hat OpenShift AI logo, TV or monitor displaying the slide | No real persons visible, only caricatured representations in the digital human and other model icons. | Indoor scene; external weather conditions not applicable. | Informative and professional, themed around technology and AI. |
 | 6 | 20240903_195529211_iOS | Four bottles of wine labeled Ratti Barolo Marcenasco 2020, Chateau Branas Grand Poujeaux 2019, Tokara Director's Reserve 2019, and Masi Costasera Amarone Classico 2019, Piano in the background, Sheet music on piano | No persons visible in the image. | Weather conditions are not visible as the image appears to be taken indoors. | The image has a cultured and refined atmosphere, likely to evoke a sense of leisure and appreciation for fine wines. |
-| 7 | 20240907_160806760_iOS | Car dashboard, Rearview mirror, Windshield, Car vent holder, Car interior items like papers and a towel | Partially visible person, only hand and partial shoulder seen, likely a driver | Partly cloudy | N/A |
-| 8 | 20240912_221554253_iOS | Yellow metal structure with circular ornamental shape, light bulbs attached to the structure, supporting beam | No persons are visible in the image. | Sunny | N/A |
-| 9 | 20240907_215050258_iOS | Vehicle dashboard, Rearview mirror, Windshield, Phone mount, Cleaning cloth, Paper depository receipts, Gravel road, Desert landscape (mountains and dirt) | No visible persons | Sunny | N/A |
+| 7 | 20240907_160806760_iOS | Car dashboard, Rearview mirror, Windshield, Car vent holder, Car interior items like papers and a towel | Partially visible person, only hand and partial shoulder seen, likely a driver | Partly cloudy | The mood is serene and adventurous, typical of a road trip in a quiet, expansive desert environment. |
+| 8 | 20240912_221554253_iOS | Yellow metal structure with circular ornamental shape, light bulbs attached to the structure, supporting beam | No persons are visible in the image. | Sunny | The image conveys a stark and minimalist atmosphere due to the clear sky and the isolated structure. |
+| 9 | 20240907_215050258_iOS | Vehicle dashboard, Rearview mirror, Windshield, Phone mount, Cleaning cloth, Paper depository receipts, Gravel road, Desert landscape (mountains and dirt) | No visible persons | Sunny | Rugged, adventurous, and isolated |
 | 10 | 20240912_221853281_iOS | Illustrated map on a curved display, Famous locations and iconic symbols of Las Vegas such as casinos and landmarks, Metal base and top of the display, Palm trees illustrated, Scanned QR codes, Shopping baskets on top of the display | No persons are visible in this image. | Sunny, as indicated by clear skies and strong shadows. | The image has a vibrant and informative feel, showcasing the historical and cultural aspects of Las Vegas. |
-| 11 | 20240912_220954593_iOS | Large vintage neon signs, some with lettering (Cafe, Hotel, Casino, Stardust), metal poles, informational placards, concrete floor, distant buildings | No visible persons in this image | Sunny, clear skies | N/A |
+| 11 | 20240912_220954593_iOS | Large vintage neon signs, some with lettering (Cafe, Hotel, Casino, Stardust), metal poles, informational placards, concrete floor, distant buildings | No visible persons in this image | Sunny, clear skies | Historic, nostalgic, colorful, outdoor museum-like setting |
 | 12 | 20240902_205911473_iOS | Curtains, Table, Chairs, Sofa, Cups, Plates, Coffee table, Indoor plants, Paperwork, Decorative items, Telephone | A young woman with long hair, seated on a sofa, wearing a blue top. She appears to be holding a marionette or a small puppet.; An older man seated in an armchair, wearing glasses and a gray sweater. He is holding a book or magazine.; Another young person, appears male, wearing a plaid shirt. He is seated with his elbow on the table, looking at the woman. | Indoor scene — not applicable | Casual and relaxed, possibly a family gathering in a cozy living room. |
-| 13 | 20240912_221346752_iOS | variety of vintage neon signs, giant guitar sign, Red Barn sign, giant skull, metal sculptures, chain link fences, concrete barriers | Three individuals are visible in the background, walking along the path between the exhibits. | Sunny with blue skies and no visible clouds. | N/A |
-| 14 | 20240908_215633830_iOS | several pickup trucks, driving direction arrow on the ground, parking lot structures (pillars and ceiling), metal fences | One person is visible walking in the parking lot, dressed in a dark color jacket and lighter pants. | Not visible due to the indoor setting | N/A |
-| 15 | 20240907_213151384_iOS | street, palm trees, telephone pole, power lines, dry vegetation on sides, cracked pavement | No people visible | Sunny with few clouds | N/A |
-| 16 | 20240907_021901354_iOS | Sidewalk, The Mirage Casino & Resort sign, People, Palm trees, Streetlights, Billboards, Buildings | Multiple people are visible, walking along the sidewalk. They appear to be adults of varying ages, dressed in casual attire. | The sky is clear without visible clouds, suggesting fair weather conditions. | N/A |
+| 13 | 20240912_221346752_iOS | variety of vintage neon signs, giant guitar sign, Red Barn sign, giant skull, metal sculptures, chain link fences, concrete barriers | Three individuals are visible in the background, walking along the path between the exhibits. | Sunny with blue skies and no visible clouds. | The scene is dynamic and colorful, reflecting a vibrant and historical atmosphere typical of a museum outdoor exhibit. |
+| 14 | 20240908_215633830_iOS | several pickup trucks, driving direction arrow on the ground, parking lot structures (pillars and ceiling), metal fences | One person is visible walking in the parking lot, dressed in a dark color jacket and lighter pants. | Not visible due to the indoor setting | The environment feels utilitarian and somewhat deserted, except for the presence of one person and multiple parked trucks. |
+| 15 | 20240907_213151384_iOS | street, palm trees, telephone pole, power lines, dry vegetation on sides, cracked pavement | No people visible | Sunny with few clouds | Desolate, tranquil |
+| 16 | 20240907_021901354_iOS | Sidewalk, The Mirage Casino & Resort sign, People, Palm trees, Streetlights, Billboards, Buildings | Multiple people are visible, walking along the sidewalk. They appear to be adults of varying ages, dressed in casual attire. | The sky is clear without visible clouds, suggesting fair weather conditions. | The image conveys a lively and vibrant atmosphere typical of a bustling city street at dusk. |
 | 17 | 20240905_110257000_iOS | Text Display | There are no people visible in the image. | Not applicable since the image is a simple text display. | The image is neutral, displaying only textual information without any mood or emotional content. |
-| 18 | 20240907_184305112_iOS | temperature display sign showing 112°F/44°C, mosaic art panel, mountainous background, concrete stand, desert ground | No persons visible in the image. | Sunny with clear skies. | N/A |
-| 19 | 20240921_193118000_iOS | green sports car, horse, road, grassland, shrubs | No visible persons in the image | Partly cloudy | N/A |
-| 20 | 20240911_035815584_iOS | giant spherical building with digital display, cars, street lamps, pedestrian sidewalk | Several individuals are visible walking on the sidewalk; their features are not distinct due to the nighttime lighting. | The sky is clear, indicative of likely dry and fair weather conditions. | N/A |
-| 21 | 20240907_201249377_iOS | N/A | N/A | N/A | N/A |
+| 18 | 20240907_184305112_iOS | temperature display sign showing 112°F/44°C, mosaic art panel, mountainous background, concrete stand, desert ground | No persons visible in the image. | Sunny with clear skies. | The image conveys a sense of extreme heat and barrenness, typical of a desert landscape under harsh sunlight. |
+| 19 | 20240921_193118000_iOS | green sports car, horse, road, grassland, shrubs | No visible persons in the image | Partly cloudy | Peaceful and natural |
+| 20 | 20240911_035815584_iOS | giant spherical building with digital display, cars, street lamps, pedestrian sidewalk | Several individuals are visible walking on the sidewalk; their features are not distinct due to the nighttime lighting. | The sky is clear, indicative of likely dry and fair weather conditions. | The scene is vibrant and bustling, typical of a busy urban night with bright lights and active traffic. |
+| 21 | 20240907_201249377_iOS | N/A | N/A | N/A | The image conveys a stark and uninhabited environment, highlighted by the vast and textured salt flats under a clear blue sky |
 | 22 | 20240906_073139247_iOS | Cars, Parking garage, Sign ('Garage', 'Rij 52', 'Windsurfen'), Concrete columns, Floor with tire marks | No visible people | The sky outside the garage appears clear, suggesting sunny or mostly sunny conditions | Functional, orderly environment typical of a parking garage |
 | 23 | 20240907_194107314_iOS | Salt flats, Mountains, Sky, Footpath | Three visible people: one walking towards the salt flats, detached from the other two who are conversing. All dressed casually and suitably for a hot, dry environment. | Sunny with clear skies | The image conveys a sense of vastness and isolation, underscored by the arid and expansive scenery. |
-| 24 | 20240907_172346404_iOS | information sign, 3D topographic map, metal frame | No visible persons in the image | Sunny, as indicated by the clear shadows on the ground | N/A |
-| 25 | 20240910_210932602_iOS | Presentation screen displaying information about Oracle Gen2 Cloud Network and ZPR Software, Audience chairs filled with people, People | The image shows a crowd of people seated, facing towards a large presentation screen. They appear engaged in viewing the presentation. | Not applicable as the setting appears to be indoors. | N/A |
-| 26 | 20240907_183338333_iOS | Exhibit panels, informational displays, wooden benches, floor carpet | No people are visible in the image. | Not applicable as the scene is indoors. | N/A |
-| 27 | 20240912_221245077_iOS | Cartoon-style sign with a character wearing a sombrero, MOTEL sign letters, Midsection of letters from restaurant sign with fruit images, Light bulbs around the signs | No visible people in the image | Clear and sunny | N/A |
-| 28 | 20240910_185207827_iOS | Plate of food containing rice, breaded chicken, salad, broccoli, and a creamy sauce dish, Compostable plate, Napkins, Tablecloth | No people visible in the image | Not applicable as the image is taken indoors | N/A |
-| 29 | 20240912_202101844_iOS | LED screen ceiling, People, Stores and stalls, Street signs, Lighting fixtures, Ground-mounted poles | Multiple people of various genders and ages are visible, walking or standing, some are holding cups. | Not applicable, this is an indoor scene. | N/A |
+| 24 | 20240907_172346404_iOS | information sign, 3D topographic map, metal frame | No visible persons in the image | Sunny, as indicated by the clear shadows on the ground | Educational and informative, with a detailed presentation of geographical information |
+| 25 | 20240910_210932602_iOS | Presentation screen displaying information about Oracle Gen2 Cloud Network and ZPR Software, Audience chairs filled with people, People | The image shows a crowd of people seated, facing towards a large presentation screen. They appear engaged in viewing the presentation. | Not applicable as the setting appears to be indoors. | The mood is focused and academic, suggesting a professional or educational conference setting. |
+| 26 | 20240907_183338333_iOS | Exhibit panels, informational displays, wooden benches, floor carpet | No people are visible in the image. | Not applicable as the scene is indoors. | Educational and informative, with a calm and quiet ambiance typical of a museum or exhibition space. |
+| 27 | 20240912_221245077_iOS | Cartoon-style sign with a character wearing a sombrero, MOTEL sign letters, Midsection of letters from restaurant sign with fruit images, Light bulbs around the signs | No visible people in the image | Clear and sunny | Vibrant and nostalgic, typical of roadside Americana |
+| 28 | 20240910_185207827_iOS | Plate of food containing rice, breaded chicken, salad, broccoli, and a creamy sauce dish, Compostable plate, Napkins, Tablecloth | No people visible in the image | Not applicable as the image is taken indoors | The image conveys a casual dining setting, possibly at an event or a buffet |
+| 29 | 20240912_202101844_iOS | LED screen ceiling, People, Stores and stalls, Street signs, Lighting fixtures, Ground-mounted poles | Multiple people of various genders and ages are visible, walking or standing, some are holding cups. | Not applicable, this is an indoor scene. | The atmosphere is lively and bustling with activity, underscored by bright and colorful lights. |
 | 30 | 20240907_233445214_iOS | Rearview mirror, Dashboard, Car windshield, Mobile device holder, Speedometer cluster, Left turn signal, Road signs (Crazyhorse Street, Crossroad sign), Windshield wipers, Folded towel, Paper | Top of people's heads are visible | Foggy or dusty with reduced visibility | The image conveys a slightly tense or cautious feeling due to poor visibility on the road |
-| 31 | 20240907_201416087_iOS | hole in the ground filled with muddy water, shadows of a person taking a photo, footprint impressed into the salty, clay-like surface | No direct depiction of persons, only the shadow of the person taking the photo is visible. | Sunny, as indicated by the clear shadows and bright sunlight | N/A |
+| 31 | 20240907_201416087_iOS | hole in the ground filled with muddy water, shadows of a person taking a photo, footprint impressed into the salty, clay-like surface | No direct depiction of persons, only the shadow of the person taking the photo is visible. | Sunny, as indicated by the clear shadows and bright sunlight | The image appears stark and somewhat desolate, conveying a sense of isolation. |
 | 32 | 20240907_150250410_iOS | Roadway extending into the distance, Vinyl dashboard with textures, Smartphone mount, Rearview mirror, Cloth (possibly a towel) on dashboard, Windshield wipers, Mountain range | A person is partially visible, specifically a portion of their blonde hair on the left side of the image. | Clear skies and sunny conditions. | The image conveys a feeling of peacefulness and isolation, often associated with long road trips or drives in remote areas. |
 | 33 | 20240912_180435686_iOS | Presentation slide showing a model's lifecycle for operationalization, Text headings and labels, Various icons representing steps in the lifecycle such as 'Gather and prepare data', 'Develop model', 'Deploy model', 'Monitor model' | No persons visible in the image | Not applicable as the image displays an indoor object | Educational and informative with a structured and professional layout |
-| 34 | 20240905_162955193_iOS | Water bottles, Sunglasses, Fast food containers, Mobile phone, Colored markers on a table, Drinking cups, Food items | Two children (girls) and one adult woman visible, interacting and eating | Not visible directly, indoor location | N/A |
-| 35 | 20240911_002223475_iOS | Digital display screen showing a leaderboard, Points and names of participants, Customer Success Champions banner, Oracle CloudWorld text, Dialog box with 'Network Error' message | There are images of people displayed on the leaderboard, representing participants or champions. | Not applicable, as the image is taken indoors. | N/A |
+| 34 | 20240905_162955193_iOS | Water bottles, Sunglasses, Fast food containers, Mobile phone, Colored markers on a table, Drinking cups, Food items | Two children (girls) and one adult woman visible, interacting and eating | Not visible directly, indoor location | Casual, joyful with visible smiles and relaxed posture |
+| 35 | 20240911_002223475_iOS | Digital display screen showing a leaderboard, Points and names of participants, Customer Success Champions banner, Oracle CloudWorld text, Dialog box with 'Network Error' message | There are images of people displayed on the leaderboard, representing participants or champions. | Not applicable, as the image is taken indoors. | Professional and competitive, emphasized by the leaderboard style display. The context is likely a business or tech event. |
 | 36 | 20240907_204317957_iOS | mountains, rocks, dirt path, sparse vegetation, sky, clouds | no visible persons | sunny with some clouds | arid, rugged, and expansive |
-| 37 | 20240907_172742213_iOS | mountains, road, shrubs, desert-like terrain, sparse vegetation, clear sky | No visible persons | Sunny | N/A |
+| 37 | 20240907_172742213_iOS | mountains, road, shrubs, desert-like terrain, sparse vegetation, clear sky | No visible persons | Sunny | The image conveys a sense of solitude and serenity, highlighting the vast, open and rugged landscape typical of a desert environment. |
 | 38 | 20240912_220948000_iOS | Neon signs such as 'La Concha', 'Stardust', 'Stardust Resort Casino', Metal sign structures in various shapes including stars and a large spade shape with a crescent design, Ladder, Concrete platform | There are no visible persons in the image. | The sky is clear and sunny. | The image conveys a nostalgic and historic atmosphere, reminiscent of old Las Vegas. |
-| 39 | 20240907_164506093_iOS | road, mountains, vegetation on the sides, road signs | No persons visible in the image | Sunny | N/A |
+| 39 | 20240907_164506093_iOS | road, mountains, vegetation on the sides, road signs | No persons visible in the image | Sunny | Desolate and tranquil, with a sense of isolation |
 | 40 | 20240909_001517696_iOS | Eiffel Tower replica, Balloon-like structure with 'Paris' text, Palm trees, Street signs, Billboards, Vehicles, Roads, Buildings | Multiple pedestrians visible on the sidewalk, including men and women of various ages, walking or pausing to look. | Overcast, as indicated by the cloudy sky and lack of direct sunlight. | The atmosphere appears lively and vibrant, typical of a busy urban tourist area. |
-| 41 | 20240907_194548287_iOS | salt flats, mountains, sky, sparse vegetation | No persons visible | Partly cloudy | N/A |
-| 42 | 20240907_224855771_iOS | Metal corrugated wall with signs/advertisements for Route US 66, Coca-Cola, and Texaco Gasoline Motor Oil, Wooden structure with a cartoonish wooden figure, Reserved parking sign and a vintage wagon wheel near the entrance | No visible people in the image | Mostly sunny with some clouds | N/A |
-| 43 | 20240907_194031343_iOS | salt formations, distant mountains, barren landscape | No visible persons | Sunny | N/A |
-| 44 | 20240907_160722196_iOS | car dashboard, windshield, rearview mirror, dashboard items (towels, papers), smartphone holder, car interior parts (air vents, radio), exterior road, mountainous desert landscape, sky | Partial left side view of a person's head (likely a woman based on hairstyle) visible at the left edge. | Sunny, with clear skies indicating no visible clouds or signs of precipitation. | N/A |
-| 45 | 20240909_201409141_iOS | Text labels, Icons, Colored rectangles corresponding to different layers of technology | No people are visible in the image. | Weather conditions are not applicable to this indoor image. | N/A |
+| 41 | 20240907_194548287_iOS | salt flats, mountains, sky, sparse vegetation | No persons visible | Partly cloudy | Arid, barren, expansive |
+| 42 | 20240907_224855771_iOS | Metal corrugated wall with signs/advertisements for Route US 66, Coca-Cola, and Texaco Gasoline Motor Oil, Wooden structure with a cartoonish wooden figure, Reserved parking sign and a vintage wagon wheel near the entrance | No visible people in the image | Mostly sunny with some clouds | Retro and nostalgic due to the vintage advertising signs |
+| 43 | 20240907_194031343_iOS | salt formations, distant mountains, barren landscape | No visible persons | Sunny | Harsh, desolate, and arid |
+| 44 | 20240907_160722196_iOS | car dashboard, windshield, rearview mirror, dashboard items (towels, papers), smartphone holder, car interior parts (air vents, radio), exterior road, mountainous desert landscape, sky | Partial left side view of a person's head (likely a woman based on hairstyle) visible at the left edge. | Sunny, with clear skies indicating no visible clouds or signs of precipitation. | The atmosphere feels adventurous and tranquil, with an open road in a sparse, sunny desert landscape. |
+| 45 | 20240909_201409141_iOS | Text labels, Icons, Colored rectangles corresponding to different layers of technology | No people are visible in the image. | Weather conditions are not applicable to this indoor image. | The image conveys a professional and structured atmosphere, typical of a business or technical presentation. |
 | 46 | 20240907_164414678_iOS | Death Valley National Park signboard, mountains, sky, bushes, small rocks on the ground | No persons visible in the image | Sunny | Barren, dry, and isolated, but also majestic and serene due to the vast natural landscape |
 | 47 | 20240907_194434928_iOS | mountains, salt flat, salt deposits | No visible persons | Sunny with few clouds | Barren, remote, expansive, and intensely sunny |
-| 48 | 20240910_013216683_iOS | Hotel building, Fountains, Palm trees, Small architectural structures near the water | No visible persons | Partly cloudy, as seen in the background | N/A |
+| 48 | 20240910_013216683_iOS | Hotel building, Fountains, Palm trees, Small architectural structures near the water | No visible persons | Partly cloudy, as seen in the background | Grand and tranquil; a sense of luxury and relaxation emanates from the scene |
 | 49 | 20240907_003654323_iOS | The Venetian hotel, palm trees, street lamps, cars, an elevated camera equipment | No clearly identifiable people present in the image. | Sunny with clear skies | The scene conveys a vibrant and bustling urban environment, typical of a busy city with iconic architecture. |
 | 50 | 20240907_201033397_iOS | Rocky hillside, Small white sign or marker | No visible persons | Sunny with minor cloud presence | Rugged, stark, and dry environment typical of a desert or arid area |
-| 51 | 20240907_173103562_iOS | mountains, white salt flats, sparse vegetation, sky, clouds | One adult male wearing a red t-shirt, black shorts, and a cap, standing on the left side of the frame, looking towards the landscape. | Sunny with sparse clouds | N/A |
-| 52 | 20240907_184315595_iOS | Thermometer displaying temperature, Information sign next to thermometer, Desert landscape (mountains, sparse vegetation), Concrete base and pebbles | One male, wearing a red-orange striped T-shirt, blue shorts, and light-colored sneakers, standing next to a thermometer. | Sunny | N/A |
-| 53 | 20240907_194547426_iOS | Salt formations, Dirt, Mountain range, Sky | No visible persons in the image | Sunny with clear skies | N/A |
+| 51 | 20240907_173103562_iOS | mountains, white salt flats, sparse vegetation, sky, clouds | One adult male wearing a red t-shirt, black shorts, and a cap, standing on the left side of the frame, looking towards the landscape. | Sunny with sparse clouds | The image conveys a sense of adventure and vastness, emphasizing solitude amidst a dramatic natural landscape. |
+| 52 | 20240907_184315595_iOS | Thermometer displaying temperature, Information sign next to thermometer, Desert landscape (mountains, sparse vegetation), Concrete base and pebbles | One male, wearing a red-orange striped T-shirt, blue shorts, and light-colored sneakers, standing next to a thermometer. | Sunny | Hot, clear and dry desert environment |
+| 53 | 20240907_194547426_iOS | Salt formations, Dirt, Mountain range, Sky | No visible persons in the image | Sunny with clear skies | Arid, barren, desolate |
 | 54 | 20240907_172716235_iOS | Rugged terrain, Mountain ridges, Sparse low shrubs, Trail | One person visible in the distance, appears small due to perspective, wearing light-colored clothing suitable for hiking | Sunny with few light clouds | This image conveys a sense of solitude and vastness, accentuated by the expansive landscape and minimal human presence. |
-| 55 | 20240912_221942358_iOS | Signs for 'The Flame', 'Barbary Coast Casino', 'Steak', 'Prime Rib', 'Breakfast-Lunch-Dinner', '24 HRS', 'American Express cards accepted' | No visible people in the image | Sunny with clear skies | N/A |
-| 56 | 20240912_050944250_iOS | hanging chair, pillows, blue lights | One person visible, apparently male, seen sitting in the hanging chair in a relaxed pose with eyes closed. | Not discernible as the image is taken indoors. | N/A |
-| 57 | 20240912_221247598_iOS | Signboard with text 'MOT', depictions of a smiling animated character wearing a traditional Mexican hat, Light bulbs arranged around the sign | No real persons visible, only an animated character depicted on the sign | Sunny, clear blue sky | N/A |
-| 58 | 20240908_202838836_iOS | N/A | Not detected | Unknown | N/A |
-| 59 | 20240907_204447490_iOS | mountains, trails, colored mineral deposits | No visible persons | Sunny with clear blue skies | N/A |
+| 55 | 20240912_221942358_iOS | Signs for 'The Flame', 'Barbary Coast Casino', 'Steak', 'Prime Rib', 'Breakfast-Lunch-Dinner', '24 HRS', 'American Express cards accepted' | No visible people in the image | Sunny with clear skies | Vintage and nostalgic, showcasing an array of old neon signs from extinct establishments |
+| 56 | 20240912_050944250_iOS | hanging chair, pillows, blue lights | One person visible, apparently male, seen sitting in the hanging chair in a relaxed pose with eyes closed. | Not discernible as the image is taken indoors. | The mood is tranquil and serene, emphasized by the surrounding blue lighting and relaxed posture of the person. |
+| 57 | 20240912_221247598_iOS | Signboard with text 'MOT', depictions of a smiling animated character wearing a traditional Mexican hat, Light bulbs arranged around the sign | No real persons visible, only an animated character depicted on the sign | Sunny, clear blue sky | Cheerful and colorful, likely intended to be inviting |
+| 58 | 20240908_202838836_iOS | N/A | Not detected | Unknown | Unknown |
+| 59 | 20240907_204447490_iOS | mountains, trails, colored mineral deposits | No visible persons | Sunny with clear blue skies | Rugged, arid, and peaceful with a sense of natural beauty |
 | 60 | 20240907_172428529_iOS | Plaque on wall, stones, bricks, stone wall | No persons visible | Sunny | Reflective and commemorative |
 | 61 | 20240912_220837136_iOS | Reception desk, Artwork, Fire extinguisher, Safety signs, Speakers, Client management system monitor, Office chair, Cabinet | One male at the reception desk interacting with the computer, wearing a black t-shirt and shorts. Another person, possibly female, sitting at the desk facing away from the camera. | Indoor setting; outdoor weather not visible | The interior appears clean and well-maintained, suggesting a professional and organized atmosphere. |
 | 62 | 20240912_214606227_iOS | street lamps, street signs, palm trees, El Cortez sign, buildings, road, sidewalk, utility poles | No people visible in the image. | Sunny with clear skies. | The image has a warm and tranquil mood, typical for a sunny day in a quiet urban area. |
 | 63 | 20240912_203702025_iOS | Sign post with prohibitory notices, Images illustrating prohibitions (marijuana leaf, dog, beer can/bottle, bicycle/skateboard, motorized scooter, chairs/carts/wagons), Buildings in the background, Sidewalk floor | One person visible from the side, dressed casually with a patterned shirt and shorts | Not directly observable, but the bright and clear atmosphere suggests a sunny day | The atmosphere is busy, typical of a public, urban space during daytime. |
 | 64 | 20240907_194228680_iOS | mountains, white salt flat, clouds, small rocks scattered on the ground, pink truck | Yes, two visible persons; one is wearing a blue shirt and jeans, and the other is partially visible with a grey colored outfit. Both appear to be adults. | Sunny with some cumulus clouds in the sky | The landscape is stark and vast, evoking a sense of isolation and untouched natural beauty. The bright sunlight enhances the serene yet harsh characteristics of the salt flat. |
-| 65 | 20240908_180149218_iOS | People sitting in pews, Projector screen displaying text, Ceiling with wooden beams, Stage with curtains and cross decorations, Mounted lights, Windows, Wall-mounted air conditioning unit | Multiple individuals (mostly adults) seen from behind and focused on the front, likely engaged in an activity related to the displayed content on the projector. | Indoor setting - external weather conditions not visible. | N/A |
-| 66 | 20240906_093049624_iOS | man with headphones around his neck, various seated people, handrail, airport chairs, glass windows, airport signage, security cameras | Man in foreground, middle-aged, wearing glasses, with headphones around his neck, sporting a casual black T-shirt.; Other people in the background, seated and standing, engaging in various activities such as looking at phones. | Not visible directly but implied indoor environment with sunlight filtering through windows indicating possibly sunny weather. | N/A |
-| 67 | 20240907_185634001_iOS | Pink van with open door, People, Parking lot, Paved walkway, Distant mountains, Covered picnic area, Sparse vegetation, Birds in the sky | Five people visible, some entering/exiting the pink van, with two of them looking towards the van and the others walking or facing away. | Sunny with clear skies | N/A |
+| 65 | 20240908_180149218_iOS | People sitting in pews, Projector screen displaying text, Ceiling with wooden beams, Stage with curtains and cross decorations, Mounted lights, Windows, Wall-mounted air conditioning unit | Multiple individuals (mostly adults) seen from behind and focused on the front, likely engaged in an activity related to the displayed content on the projector. | Indoor setting - external weather conditions not visible. | The environment is tranquil and solemn, typical of a religious gathering, focused and reflective. |
+| 66 | 20240906_093049624_iOS | man with headphones around his neck, various seated people, handrail, airport chairs, glass windows, airport signage, security cameras | Man in foreground, middle-aged, wearing glasses, with headphones around his neck, sporting a casual black T-shirt.; Other people in the background, seated and standing, engaging in various activities such as looking at phones. | Not visible directly but implied indoor environment with sunlight filtering through windows indicating possibly sunny weather. | Busy, typical of an airport setting, slightly relaxed mood with people casually waiting. |
+| 67 | 20240907_185634001_iOS | Pink van with open door, People, Parking lot, Paved walkway, Distant mountains, Covered picnic area, Sparse vegetation, Birds in the sky | Five people visible, some entering/exiting the pink van, with two of them looking towards the van and the others walking or facing away. | Sunny with clear skies | The mood appears adventurous, with a group possibly starting or ending a recreational activity. |
 | 68 | 20240910_014623404_iOS | Table, Chairs, Drinks, Glasses, Smartphones, Event badges | Six middle-aged Caucasian men wearing casual shirts and pants, some with glasses, seated around a table outdoors. Each man shows a relaxed or smiling expression. | Sunny, with clear blue skies indicating no visible clouds or inclement weather. | Leisurely and social, indicating a casual gathering, likely a friendly or professional meetup. |
 | 69 | 20240907_200109981_iOS | road, desolate landscape, mountains, clouds, flat salt pan | There are no visible persons in the image. | The weather is sunny with few clouds. | The atmosphere is barren, desolate, and expansive, emphasizing a feeling of isolation and ruggedness. |
 | 70 | 20240912_223210461_iOS | sign with 'Riviera Tropicana' in neon letters, metal stars on the sign, glass doors, metal chairs, metal table, awning structure | A woman visible on the right, walking away, mostly obscured by a door frame. | Sunny with clear skies reflected in the glass doors | The image conveys a lively and inviting atmosphere, typically found in leisure or vacation destinations. |
 | 71 | 20240907_184901670_iOS | Furnace Creek Visitor Center sign, sandwich board sign, temperature display sign, stone landscaping, mountains in the background, bicycle rack, dirt and sparse vegetation | Two persons. One with white short-sleeved shirt, shorts, and white sneakers. Other in yellow t-shirt, beige shorts, and dark sneakers. Both wearing sunglasses and appearing to converse. | Sunny with clear skies | The scene conveys a hot and arid mood with a sense of rugged outdoor adventure. |
-| 72 | 20240902_205902823_iOS | Person, Newspaper, Pillow, Chair, Plant, Clock, Wall decorations | One visible older adult male, wearing glasses and a sweater, seated and reading a newspaper. | Not applicable (indoor scene) | N/A |
-| 73 | 20240911_043018452_iOS | Large pentagonal structure with illuminated rods, cables, columns, some barriers, and floor circles for standing | Multiple people visible; they are scattered across the floor, either grouped or walking, and are too distant to describe specifics | Not applicable as this is an indoor setting | N/A |
+| 72 | 20240902_205902823_iOS | Person, Newspaper, Pillow, Chair, Plant, Clock, Wall decorations | One visible older adult male, wearing glasses and a sweater, seated and reading a newspaper. | Not applicable (indoor scene) | Cozy, relaxed, and tranquil atmosphere; the setting is warm and inviting. |
+| 73 | 20240911_043018452_iOS | Large pentagonal structure with illuminated rods, cables, columns, some barriers, and floor circles for standing | Multiple people visible; they are scattered across the floor, either grouped or walking, and are too distant to describe specifics | Not applicable as this is an indoor setting | Futuristic and vibrant due to the illuminated structural design and blue ambient lighting |
 | 74 | 20240907_201503568_iOS | Salt-covered ground, Trail leading into the distance, Sign with prohibition symbol, Rustic metal pole supporting the sign, Distant mountains, Sparse vegetation, Wooden pathway in the distance | No persons are visible in the image. | Sunny with clear skies. | The image conveys a desolate and barren mood, emphasizing the harsh, arid environment. |
-| 75 | 20240907_164714035_iOS | Road, parked van with opened trunk, directional signs, mountains, sandy terrain | Several individuals, male and female, mostly from behind, looking at the van or standing near the sign | Sunny | N/A |
+| 75 | 20240907_164714035_iOS | Road, parked van with opened trunk, directional signs, mountains, sandy terrain | Several individuals, male and female, mostly from behind, looking at the van or standing near the sign | Sunny | Explorative and casual |
 | 76 | 20240907_181548273_iOS | road, mountains, sky, sparse vegetation, car shadow, small rocks | No visible persons in the image | Sunny with some clouds | Rugged and arid desert environment under a vast, partly cloudy sky, conveying a sense of isolation and stark natural beauty |
-| 77 | 20240911_040450751_iOS | People walking, Reflective floor, Arched illuminated tunnels, Walls and pillars, Signage | Multiple people are visible, walking in various directions or standing. They are dressed casually, suggesting a public or recreational indoor setting. | Indoors—weather conditions are not applicable. | N/A |
-| 78 | 20240907_204535702_iOS | N/A | N/A | N/A | N/A |
+| 77 | 20240911_040450751_iOS | People walking, Reflective floor, Arched illuminated tunnels, Walls and pillars, Signage | Multiple people are visible, walking in various directions or standing. They are dressed casually, suggesting a public or recreational indoor setting. | Indoors—weather conditions are not applicable. | The atmosphere appears modern and vibrant, with a sense of motion and activity enhanced by the bright, colorful lighting. |
+| 78 | 20240907_204535702_iOS | N/A | N/A | N/A | The mood appears arid and resilient, typical of desert scenes. |
 | 79 | 20240911_042901328_iOS | Escalators, Figurative column sculpture, People, Large numerical displays, Hanging sculptural installation, Colorful ambient lighting | Multiple people are present. There are individuals on escalators and walking on different levels. | Not visible as the scene is indoors. | The atmosphere appears vibrant and contemporary due to colorful lighting and modern architectural design. |
 | 80 | 20240910_013253403_iOS | Hotel building, Palm trees, Fountains, Cars, Street, Statue | There are a few visible people on the street, but they are too distant to describe in detail. | Mostly clear with a few clouds. | The image conveys a serene and luxurious atmosphere, highlighted by the elegant architecture and dynamic fountains. |
 | 81 | 20240907_193026375_iOS | Dashboard, Windshield, Rearview mirror, Smartphone mounted on holder showing time '6:04', GPS device, Windshield wipers, Cleaning cloth, Road in front, Paper with text and handprint design under the windshield, Steering wheel (partially visible) | A person's arm is visible, indicating the presence of a driver, though not much detail is visible except the skin of the arm. | Sunny with clear skies, as indicated by the bright light and visibility conditions. | The image conveys a feeling of travel or a journey, possibly adventurous, given the rural or deserted road setting. |
-| 82 | 20240910_140929390_iOS | pancake, scrambled eggs, bacon, grilled pork, roasted vegetables (potatoes, peppers), fork, coffee mug | No persons visible in the image | Not clearly visible, but outdoor lighting suggests it might be a sunny or partially sunny day | N/A |
-| 83 | 20240910_215439458_iOS | TV screen displaying a diagram, wall, FortiWeb (WAF) HA Deployment on OCI diagram showing network architecture | No persons visible in the image | Not applicable as the setting is indoors | N/A |
-| 84 | 20240912_205623624_iOS | Large digital screen displaying wave imagery, Street lamps, Casino signs, Buildings, Red brick pavement | Multiple people visible walking or standing; predominantly adults in casual attire | Conditions appear sunny, as indicated by the shadows and brightness | N/A |
+| 82 | 20240910_140929390_iOS | pancake, scrambled eggs, bacon, grilled pork, roasted vegetables (potatoes, peppers), fork, coffee mug | No persons visible in the image | Not clearly visible, but outdoor lighting suggests it might be a sunny or partially sunny day | The setting appears relaxed and casual, likely a laid-back breakfast or brunch scenario |
+| 83 | 20240910_215439458_iOS | TV screen displaying a diagram, wall, FortiWeb (WAF) HA Deployment on OCI diagram showing network architecture | No persons visible in the image | Not applicable as the setting is indoors | Technical, informative, professional |
+| 84 | 20240912_205623624_iOS | Large digital screen displaying wave imagery, Street lamps, Casino signs, Buildings, Red brick pavement | Multiple people visible walking or standing; predominantly adults in casual attire | Conditions appear sunny, as indicated by the shadows and brightness | Lively and vibrant, typical of a busy entertainment district |
 | 85 | 20240910_235131793_iOS | Modified police vehicle with angular design, Police signage, Blue and red police lights, People attending a convention, Exhibition booths, Interior plants | Several individuals in various attire, engrossed in activities; one appears to be interacting near the vehicle, others are walking or standing in the convention area. | Indoor setting; not applicable | Busy and engaging, with a focus on the specialty vehicle showcased in a professional setting |
-| 86 | 20240907_204544906_iOS | pink SUV, grey car, people, rocky landscape, paved parking area, blue sky | Several persons present: a person on top of a rocky mound and four other persons standing or walking by the cars. | Sunny with some sparse clouds | N/A |
-| 87 | 20240912_224150980_iOS | Metal tables and chairs, neon signs, wire fencing, trees, benches, pavement, decorative rocks | No persons visible | Clear and sunny | N/A |
+| 86 | 20240907_204544906_iOS | pink SUV, grey car, people, rocky landscape, paved parking area, blue sky | Several persons present: a person on top of a rocky mound and four other persons standing or walking by the cars. | Sunny with some sparse clouds | Outdoor adventure and exploration feel under bright sunlight |
+| 87 | 20240912_224150980_iOS | Metal tables and chairs, neon signs, wire fencing, trees, benches, pavement, decorative rocks | No persons visible | Clear and sunny | Relaxed and inviting outdoor seating area, with an artistic, historical touch provided by neon signs |
 | 88 | 20240912_231415314_iOS | Tesla Cybertruck, White SUV, Stanchions with chains, Decorative building facade, ornate wooden ceiling beams | Several men, casual attire, one in a light gray top, one in black, interacting around the vehicles | The image appears to be taken on a clear day, as natural light illuminates the scene. | The atmosphere seems busy yet orderly, typical of a hotel or resort drop-off area. |
 | 89 | 20240911_042734909_iOS | Escalators, Stairs, Light columns with neon glow, Multiple people, Polished reflective floor, Ceiling structures | There are many people in the image, mostly adults, dressed in casual attire, and engaged in activities such as walking and interacting. | Not applicable as the setting is indoors. | The atmosphere is lively and modern, highlighted by vibrant lighting and a busy crowd. |
 | 90 | 20240907_165433921_iOS | Rocks of varying sizes, Sparse vegetation (bushes), Mountain ranges in the distance, Blue sky with few clouds, Shadow of a person (presumably the photographer) | No people are clearly visible, only a shadow of one person. | Sunny with some cloud cover | The image evokes a feeling of isolation and stark beauty typical of desert landscapes. |
-| 91 | 20240907_201104743_iOS | Walkway, Salt flats, Mountains, Water pools, Sky, Sand and rocks | Several people are visible walking on the walkway and far into the salt flats, indistinct due to distance. | Partly cloudy with enough sunlight. | N/A |
-| 92 | 20240928_142923000_iOS | Two children, Red and black sequin embellished shirt, Blue 'DREAM' shirt, Sofa, Wooden background | Two young girls with blonde hair, both smiling at the camera. One girl is wearing a blue shirt with the word 'DREAM' and is sitting on a sofa. The other has a red and black sequin embellished shirt with a design and is leaned against a wooden background. | Not visible in the image | N/A |
+| 91 | 20240907_201104743_iOS | Walkway, Salt flats, Mountains, Water pools, Sky, Sand and rocks | Several people are visible walking on the walkway and far into the salt flats, indistinct due to distance. | Partly cloudy with enough sunlight. | The atmosphere is serene and expansive, showcasing nature's vastness and the desolation of the salt flats. |
+| 92 | 20240928_142923000_iOS | Two children, Red and black sequin embellished shirt, Blue 'DREAM' shirt, Sofa, Wooden background | Two young girls with blonde hair, both smiling at the camera. One girl is wearing a blue shirt with the word 'DREAM' and is sitting on a sofa. The other has a red and black sequin embellished shirt with a design and is leaned against a wooden background. | Not visible in the image | The image conveys a cheerful and playful mood with both children smiling. |
 | 93 | 20240907_172656083_iOS | Bush, dry rocky terrain, salt flats, mountains | No persons visible in the image | Sunny | Arid, isolated, harsh |
-| 94 | 20240903_183957506_iOS | Dessert plate with multiple items including a small sponge cake, two scoops of ice cream, crème brûlée, pieces of fresh fruit, and various garnishes. | No persons visible | Not applicable, indoor shot | N/A |
-| 95 | 20240907_195549211_iOS | mountain range, salt flats, clouds, gravel or soil terrain | No persons visible in the image | Sunny with few clouds | N/A |
-| 96 | 20240910_163210254_iOS | Audience seats, Large presentation screens, Stage, Overhead lighting fixtures, Audio and broadcasting equipment, Decorative patterns on stage | There is a large audience visibly seated facing towards two presenters sitting on chairs on the stage. Additionally, the two presenters are being shown on large projection screens. | Indoor event, no weather conditions applicable | N/A |
+| 94 | 20240903_183957506_iOS | Dessert plate with multiple items including a small sponge cake, two scoops of ice cream, crème brûlée, pieces of fresh fruit, and various garnishes. | No persons visible | Not applicable, indoor shot | Appealing, gourmet, and indulgent |
+| 95 | 20240907_195549211_iOS | mountain range, salt flats, clouds, gravel or soil terrain | No persons visible in the image | Sunny with few clouds | The image conveys a stark, remote, and tranquil mood, emphasizing the vast, untouched landscape. |
+| 96 | 20240910_163210254_iOS | Audience seats, Large presentation screens, Stage, Overhead lighting fixtures, Audio and broadcasting equipment, Decorative patterns on stage | There is a large audience visibly seated facing towards two presenters sitting on chairs on the stage. Additionally, the two presenters are being shown on large projection screens. | Indoor event, no weather conditions applicable | The atmosphere appears professional, focused, and engaging, typical of a corporate or industry conference |
 | 97 | 20240911_035528500_iOS | spinning Ferris wheel with blue lights, cars on street, trees, street lamps, pavement | No visible persons | Night sky is clear | The image conveys a vibrant and energetic mood, highlighted by the brightly lit, spinning Ferris wheel against a nighttime background. |
 | 98 | 20240911_052326232_iOS | Mountains, Snow, Sky, Sun, Audience, Theater seats, Possible projection or physical set resembling a mountain landscape | Several individuals, mostly viewed from the back or side; majority appear to be adults, focusing on the scene | Sunny, clear skies | Engaged and awe-inspiring atmosphere, likely an immersive experience |
-| 99 | 20240910_181424437_iOS | People, sofas, carpet, ceiling lights, banners, windows | Multiple people visible, engaged in conversations, standing or sitting; includes a mix of genders and various attire from business casual to casual. | Not visible directly, but natural light suggests it might be clear outside. | N/A |
-| 100 | 20240907_195550345_iOS | salt flats, soil, mountains, clouds | No visible persons | Partly cloudy | N/A |
-| 101 | 20240907_194202131_iOS | Man, Salt flats, Mountain range, Clear sky, Cap, Sunglasses | One person visible. A man wearing a red T-shirt, blue shorts, sneakers, a cap, and sunglasses. | Sunny and clear | N/A |
-| 102 | 20240907_160810554_iOS | Vehicle interior/dashboard, Windshield, Road, Desert landscape, Mountains, Sky, Phone holder, Rearview mirror, Items on the dashboard | No clearly visible persons; partial view of a person's head and arm visible to left which is not detailed enough for further description | Sunny with clear skies | N/A |
+| 99 | 20240910_181424437_iOS | People, sofas, carpet, ceiling lights, banners, windows | Multiple people visible, engaged in conversations, standing or sitting; includes a mix of genders and various attire from business casual to casual. | Not visible directly, but natural light suggests it might be clear outside. | The scene is lively with a casual, interactive atmosphere common to a conference or a professional gathering. |
+| 100 | 20240907_195550345_iOS | salt flats, soil, mountains, clouds | No visible persons | Partly cloudy | Serene, isolated, vast |
+| 101 | 20240907_194202131_iOS | Man, Salt flats, Mountain range, Clear sky, Cap, Sunglasses | One person visible. A man wearing a red T-shirt, blue shorts, sneakers, a cap, and sunglasses. | Sunny and clear | Expansive and isolated, reflecting a sense of adventure and openness. |
+| 102 | 20240907_160810554_iOS | Vehicle interior/dashboard, Windshield, Road, Desert landscape, Mountains, Sky, Phone holder, Rearview mirror, Items on the dashboard | No clearly visible persons; partial view of a person's head and arm visible to left which is not detailed enough for further description | Sunny with clear skies | The image conveys a sense of adventure and exploration, typical of a road trip through a scenic, arid environment |
 | 103 | 20240907_213043083_iOS | Multiple old-fashioned wagons with varying cargo such as barrels and wooden crates, Wooden fences surrounding the wagons, Palm trees in the background, Various small ground covers and brush, Electrical poles and wires overhead, Cars parked in the distance | No people are visible in the image. | The weather appears sunny with clear blue skies. | The image conveys a historical, rustic atmosphere, possibly evoking a sense of nostalgia or the passage of time. |
 | 104 | 20240912_220329386_iOS | Neon signs, street poles, traffic lights, utility poles, cell tower, trees, shrubs, street intersection signs, Text indicating 'The Neon', 'Boneyard Park', 'Cashman Center' | No visible persons in the image | Sunny with clear skies | Bright and vibrant, typical sunny desert atmosphere |
-| 105 | 20240905_163013509_iOS | Table, fast food trays, food remnants, drinking glasses, orange juice bottle, smartphone, purse | Three people visible. An adult woman with blonde hair, a young girl with glasses and blonde hair, another young girl with light blonde hair. All are seated and appear engaged or entertained. | Not visible in the image | N/A |
-| 106 | 20240903_081414519_iOS | Piano, Chair, Leather Jackets, Wall Lamp, Ropes, Wood Panels | Three young males, two facing forward and one facing backward. Two wear leather jackets, and one wears a light jacket. Only two faces are partially visible. | Indoor photo, weather conditions not applicable | N/A |
-| 107 | 20240909_034945079_iOS | Ferris wheel, Palm trees, People, Restaurants, Billboards, Streetlights | Multiple people of various genders and ages walking or sitting along the promenade. There are no specific individuals described in detail. | The environment appears clear, typical of a dry night with no visible precipitation or strong winds. | N/A |
+| 105 | 20240905_163013509_iOS | Table, fast food trays, food remnants, drinking glasses, orange juice bottle, smartphone, purse | Three people visible. An adult woman with blonde hair, a young girl with glasses and blonde hair, another young girl with light blonde hair. All are seated and appear engaged or entertained. | Not visible in the image | The mood is casual and joyful, typically of a family enjoying a meal together in a fast food restaurant. |
+| 106 | 20240903_081414519_iOS | Piano, Chair, Leather Jackets, Wall Lamp, Ropes, Wood Panels | Three young males, two facing forward and one facing backward. Two wear leather jackets, and one wears a light jacket. Only two faces are partially visible. | Indoor photo, weather conditions not applicable | Casual, intimate, a sense of camaraderie among friends in a relaxed indoor setting |
+| 107 | 20240909_034945079_iOS | Ferris wheel, Palm trees, People, Restaurants, Billboards, Streetlights | Multiple people of various genders and ages walking or sitting along the promenade. There are no specific individuals described in detail. | The environment appears clear, typical of a dry night with no visible precipitation or strong winds. | The image conveys a lively, bustling atmosphere with bright lights and crowded paths, suggesting a festive and energetic mood. |
 | 108 | 20240910_020239443_iOS | Large hotel building with multiple windows and decorative features, Fountains spraying water, Trees and small bushes, Various cars and pedestrians on the street, Statue on the right edge of the foreground, Helicopter in the sky | Numerous people are visible; they are scattered around the area walking and some are observing the fountain show. | The weather appears clear with no visible rain or cloud cover. | The image conveys a vibrant and entertaining atmosphere, characteristic of a lively urban evening. |
-| 109 | 20240907_172500665_iOS | N/A | N/A | N/A | N/A |
-| 110 | 20240912_215812533_iOS | Modified vintage car, roadway, traffic light pole, pedestrian barrier, shrubbery, parked cars in the background | One person, visible driving the car, wearing casual attire and sunglasses | Sunny with clear skies | N/A |
-| 111 | 20240907_172158269_iOS | mountains, valleys, desert floor, vegetation | No visible people in the image | Sunny with scattered clouds | N/A |
-| 112 | 20240912_221749741_iOS | Giant red guitar with 'Hard Rock Cafe' logo, Row of illuminated star shapes in red, Bench, Metal fences with information plaques, Miscellaneous signage and decorative elements | One person sitting on a bench, using a mobile phone, partially visible with a cap and sunglasses | Sunny with clear blue skies | N/A |
-| 113 | 20240912_221306153_iOS | Light bulbs, Signs (vacancy, heat), Metal architectural structures, Part of a building in the background | No persons visible | Day seems sunny based on the brightness and shadows | N/A |
-| 114 | 20240910_143522239_iOS | Tables, Chairs, Glasses, Plates, Umbrellas, Overhead slats, Potted plants, Fork, Spoon, Business cards, Lanyards, Jacket, Bag | Multiple people varying in gender and approximate ages from their 30s to 50s, dressed in business and casual attire, engaged in conversations. Two men at the foreground table, one facing the camera, the other with back to the camera. Two men at the back, one standing, the other sitting, facing each other. | Partly cloudy, as indicated by the shadows and diffused sunlight. | N/A |
+| 109 | 20240907_172500665_iOS | N/A | N/A | N/A | The image conveys a feeling of vastness and isolation, underscored by the stark natural beauty and dry, harsh environment |
+| 110 | 20240912_215812533_iOS | Modified vintage car, roadway, traffic light pole, pedestrian barrier, shrubbery, parked cars in the background | One person, visible driving the car, wearing casual attire and sunglasses | Sunny with clear skies | Dynamic and vintage feel due to the classic car on a modern road setting |
+| 111 | 20240907_172158269_iOS | mountains, valleys, desert floor, vegetation | No visible people in the image | Sunny with scattered clouds | Expansive, tranquil, desolate |
+| 112 | 20240912_221749741_iOS | Giant red guitar with 'Hard Rock Cafe' logo, Row of illuminated star shapes in red, Bench, Metal fences with information plaques, Miscellaneous signage and decorative elements | One person sitting on a bench, using a mobile phone, partially visible with a cap and sunglasses | Sunny with clear blue skies | Bright, vibrant, and eclectic, depicting a lively outdoor setting, characteristic of a museum or exhibit |
+| 113 | 20240912_221306153_iOS | Light bulbs, Signs (vacancy, heat), Metal architectural structures, Part of a building in the background | No persons visible | Day seems sunny based on the brightness and shadows | The image conveys a retro or nostalgic atmosphere, likely given its content and setup |
+| 114 | 20240910_143522239_iOS | Tables, Chairs, Glasses, Plates, Umbrellas, Overhead slats, Potted plants, Fork, Spoon, Business cards, Lanyards, Jacket, Bag | Multiple people varying in gender and approximate ages from their 30s to 50s, dressed in business and casual attire, engaged in conversations. Two men at the foreground table, one facing the camera, the other with back to the camera. Two men at the back, one standing, the other sitting, facing each other. | Partly cloudy, as indicated by the shadows and diffused sunlight. | The setting is relaxed and social, typical of a business casual meeting or networking event. |
 | 115 | 20240903_174926387_iOS | Plate, Steak with herb crust, Baby corn, Green beans, Mushrooms, Sauce, Table, Wine glass | No people are fully visible in the shot, only a partial view of a person's lap in the lower right corner is present. | Weather conditions are not discernible from the indoor setting. | The atmosphere appears cozy and inviting, suggestive of a relaxed dining experience. |
-| 116 | 20240912_231438510_iOS | Modern wedge-shaped car, possibly electric or hybrid, Street pole, Sidewalk, Various other cars in background, Palm trees, Building facades with architectural details, Margarita Bar sign | There is at least one person visible in the background, walking. Due to distance, specific details about the person are not clear. | Sunny with clear skies | N/A |
-| 117 | 20240907_194039557_iOS | Salt flats, Mountains in the distance | No visible persons | Sunny | N/A |
-| 118 | 20240907_160813693_iOS | rearview mirror, road, mountains, vegetation, car dashboard items (papers, cloth, phone holder) | Partial view of a person's hair in the rearview mirror | Sunny | N/A |
-| 119 | 20240911_051812507_iOS | Futuristic space with green, crystalline object centered, surrounded by high-tech architecture and alien figures | Two alien figures seen in the background, wearing intricate red and orange outfits | Not applicable (interior scene) | N/A |
+| 116 | 20240912_231438510_iOS | Modern wedge-shaped car, possibly electric or hybrid, Street pole, Sidewalk, Various other cars in background, Palm trees, Building facades with architectural details, Margarita Bar sign | There is at least one person visible in the background, walking. Due to distance, specific details about the person are not clear. | Sunny with clear skies | The image conveys a modern and upscale atmosphere, likely a luxury or trendy urban area. |
+| 117 | 20240907_194039557_iOS | Salt flats, Mountains in the distance | No visible persons | Sunny | Barren, stark, and desolate |
+| 118 | 20240907_160813693_iOS | rearview mirror, road, mountains, vegetation, car dashboard items (papers, cloth, phone holder) | Partial view of a person's hair in the rearview mirror | Sunny | The image conveys a sense of freedom and adventure, typical of a road trip in a scenic, deserted area |
+| 119 | 20240911_051812507_iOS | Futuristic space with green, crystalline object centered, surrounded by high-tech architecture and alien figures | Two alien figures seen in the background, wearing intricate red and orange outfits | Not applicable (interior scene) | Mysterious and technological, with a sense of discovery or awe |
 | 120 | 20240908_225038368_iOS | Overpass with signage for Las Vegas Blvd and Interstate 15, Traffic lights, Street lighting, Barriers, Pedestrian walkway, Partial view of buildings, Construction area | One person visible walking on the sidewalk, dressed casually | Cloudy, potentially stormy sky | Urban, slightly desolate due to lack of traffic and pedestrians, hint of impending bad weather |
-| 121 | 20240907_184318592_iOS | Man, Digital temperature display with Fahrenheit and Celsius readings, Information sign, Rugged mountainous background, Sparse desert vegetation, Concrete pad | One adult male visible, wearing sunglasses, a cap, a short-sleeve shirt, and shorts. He appears to be casually posing next to a temperature display. | Sunny with clear skies | N/A |
+| 121 | 20240907_184318592_iOS | Man, Digital temperature display with Fahrenheit and Celsius readings, Information sign, Rugged mountainous background, Sparse desert vegetation, Concrete pad | One adult male visible, wearing sunglasses, a cap, a short-sleeve shirt, and shorts. He appears to be casually posing next to a temperature display. | Sunny with clear skies | The image conveys a sense of adventure and heat, likely due to the extreme temperature displayed and the desert setting. |
 | 122 | 20240907_212956835_iOS | wooden cabin, covered porch with wooden posts, palm tree, outdoor tables and chairs, gravel path, cable lines overhead, decorative wood lattice, water cooler | No persons visible in the image. | Sunny with blue skies. | The image conveys a quaint, tranquil, and inviting atmosphere, typical of a rural or old-western setting. |
-| 123 | 20240907_162733078_iOS | Highway directional signpost, Car interior including dashboard, rearview mirror and windshield, GPS mount, Road, Desert landscape with sparse vegetation, Mountains in the background | No persons are visible in the image | Sunny with clear skies | N/A |
+| 123 | 20240907_162733078_iOS | Highway directional signpost, Car interior including dashboard, rearview mirror and windshield, GPS mount, Road, Desert landscape with sparse vegetation, Mountains in the background | No persons are visible in the image | Sunny with clear skies | The image conveys a mood of travel and exploration, emphasized by the clear, sunny day and open road. |
 | 124 | 20240907_204303907_iOS | Mountains, Colorful mineral deposits, Sky | No persons visible | Sunny with a small cloud | Arid, rugged, and desolate terrain giving a stark and dramatic feel |
 | 125 | 20240902_063220474_iOS | Trees, Grass, Windmill, Wilting plants, Willow tree | No visible persons | Sunny | Peaceful, natural, and serene, evokes a sense of tranquility |
-| 126 | 20240912_021813606_iOS | N/A | Not detected | Unknown | N/A |
-| 127 | 20240907_160911767_iOS | Car dashboard, rear-view mirror, GPS mount, towel, steering wheel, road, road signs (curved road indicator and speed limit), mountains, desert vegetation | Driver's hand visible on the steering wheel | Sunny, clear skies | N/A |
-| 128 | 20240912_210050684_iOS | Bartender behind the bar counter, Patrons at the bar, Alcoholic beverages and dispensers on the bar, Television screens showing sports and advertisements, Ceiling lights, Advertisement boards and menu screens | Three male patrons at the bar, each engaged in different activities: standing with a camera, holding a phone, and standing idle. Male bartender, standing behind the bar, interacting with patrons. | Indoor setting, not applicable. | N/A |
-| 129 | 20240911_044422816_iOS | Audience, Large screen, Amphitheater interior, Ceiling structure, Lighting equipment | Multiple individuals visible, predominantly standing or moving, diverse in gender and dress. | Indoor setting — not applicable | N/A |
+| 126 | 20240912_021813606_iOS | N/A | Not detected | Unknown | Unknown |
+| 127 | 20240907_160911767_iOS | Car dashboard, rear-view mirror, GPS mount, towel, steering wheel, road, road signs (curved road indicator and speed limit), mountains, desert vegetation | Driver's hand visible on the steering wheel | Sunny, clear skies | Serene, adventurous, expansive |
+| 128 | 20240912_210050684_iOS | Bartender behind the bar counter, Patrons at the bar, Alcoholic beverages and dispensers on the bar, Television screens showing sports and advertisements, Ceiling lights, Advertisement boards and menu screens | Three male patrons at the bar, each engaged in different activities: standing with a camera, holding a phone, and standing idle. Male bartender, standing behind the bar, interacting with patrons. | Indoor setting, not applicable. | Casual and social environment, possibly in a sports bar setting, suggesting a relaxed and interactive mood. |
+| 129 | 20240911_044422816_iOS | Audience, Large screen, Amphitheater interior, Ceiling structure, Lighting equipment | Multiple individuals visible, predominantly standing or moving, diverse in gender and dress. | Indoor setting — not applicable | Social and lively, potentially anticipatory of an event |
 | 130 | 20240905_163007990_iOS | Table with partially consumed food and drinks, Paper napkins, McDonald's packaging, Designer handbag, Glasses, Window with advertisement | Three individuals visible. One adult woman with blonde hair, wearing a horizontal-striped black and white dress, sitting next to two young girls. The older girl is wearing glasses and a blue-striped dress and is holding napkins. The younger girl wears a pink shirt and is smiling. | The environment is internal, weather conditions outside are not discernible. | The mood is casual and comfortable, with a family enjoying a meal together in a relaxed setting. |
-| 131 | 20240920_090921100_iOS | Man, Office desk, Whiteboard with markers and drawings, Large television screen, Oval meeting table, Office chairs, Painting on the wall, Books, Magazines, Desk cabinet | One middle-aged male visible, standing confidently in a business-casual outfit consisting of jeans, a blazer, and a dress shirt. | Not visible. | N/A |
-| 132 | 20240910_013213201_iOS | Fountain, palm trees, cars, large hotel building, people walking on sidewalks, street lamps, lake, distant mountains | Several people, primarily visible near the waterfront and on the sidewalks, too small to describe in detail | Partly cloudy, as indicated by the soft scattered clouds and sunlight diffused across the scene | N/A |
+| 131 | 20240920_090921100_iOS | Man, Office desk, Whiteboard with markers and drawings, Large television screen, Oval meeting table, Office chairs, Painting on the wall, Books, Magazines, Desk cabinet | One middle-aged male visible, standing confidently in a business-casual outfit consisting of jeans, a blazer, and a dress shirt. | Not visible. | The office setting suggests a professional and structured environment, potentially creative given the whiteboard drawings. |
+| 132 | 20240910_013213201_iOS | Fountain, palm trees, cars, large hotel building, people walking on sidewalks, street lamps, lake, distant mountains | Several people, primarily visible near the waterfront and on the sidewalks, too small to describe in detail | Partly cloudy, as indicated by the soft scattered clouds and sunlight diffused across the scene | The image conveys a vibrant and lively atmosphere, enhanced by the dynamic fountain display and the grandeur of the hotel |
 | 133 | 20240907_204313408_iOS | Mountainous terrain, Earthy ridges, Colorful mineral deposits, Dirt paths, Park vehicle | There are several people visible walking and standing around the mountainous terrain and near the vehicle, appearing as tourists exploring the area. | Sunny with a clear blue sky interspersed with scattered clouds | The image conveys a sense of adventure and exploration, highlighted by the rugged terrain and bright, clear day. |
-| 134 | 20240912_180336870_iOS | TV screen, text, icons, lines on a graph, logo | No persons visible | No external weather conditions visible | N/A |
-| 135 | 20240907_172328810_iOS | Relief map of a mountainous area, Text labels, Boundary lines | No persons visible in the image | Weather conditions are not determinable from the image | N/A |
-| 136 | 20240912_211922966_iOS | People walking, LED canopy, Buildings with signage ('Las Vegas Jewelry Gifts', 'Las Vegas T-Shirt and Souvenirs'), The D Las Vegas hotel signage, Street lights, Paving on the ground, Potted plants | Several visible people including pedestrians walking across the area and one individual on a mobility scooter | Sunny with clear skies | N/A |
+| 134 | 20240912_180336870_iOS | TV screen, text, icons, lines on a graph, logo | No persons visible | No external weather conditions visible | Informative and professional |
+| 135 | 20240907_172328810_iOS | Relief map of a mountainous area, Text labels, Boundary lines | No persons visible in the image | Weather conditions are not determinable from the image | The image conveys a detailed and informative mood, focusing on geographic features |
+| 136 | 20240912_211922966_iOS | People walking, LED canopy, Buildings with signage ('Las Vegas Jewelry Gifts', 'Las Vegas T-Shirt and Souvenirs'), The D Las Vegas hotel signage, Street lights, Paving on the ground, Potted plants | Several visible people including pedestrians walking across the area and one individual on a mobility scooter | Sunny with clear skies | Energetic and touristy in a busy urban setting |
 | 137 | 20250104_13h58m43s_grim | N/A | N/A | N/A | N/A |
-| 138 | 20240910_013328363_iOS | N/A | Not detected | Unknown | N/A |
-| 139 | 20240907_142541580_iOS | Vehicles on the road including cars and trucks, Road signs, Buildings, Road, Guardrails, Mobile phone mount, Dashboard items like papers and a cloth | The back of a person's head (driver) is partially visible in the rearview mirror | Conditions appear clear and sunny | N/A |
-| 140 | 20240903_171016141_iOS | Mixed appetizers including slices of cured meats, cheese, small toasts, a variety of small prepared dishes such as a green apple sorbet on a tomato base, macarons, possibly olives, and small cups of sauce, Utensils including forks, Glassware (partially visible), Table and wooden surface | No persons visible in the image | Not applicable, as the setting is indoors | N/A |
-| 141 | 20240907_172457075_iOS | mountains, salt flats, vegetation (scrub bushes) | No persons visible | Sunny with some scattered clouds | N/A |
-| 142 | 20240907_171847934_iOS | desert landscape, mountains, salt flats, bushes, vehicle dashboard shadow | No visible people/persons | Sunny with a few small clouds | N/A |
-| 143 | 20240907_173101241_iOS | Person, Mountains, Vegetation (sparse bushes), Saline flats (salt flats), Sky, Clouds | One person visible, male, wearing a red t-shirt, dark hat, and sunglasses, in a dynamic pose with spread legs and stretched out arms. | Sunny with minimal clouds | N/A |
-| 144 | 20240903_195535422_iOS | Various bottles of wine and beer, Wicker basket, Green decorative shred paper, Two beer glasses, Packaging with Christmas-themed graphics | No persons visible in the image | Not applicable as the image is indoors | N/A |
+| 138 | 20240910_013328363_iOS | N/A | Not detected | Unknown | Unknown |
+| 139 | 20240907_142541580_iOS | Vehicles on the road including cars and trucks, Road signs, Buildings, Road, Guardrails, Mobile phone mount, Dashboard items like papers and a cloth | The back of a person's head (driver) is partially visible in the rearview mirror | Conditions appear clear and sunny | The image conveys a busy, somewhat hectic urban travel scene during a clear day |
+| 140 | 20240903_171016141_iOS | Mixed appetizers including slices of cured meats, cheese, small toasts, a variety of small prepared dishes such as a green apple sorbet on a tomato base, macarons, possibly olives, and small cups of sauce, Utensils including forks, Glassware (partially visible), Table and wooden surface | No persons visible in the image | Not applicable, as the setting is indoors | Elegant and gourmet, suggesting a fine dining experience |
+| 141 | 20240907_172457075_iOS | mountains, salt flats, vegetation (scrub bushes) | No persons visible | Sunny with some scattered clouds | Arid, expansive, isolated |
+| 142 | 20240907_171847934_iOS | desert landscape, mountains, salt flats, bushes, vehicle dashboard shadow | No visible people/persons | Sunny with a few small clouds | Isolated, expansive, and serene |
+| 143 | 20240907_173101241_iOS | Person, Mountains, Vegetation (sparse bushes), Saline flats (salt flats), Sky, Clouds | One person visible, male, wearing a red t-shirt, dark hat, and sunglasses, in a dynamic pose with spread legs and stretched out arms. | Sunny with minimal clouds | Adventurous, serene, and expansive |
+| 144 | 20240903_195535422_iOS | Various bottles of wine and beer, Wicker basket, Green decorative shred paper, Two beer glasses, Packaging with Christmas-themed graphics | No persons visible in the image | Not applicable as the image is indoors | Festive and celebratory, with a focus on gourmet or specialty beverages |
 | 145 | 20240907_172255652_iOS | Mountains, Sparse Vegetation, Rocks, Dirt track | No visible persons | Clear and sunny | Barren, vast, rugged, and tranquil |
 | 146 | 20240909_151459024_iOS | Escalators, Floor carpet, Metal railing, Large banners with geometric designs, Hanging lights, Ceiling panels, Lounge area with chairs and tables, Various groups of people | Several people are visible in the image, appearing to be attendees of an event. They vary in attire, suggesting a semi-formal to business professional event. | The image is taken indoors; outdoor weather conditions are not visible. | The atmosphere is professional and dynamic, enhanced by the contemporary and clean design of the venue. |
-| 147 | 20240907_194153577_iOS | man, salt flat, mountains, clear sky | One adult male visible. He is wearing a red T-shirt, light-colored shorts, hiking shoes, and a baseball cap. The person appears relaxed and has his hands on his hips. | Sunny and clear skies | N/A |
-| 148 | 20240907_194201154_iOS | Man, Salt flats, Mountain range, Sky | One man visible in the image, wearing a red t-shirt, blue shorts, sunglasses, and a dark cap. | Sunny, clear blue skies with no visible clouds. | N/A |
+| 147 | 20240907_194153577_iOS | man, salt flat, mountains, clear sky | One adult male visible. He is wearing a red T-shirt, light-colored shorts, hiking shoes, and a baseball cap. The person appears relaxed and has his hands on his hips. | Sunny and clear skies | The mood is serene and peaceful, evoking a sense of solitude and vastness in the barren landscape. |
+| 148 | 20240907_194201154_iOS | Man, Salt flats, Mountain range, Sky | One man visible in the image, wearing a red t-shirt, blue shorts, sunglasses, and a dark cap. | Sunny, clear blue skies with no visible clouds. | The mood is serene and adventurous, emphasized by the expansive and stark landscape. |
 | 149 | 20240907_194706606_iOS | People, Salt flats, Mountains, Sky | Three individuals visible, walking across the salt flats. One person wth a hat and dark shorts, one in a white t-shirt and beige shorts, and one in a blue t-shirt and dark shorts. | Sunny, clear skies | The image evokes a sense of adventure and exploration in a vast, arid environment. |
-| 150 | 20240907_194329332_iOS | Salt formations, Ground | No visible persons in the image | Sunny | N/A |
+| 150 | 20240907_194329332_iOS | Salt formations, Ground | No visible persons in the image | Sunny | Natural and tranquil, with a stark and minimalistic beauty |
 | 151 | 20240907_204510227_iOS | Informational signage with image of mountain landscape, Metal frame around the signage, Weathered surfaces on signage indicating outdoor placement | No people are visible in the image. | Sunny day, as indicated by the bright lighting and visible shadow under the signage. | The image carries a mood of educational intrigue, introducing geological features in a stark, natural environment. |
 | 152 | 20240912_050727411_iOS | People, stage, large screen displaying a video, colorful lights, banners | Multiple people in various attire, mostly in casual or party-appropriate clothes | Not applicable as the event appears to be indoors | Festive and lively, with a party-like environment |
-| 153 | 20240907_194546239_iOS | salt formations, mountains, sky, clouds | No persons visible in the image. | Partly cloudy with ample sunlight. | N/A |
+| 153 | 20240907_194546239_iOS | salt formations, mountains, sky, clouds | No persons visible in the image. | Partly cloudy with ample sunlight. | The scene conveys a stark, arid, and expansive atmosphere typical of a desert environment. |
 | 154 | 20240921_193546000_iOS | directional signpost with multiple arrows showing directions and distances to Blackhill, Yellw, Nomansland, and Penn Common, trees in the background, cloud-filled sky, metal pole, small electronic device attached to pole possibly a tracker or sensor | There are no persons visible in the image. | The sky is mostly cloudy, indicating overcast weather conditions. | The image conveys a calm rural atmosphere, slightly somber due to the overcast sky. |
-| 155 | 20240907_181530147_iOS | Car dashboard, Rearview mirror, Smartphone mount, Windshield, Road, Mountains, Blue microfiber cloth | A person's hand is visible, but no detailed facial or body characteristics can be identified. | Sunny day with clear skies | N/A |
+| 155 | 20240907_181530147_iOS | Car dashboard, Rearview mirror, Smartphone mount, Windshield, Road, Mountains, Blue microfiber cloth | A person's hand is visible, but no detailed facial or body characteristics can be identified. | Sunny day with clear skies | The mood is adventurous and seems like a road trip through a desert landscape, evoking a sense of exploration and freedom. |
 | 156 | 20240907_200101906_iOS | distant mountains, flat barren landscape, pebbly ground close up, blue sky with some clouds, crystalline deposits (likely salt pans) | No visible persons in the image | The weather appears sunny with few clouds | The scenery feels desolate, vast, and tranquil with a sense of isolation |
 | 157 | 20240907_152459050_iOS | pink jeep tour vehicle, gray van, asphalt parking lot, street signs, buildings in the background, mountains in the distance | One woman, appearing middle-aged, wearing sunglasses, a field shirt, shorts, and hiking boots. She appears to be explaining something, gesturing with her right hand.; One man, also appearing middle-aged, wearing a cap, glasses, short-sleeve shirt, shorts, and sandals. He seems to be listening to the woman, his body slightly turned towards her. | Light clouds visible in the sky, suggesting mostly clear weather conditions. | The image conveys a professional yet casual outdoor encounter, possibly related to a tour or an explanation of local sites or features. |
 | 158 | 20240902_124503039_iOS | Large bush with dense foliage,  White and purple flowers, Paved sidewalk, Crosswalk | No visible persons in the image | Sunny day, clear sky | Bright, natural, and peaceful |
 | 159 | 20240908_034601077_iOS | Fountains, Bellagio Hotel building, The Cosmopolitan Hotel building, Water, Lights | No clear view of any persons, only possible distant figures that are not distinctly visible. | The weather appears clear as no precipitation or clouds can be seen, although the image is taken at night which limits visibility of sky conditions. | The image conveys a lively and elegant atmosphere, typical of a nighttime view in a bustling city locale, highlighted by the illumination and dynamic water display. |
-| 160 | 20240902_095041583_iOS | Douglas DC-3 airplane labeled '50 GOLDEN DC-3 YEARS' with Hewlett Packard logo, asphalt tarmac, clouds | Multiple people, approximately 30, consisting of adults and children, standing in front of the airplane. Both genders are present, wearing a variety of clothing styles from business casual to casual attire. | Sunny with some clouds in the sky | N/A |
+| 160 | 20240902_095041583_iOS | Douglas DC-3 airplane labeled '50 GOLDEN DC-3 YEARS' with Hewlett Packard logo, asphalt tarmac, clouds | Multiple people, approximately 30, consisting of adults and children, standing in front of the airplane. Both genders are present, wearing a variety of clothing styles from business casual to casual attire. | Sunny with some clouds in the sky | Group appears to be in a cheerful and casual gathering, possibly a special event given the group photo setup in front of a historic airplane. |
 | 161 | 20240913_032312832_iOS | Pool table, Pool cues, Pool balls, Television screens, Bar stools, Pictures on the wall | Middle-aged man actively playing pool, dressed in a white shirt and striped shorts, appears engaged in the game.; Individuals seated around tables and standing in the bar, observing either the game or other activities. | Not applicable - indoor scene | Casual and recreational, with a lively bar environment |
 | 162 | 20240907_164632851_iOS | Death Valley National Park sign, mountains, desert landscape, casual wear clothing on people | Seven men standing in a group in front of the Death Valley National Park sign. They appear to be casually dressed suitable for warm weather, sporting shorts, t-shirts, and sunglasses. | Sunny with clear skies | The mood is cheerful and adventurous, likely reflecting excitement about visiting a famous national park. |
 | 163 | 20240907_164430216_iOS | Death Valley National Park sign, road, mountains, sky, gravel | One adult male wearing a red shirt, denim shorts, sunglasses, and shoes. He is standing near the park sign, looking at the camera. | Sunny day with clear blue skies | The image conveys a sense of adventure and exploration in a rugged and arid environment. |
 | 164 | 20240910_013333180_iOS | Bellagio Hotel & Casino, water fountains (performing in front), tree-lined street, statue, palm trees, mountains in the background, sidewalk, vehicles | No visible persons can be clearly discerned due to distance and scale. | Partly cloudy with setting sun providing backlight to the hotel. | The image conveys a grand, lively and entertainment-rich atmosphere, typical of Las Vegas. The dynamic fountain show adds a sense of excitement. |
 | 165 | 20240913_002226622_iOS | Storefront of Crocs, Crocs logo, Entrance doors, Interior display racks filled with footwear, Promotional posters, Advertising signs | On a walkway outside the store, there is a man sweeping the floor. | Not visible; the image is indoors | The store appears clean and well-lit, promoting a welcoming and busy shopping environment. |
-| 166 | 20240907_204238564_iOS | mountains, canyon, clouds, people, tourist vehicles | Yes, there are people visible; specifically, two individuals walking through rocky terrain, dressed casually for warm weather. | Sunny with scattered clouds. | N/A |
-| 167 | 20240910_215527999_iOS | presentation screen, content on the screen including text and graphical representations | No persons visible in the image | Not applicable as the image is taken indoors | N/A |
-| 168 | 20240910_014622456_iOS | Table, Chairs, Drinks, Smartphones, Glasses, Hotel building (background), Trees (background), Water body (background), Mountains (far background) | Six men, seated around a table, holding drinks, variously dressed in business casual attire, displaying relaxed and friendly expressions. | Sunny with clear skies | N/A |
-| 169 | 20240912_221230630_iOS | Yucca motel sign, Other assorted signs and parts of signs, Stylized metallic sculpture resembling a torch on top of the sign, Background elements of a clear sky and other signage pieces | There are no people visible in the image. | Sunny with clear blue skies. | N/A |
+| 166 | 20240907_204238564_iOS | mountains, canyon, clouds, people, tourist vehicles | Yes, there are people visible; specifically, two individuals walking through rocky terrain, dressed casually for warm weather. | Sunny with scattered clouds. | The image conveys a sense of adventure and exploration in a rugged and arid environment. |
+| 167 | 20240910_215527999_iOS | presentation screen, content on the screen including text and graphical representations | No persons visible in the image | Not applicable as the image is taken indoors | Educational and professional, intended for conveying structured information |
+| 168 | 20240910_014622456_iOS | Table, Chairs, Drinks, Smartphones, Glasses, Hotel building (background), Trees (background), Water body (background), Mountains (far background) | Six men, seated around a table, holding drinks, variously dressed in business casual attire, displaying relaxed and friendly expressions. | Sunny with clear skies | Casual, relaxed, and social |
+| 169 | 20240912_221230630_iOS | Yucca motel sign, Other assorted signs and parts of signs, Stylized metallic sculpture resembling a torch on top of the sign, Background elements of a clear sky and other signage pieces | There are no people visible in the image. | Sunny with clear blue skies. | The atmosphere is nostalgic and artistic, reflecting a vintage or retro vibe, typical of a museum or collection of historical items. |
 | 170 | 20240907_164629239_iOS | Death Valley National Park sign, asphalt road, rocky hills, clear sky | There are seven males standing in front of a sign, each dressed in casual, warm-weather clothing such as t-shirts and shorts. Some are wearing hats and sunglasses. | Sunny and clear | The atmosphere seems cheerful and exploratory, typical of a travel or vacation setting with friends. |
-| 171 | 20240907_164627942_iOS | Death Valley National Park sign, mountains, road, sandy ground, shrubs | Six adult males dressed in casual summer clothing, standing in front of a park sign. | Sunny with clear skies | N/A |
+| 171 | 20240907_164627942_iOS | Death Valley National Park sign, mountains, road, sandy ground, shrubs | Six adult males dressed in casual summer clothing, standing in front of a park sign. | Sunny with clear skies | Cheerful and adventurous |
 | 172 | 20240907_201149302_iOS | Wooden boardwalk, information signs (boating prohibited, no pets, stay on trail), people walking, mountain range in the background, flat barren landscape, scattered clouds | Multiple people visible walking on the boardwalk; variations in clothing suggest casual, outdoor wear suitable for hot weather. | Partly cloudy with strong sunlight indicating clear weather with some cloud cover. | The atmosphere appears stark and somewhat forbidding, reflecting the extreme nature of the environment. The warnings on the sign add a serious tone, emphasizing caution. |
 | 173 | 20240906_230309749_iOS | Trees, Sidewalk, Backpack, Suitcases, Pedestrian overpass, Buildings, Street lamp | Several people are visible, mainly from the back or side. Two men are prominently visible, one wearing a gray shirt and carrying a red suitcase, another dressed in black with a backpack. Their attire and luggage indicate they are likely travelers. | Sunny | The scene seems busy yet orderly, typical of a sunny day in a bustling urban environment. |
-| 174 | 20240907_172242186_iOS | mountains, valley, salt flats | No visible persons in the image | Clear and sunny | N/A |
-| 175 | 20240910_025913390_iOS | Tables, Candles, Drinks, Couches, Lanyards | Three visible male individuals, engaged in conversation, wearing casual attire | Not visible directly, but ambient light suggests an indoor or well-covered area | N/A |
+| 174 | 20240907_172242186_iOS | mountains, valley, salt flats | No visible persons in the image | Clear and sunny | The image conveys a sense of vastness and isolation, typical of desert landscapes. |
+| 175 | 20240910_025913390_iOS | Tables, Candles, Drinks, Couches, Lanyards | Three visible male individuals, engaged in conversation, wearing casual attire | Not visible directly, but ambient light suggests an indoor or well-covered area | Social, relaxed, and engaged, typical of a networking event or casual gathering |
 | 176 | 20240907_172611706_iOS | mountains, sky, sparse vegetation, salt flats, hiking trail, people | Two visible persons, both male. One is wearing a white t-shirt, beige shorts, and appears to be standing on a precipice observing the valley. The other, towards the right, faces away wearing a yellow long-sleeve shirt and beige shorts. | Clear and sunny with minimal cloud cover | Expansive and serene, evoking a sense of peaceful isolation in nature |
-| 177 | 20240910_011101141_iOS | Large hotels with classic architecture, Fountain in a lake, Replica of the Eiffel Tower, Statue as architectural detail, Pedestrian crosswalk, Palm trees, Roads and vehicles | Several people are visible walking on the streets below. | The weather appears sunny with clear skies. | N/A |
-| 178 | 20240912_221927312_iOS | Sahara sign, Theatre Wool signage fragment, cement or gravel floor, lamp post, metal fences, fronts of other large signs (unidentified) | No persons visible in the image. | Sunny with clear blue skies. | N/A |
-| 179 | 20240911_035736109_iOS | Spherical building illuminated with blue lights displaying the text 'sphere', Various vehicles including SUVs and a pickup truck, Trees, Background buildings and a dimly lit parking structure | No visible persons in the image | The sky appears clear, suggesting dry weather conditions | N/A |
-| 180 | 20240909_195943391_iOS | Round table with white tablecloth, Laptop, Mobile phones, Glass, Lanyards, Chairs, Cutlery and napkins on the table | Three men sitting around a round table, all facing towards the camera with smiles. They wear lanyards and casual to business casual attire. One has a laptop open in front of him. | Indoor setting, weather conditions not applicable. | N/A |
-| 181 | 20240907_164432976_iOS | Signboard for Death Valley National Park, Desert landscape, Stones arranged at base of sign, Road in the background | One person, male, wearing a red t-shirt, denim shorts, and sports cap, standing next to the signboard. | Sunny | N/A |
+| 177 | 20240910_011101141_iOS | Large hotels with classic architecture, Fountain in a lake, Replica of the Eiffel Tower, Statue as architectural detail, Pedestrian crosswalk, Palm trees, Roads and vehicles | Several people are visible walking on the streets below. | The weather appears sunny with clear skies. | The image conveys a vibrant and bustling city atmosphere, enhanced by the luxurious architecture and sunny weather. |
+| 178 | 20240912_221927312_iOS | Sahara sign, Theatre Wool signage fragment, cement or gravel floor, lamp post, metal fences, fronts of other large signs (unidentified) | No persons visible in the image. | Sunny with clear blue skies. | The mood is somewhat nostalgic and artistic, likely reflecting the history of the objects displayed. |
+| 179 | 20240911_035736109_iOS | Spherical building illuminated with blue lights displaying the text 'sphere', Various vehicles including SUVs and a pickup truck, Trees, Background buildings and a dimly lit parking structure | No visible persons in the image | The sky appears clear, suggesting dry weather conditions | The atmosphere appears vibrant and urban, with the illuminated sphere creating a focal point of interest amidst the nighttime setting |
+| 180 | 20240909_195943391_iOS | Round table with white tablecloth, Laptop, Mobile phones, Glass, Lanyards, Chairs, Cutlery and napkins on the table | Three men sitting around a round table, all facing towards the camera with smiles. They wear lanyards and casual to business casual attire. One has a laptop open in front of him. | Indoor setting, weather conditions not applicable. | The atmosphere appears informal and friendly, suitable for networking or a conference environment. |
+| 181 | 20240907_164432976_iOS | Signboard for Death Valley National Park, Desert landscape, Stones arranged at base of sign, Road in the background | One person, male, wearing a red t-shirt, denim shorts, and sports cap, standing next to the signboard. | Sunny | Bright and clear, evoking a sense of adventure and openness typical of a desert national park. |
 | 182 | 20240907_194340319_iOS | Salt formations, Ground | No persons visible in the image. | Sunny, based on the shadows and brightness | Barren, desolate, somewhat alien landscape without vegetation |
-| 183 | 20240907_173505094_iOS | Mountains, Salt flats, Vegetation (shrubs and grasses), dirt road | No visible persons | Appears clear and dry | N/A |
+| 183 | 20240907_173505094_iOS | Mountains, Salt flats, Vegetation (shrubs and grasses), dirt road | No visible persons | Appears clear and dry | Arid, stark, and somewhat desolate |
 | 184 | 20240907_201400149_iOS | Salt flats, Mountains, Sky, Clouds | Standing, wearing white shirt, blue shorts, talking to another person | Partly cloudy with abundant sunlight | Energetic, adventurous, open space evokes a sense of freedom |
 | 185 | 20240913_025545536_iOS | Pool tables, Pool cues, Pool balls, Television screens, Players, Chairs, Carpeted floor, Hanging lights, Wall art | Several individuals playing pool, including a man in a white shirt leaning over a table aiming at balls, others holding cues, and onlookers. Multiple people scattered around the area in casual attire. | Indoor scene, weather conditions are not applicable. | The atmosphere is relaxed and leisurely, with people focused on playing and watching pool. The well-lit and busy environment creates a social and engaging mood. |
-| 186 | 20240907_172450119_iOS | mountains, salt flats, vegetation, sky, clouds | No visible persons in the image. | Sunny with some scattered clouds. | N/A |
-| 187 | 20240912_231425697_iOS | Red angular vehicle (resembling a futuristic truck), White sedan, White SUV, Palm trees, Decorative building architecture, Parking lot | There are no visible persons in the image. | Daytime conditions seem moderately sunny, filtered through cloud coverage or architectural shadows. | N/A |
-| 188 | 20240902_061806346_iOS | trees, water, lily pads, shrubs, grass, sky, contrails | No visible persons in the image | Sunny with visible sunlight and clear skies | N/A |
+| 186 | 20240907_172450119_iOS | mountains, salt flats, vegetation, sky, clouds | No visible persons in the image. | Sunny with some scattered clouds. | The image conveys a vast, desolate, and rugged atmosphere, highlighting the natural beauty and harsh environment of the landscape. |
+| 187 | 20240912_231425697_iOS | Red angular vehicle (resembling a futuristic truck), White sedan, White SUV, Palm trees, Decorative building architecture, Parking lot | There are no visible persons in the image. | Daytime conditions seem moderately sunny, filtered through cloud coverage or architectural shadows. | The mood appears affluent and sophisticated, given the context of a well-maintained premises with luxury or futuristic vehicles. |
+| 188 | 20240902_061806346_iOS | trees, water, lily pads, shrubs, grass, sky, contrails | No visible persons in the image | Sunny with visible sunlight and clear skies | Peaceful, calm, and serene |
 | 189 | 20240907_204322419_iOS | Rock formations, Eroded hills, Sand, Mineral deposits | No persons visible in the image | Sunny | Rugged, desolate, and untouched |
-| 190 | 20240911_035528048_iOS | illuminated ferris wheel emitting blue light patterns, cars, trees, road, street lights | No visible persons | Clear night sky | N/A |
+| 190 | 20240911_035528048_iOS | illuminated ferris wheel emitting blue light patterns, cars, trees, road, street lights | No visible persons | Clear night sky | Dynamic and vibrant due to the illuminated ferris wheel, suggesting a lively urban night scene |
 | 191 | 20240912_213805443_iOS | LED canopy overhead, Buildings adorned with animated digital billboards, Pedestrian walkway, Various signs and advertisements, Street lamps, Stalls and kiosks, Trash cans, Security cameras | Multiple people visible, walking or standing; men and women casually dressed for warm weather. | Indoor-like environment but with natural lighting suggesting it's daylight outside. | Busy, lively, and vibrant, typical of a bustling tourist attraction. |
 | 192 | 20240907_201104498_iOS | pathway, mountains, salt flats, water pools, clouds, bush vegetation | Several people are visible walking on the path and farther out on the salt flats. | The weather is partly cloudy with plenty of sunlight. | The image conveys a serene, expansive, and somewhat stark atmosphere, accentuated by the vast landscape and distant mountains. |
-| 193 | 20241008_103004000_iOS | trees, leaves, path | No visible people | Sunny | N/A |
-| 194 | 20240907_201356550_iOS | Salt flat surface, Mountains in the distance, Cloud-filled sky | There are four people visible in the image. Three are clustered in small groups appearing in casual tourist attire, engaging in conversation or walking. | The weather is partly cloudy with sunlight filtering through gaps in the clouds, indicating variable cloud cover. | N/A |
+| 193 | 20241008_103004000_iOS | trees, leaves, path | No visible people | Sunny | Peaceful and serene |
+| 194 | 20240907_201356550_iOS | Salt flat surface, Mountains in the distance, Cloud-filled sky | There are four people visible in the image. Three are clustered in small groups appearing in casual tourist attire, engaging in conversation or walking. | The weather is partly cloudy with sunlight filtering through gaps in the clouds, indicating variable cloud cover. | The mood is adventurous and tranquil, dominated by the vast, expansive view of the salt flats and mountains coupled with a wide open sky. |
 | 195 | 20240907_193520512_iOS | Smartphone mounted on a mobile holder, Car dashboard including air vents, an audio system, climate control knobs, Windshield showing the rearview mirror with a reflection, Dirt road visible outside the car, Desert landscape | There appears to be a part of a person visible in the rearview mirror reflection, specifically part of the head/hair. | Sunny, as indicated by the bright lighting and clear sky visible through the windshield | The scene conveys a feeling of adventure and exploration, possibly a road trip in a remote, arid area. |
-| 196 | 20240913_032313191_iOS | pool table, pool cues, pool balls, chairs, bar area, wall paintings, light fixtures | There are multiple persons visible; main focus on a male playing pool, white shirt, patterned shorts, aligning for a pool shot. Other patrons in the background, including a person possibly waiting for their turn and another person seated in the dining area. | Indoor environment, weather not applicable | N/A |
-| 197 | 20240907_201111715_iOS | salty plains, small pools of water, mountains, sparse vegetation, gravel road, salt deposits | No people visible in the image | Sunny, with some clouds visible in the distance | N/A |
-| 198 | 20240907_172814498_iOS | mountains, road, vegetation, car | No people visible in this image | Sunny | N/A |
-| 199 | 20240907_172216577_iOS | Information panel, satellite image, text describing geological features | No persons visible in the image | Not discernible from the image | N/A |
+| 196 | 20240913_032313191_iOS | pool table, pool cues, pool balls, chairs, bar area, wall paintings, light fixtures | There are multiple persons visible; main focus on a male playing pool, white shirt, patterned shorts, aligning for a pool shot. Other patrons in the background, including a person possibly waiting for their turn and another person seated in the dining area. | Indoor environment, weather not applicable | Casual and focused atmosphere, common in a social sporting environment |
+| 197 | 20240907_201111715_iOS | salty plains, small pools of water, mountains, sparse vegetation, gravel road, salt deposits | No people visible in the image | Sunny, with some clouds visible in the distance | Desolate, arid, and expansive with a stark natural beauty |
+| 198 | 20240907_172814498_iOS | mountains, road, vegetation, car | No people visible in this image | Sunny | Solitary and serene, evoking a sense of isolation and the vast open landscape |
+| 199 | 20240907_172216577_iOS | Information panel, satellite image, text describing geological features | No persons visible in the image | Not discernible from the image | Educational and informative, aimed at providing geological insights |
 | 200 | 20240907_172446449_iOS | mountains, sky, valley, salty flats, dried vegetation, hillside | No visible persons | Sunny with scattered clouds | The image conveys a sense of vast open space, isolation and untouched natural beauty with a touch of harshness attributed to the barren landscape. |
-| 201 | 20240910_215351433_iOS | Television screen displaying a network diagram, Words 'Fortinet HA Deployment on OCI' at the top, Annotation 'Kyndryl Confidential' on the top right, Various network components such as on-prem DC, Bastion, Database, Fortinet devices, and cloud services depicted | No people are visible in the image. | Not applicable as the image is indoors. | N/A |
+| 201 | 20240910_215351433_iOS | Television screen displaying a network diagram, Words 'Fortinet HA Deployment on OCI' at the top, Annotation 'Kyndryl Confidential' on the top right, Various network components such as on-prem DC, Bastion, Database, Fortinet devices, and cloud services depicted | No people are visible in the image. | Not applicable as the image is indoors. | Professional and technical focused on information presentation. |
 | 202 | 20240907_144037038_iOS | Cars, Road, Traffic lights, Street signs, Mountains in the background, Buildings, Rearview mirror, Windshield, Dashboard items | No clear image or discernible features of any people outside of the vehicles can be identified. | The weather appears sunny with clear skies. | The image conveys a sense of routine or mundane travel, possibly during a commute. |
 | 203 | 20240908_201610878_iOS | Buildings (Resorts World, The Palazzo complementing structures like the Wynn and Encore), Outdoor Furniture (sun loungers), Railings, Pavements, Plants (palm trees), Roof structures, Advertising billboards (with the Las Vegas Raiders logo) | No persons are visible in the image. | The weather appears sunny with few clouds, indicating clear conditions. | The mood is calm and serene, typical of a quiet, sunny day in a commercial area. |
 | 204 | 20240907_184316998_iOS | Digital temperature display, Informational board, Mountainous landscape, Ground with sparse vegetation, Sky | {'description': 'One man visible, wearing a red T-shirt, blue shorts, sneakers, and a gray baseball cap. He is smiling and appears to be posing next to the temperature display.'} | Sunny with clear blue skies | The mood is bright and lively, emphasizing an adventurous or touristic setting in a stark, arid landscape. |
 | 205 | 20240905_162958209_iOS | Water bottles, Drink cup, Sandwiches, Food packaging, Table, Chairs, Smartphone, Handbag, Information signs on the wall | Three individuals, appear to be two young girls and one woman, sitting at a table in an indoor setting. They are engaged in eating and looking around. | Not visible, indoor setting. | Casual and relaxed, typical of a dining setting in a fast-food restaurant. |
 | 206 | 20240903_174831401_iOS | Wicker basket with gift items including bottles and a book, Wooden table, Glass windows, Paintings on wall, Dinner plates | Middle-aged man, sitting and laughing, wearing eyeglasses, grey hair, visible in a seated position; Another individual is partially visible in the background, also laughing, wearing eyeglasses, white or light-colored shirt | Indoor scene, weather not visible | Joyful and celebratory atmosphere |
 | 207 | 20240907_213102676_iOS | Steam locomotive, Railroad tracks, Tender car labeled 'DVRR 2', Heritage outdoor artifacts such as wheels and wooden items, Fence, Desert vegetation (sparse shrubs and trees) | No persons are visible in the image. | Sunny with clear skies | Historical, nostalgic, and tranquil |
-| 208 | 20240907_003642298_iOS | Venetian Hotel and Casino building, palm trees, cars, road, replica of St Mark's Campanile (Venice bell tower) | There are no discernible individuals visible in this image. | The weather appears sunny with clear blue skies. | N/A |
-| 209 | 20240912_221332645_iOS | Vintage hotel sign featuring a Native American chief, text labels such as 'Chief Hotel Court', 'Vacancy', 'Tam', 'Steam Heated', and various partial signs and metal structures., Background includes a clear blue sky and the upper part of a building facade. | No persons visible in the image. | Sunny, clear sky indicating good weather conditions. | N/A |
-| 210 | 20240910_001411192_iOS | Paris Las Vegas Hotel & Casino, including replica Eiffel Tower and hot air balloon sign, Vehicles on the road including various cars, Large LED billboard displaying an advertisement, Pedestrians crossing the street and walking on sidewalks, Trees and streetlights, Buildings and architectural details of the casino and surrounding structures | Several people are visible in the image, mostly pedestrians casually dressed, crossing the street or walking along the sidewalk. | The weather is sunny with some clouds in the sky. | N/A |
+| 208 | 20240907_003642298_iOS | Venetian Hotel and Casino building, palm trees, cars, road, replica of St Mark's Campanile (Venice bell tower) | There are no discernible individuals visible in this image. | The weather appears sunny with clear blue skies. | The image conveys a vibrant and tourist-friendly atmosphere, typical of Las Vegas. |
+| 209 | 20240912_221332645_iOS | Vintage hotel sign featuring a Native American chief, text labels such as 'Chief Hotel Court', 'Vacancy', 'Tam', 'Steam Heated', and various partial signs and metal structures., Background includes a clear blue sky and the upper part of a building facade. | No persons visible in the image. | Sunny, clear sky indicating good weather conditions. | The image has a nostalgic, retro feel, perhaps invoking a sense of historical Americana. |
+| 210 | 20240910_001411192_iOS | Paris Las Vegas Hotel & Casino, including replica Eiffel Tower and hot air balloon sign, Vehicles on the road including various cars, Large LED billboard displaying an advertisement, Pedestrians crossing the street and walking on sidewalks, Trees and streetlights, Buildings and architectural details of the casino and surrounding structures | Several people are visible in the image, mostly pedestrians casually dressed, crossing the street or walking along the sidewalk. | The weather is sunny with some clouds in the sky. | The image conveys a lively and bustling atmosphere typical of a busy tourist spot on a clear day. |
 | 211 | 20240910_013259647_iOS | Bellagio hotel, fountains, palm trees, tour buses, cars, street lights, sidewalks | Several people are visible around the sidewalk area but are too distant for detailed descriptions. | The weather appears to be clear with scattered clouds which are visible against the sunset. | The image conveys a vibrant and scenic atmosphere, typical of a lively urban setting during sunset. |
-| 212 | 20240912_221628063_iOS | Sculptural pole with colorful, abstract shapes, Security cameras, A ladder, Metal rods | No persons visible in the image | Sunny | N/A |
-| 213 | 20240912_221719422_iOS | Old vintage metal signs including words 'MOD', 'WEDDING INFORMATION', 'laundry', and parts of other letters, Metal stands and supports for signs, Visible bolts and light bulbs on signs | No persons visible in the image. | Sunny conditions with clear blue skies. | N/A |
-| 214 | 20240907_213138080_iOS | paved parking area, bare trees, wooden fencing, old wagons, steam engine, mountains, partly cloudy sky, palm trees, grass area | No persons visible in the image. | Sunny with few clouds. | N/A |
-| 215 | 20240909_152635599_iOS | N/A | Not detected | Unknown | N/A |
+| 212 | 20240912_221628063_iOS | Sculptural pole with colorful, abstract shapes, Security cameras, A ladder, Metal rods | No persons visible in the image | Sunny | The image has a quirky and artistic feel, likely indicative of a creative or urban environment. |
+| 213 | 20240912_221719422_iOS | Old vintage metal signs including words 'MOD', 'WEDDING INFORMATION', 'laundry', and parts of other letters, Metal stands and supports for signs, Visible bolts and light bulbs on signs | No persons visible in the image. | Sunny conditions with clear blue skies. | Historic and nostalgic, evoking a sense of the past and the culture of old signage. |
+| 214 | 20240907_213138080_iOS | paved parking area, bare trees, wooden fencing, old wagons, steam engine, mountains, partly cloudy sky, palm trees, grass area | No persons visible in the image. | Sunny with few clouds. | Historic, serene, and empty, evoking a sense of quiet and nostalgia. |
+| 215 | 20240909_152635599_iOS | N/A | Not detected | Unknown | Unknown |
 | 216 | 20240912_020746642_iOS | Restaurant signage ('Mediterranean Street Food', 'Miznon'), Decorative columns with colorful writing, Marble countertops, Wooden stools, Ceiling-mounted lights, People dining, Kitchen area with cooking utensils, Hand sanitizer | Multiple individuals are visible, including a man and a woman seated at a counter, and other patrons in the background, engaged in dining and social activities. | Indoor setting; external weather conditions not visible | The setting appears lively and casual, with a vibrant and bustling atmosphere typical of a popular dining venue. |
-| 217 | 20240907_183755061_iOS | rock formation, wooden panels, bird sculpture, exhibition stands, interactive displays, descriptive placards, maps | No visible persons | Indoor scene; weather conditions are not applicable | N/A |
-| 218 | 20240917_151205000_iOS | Two yellow balls, child's T-shirt, child's pants, socks | One toddler visible, sitting on a floor, holding two yellow balls, wearing a gray T-shirt with red sleeves and graphic, dark pants, and white socks. | Not visible as the image is indoors | N/A |
-| 219 | 20240907_194155274_iOS | man, salty ground, mountains | One person visible, a man standing with his hands on his hips wearing a red t-shirt, navy shorts, white sneakers, and sunglasses. | Sunny | N/A |
+| 217 | 20240907_183755061_iOS | rock formation, wooden panels, bird sculpture, exhibition stands, interactive displays, descriptive placards, maps | No visible persons | Indoor scene; weather conditions are not applicable | Educational and informative, with a focus on natural history and geology |
+| 218 | 20240917_151205000_iOS | Two yellow balls, child's T-shirt, child's pants, socks | One toddler visible, sitting on a floor, holding two yellow balls, wearing a gray T-shirt with red sleeves and graphic, dark pants, and white socks. | Not visible as the image is indoors | Playful and curious, as the child looks slightly puzzled or focused |
+| 219 | 20240907_194155274_iOS | man, salty ground, mountains | One person visible, a man standing with his hands on his hips wearing a red t-shirt, navy shorts, white sneakers, and sunglasses. | Sunny | The image conveys a sense of adventure and openness, emphasized by the vast empty landscape and the solitary figure. |
 | 220 | 20240910_022255632_iOS | large hotel building with illuminations, trees, reflective water body with fountain, cars, pedestrian paths, street lights, statues, partial view of a Ferris wheel structure | No visible individuals can be distinctly identified due to distance and focus. | Clear skies indicating fair weather. | The image conveys a lively and elegant evening atmosphere. |
 | 221 | 20240907_160723333_iOS | Car windshield, Rearview mirror, Dashboard, Smartphone holder, Car vent, Road, Desert landscape | Partial view of a person visible, mostly the person's hair from behind | Sunny | The image evokes a sense of adventure and exploration, possibly a road trip in a serene, desolate landscape. |
 | 222 | 20240912_224323381_iOS | Neon sign ('The Neon Museum Las Vegas'), Bench, Wall (with shadow patterns), Pebbles on ground, Paving slabs | One person, male, middle-aged, wearing glasses, a striped T-shirt, denim shorts, white sneakers, and black socks. He is seated on a bench. | Sunny (shadow patterns visible, bright lighting conditions) | Casual, leisurely, and tourist-friendly environment |
-| 223 | 20240912_221519597_iOS | Red and white neon sign depicting a chef-like figure holding a milk bottle, Parts of other signs such as letters and shapes, Metal supports and stands, Background building with a red-roof | No visible persons in the image | Sunny day with clear blue sky | N/A |
+| 223 | 20240912_221519597_iOS | Red and white neon sign depicting a chef-like figure holding a milk bottle, Parts of other signs such as letters and shapes, Metal supports and stands, Background building with a red-roof | No visible persons in the image | Sunny day with clear blue sky | Bright and vibrant, emphasizing retro and nostalgic themes |
 | 224 | 20240907_201238035_iOS | Wooden sign reading 'BADWATER BASIN 282 FEET/85.5 METERS BELOW SEA LEVEL', Wooden observation deck, Salt flats, Mountains in the background, Clouds in the sky | Two individuals are visible in the middle distance, walking on the salt flat. They are too far to discern details about their appearance. | The sky is partly cloudy with a lot of sunlight indicating clear weather conditions. | The image conveys a sense of vastness and minimalism, underscored by the expansive view and the sparse, flat landscape. |
-| 225 | 20240910_013325624_iOS | Hotel building, Fountains, Trees, Sidewalk, Road, Buses, Clouds, Sunset | One person visible in the foreground, dressed in a robe, facing away from the camera. | Clear with partly cloudy sky. | N/A |
-| 226 | 20240907_193957119_iOS | Pink jeep, black SUV, white salts on ground, mountains, blue sky with clouds, fence post | Several people visible, including two walking away from the camera near the center and others scattered near the vehicles | Sunny with some clouds | N/A |
-| 227 | 20240912_163537937_iOS | Presentation screen showing a business chart, Graph titled 'Cloud Adoption Journey' with various colors indicating different technologies, Legend defining SaaS, PaaS, IaaS, and On-Prem for the graph, Text details about the number of On-Prem VMs and usage of Oracle DB, Steelcase logo at the top left | No persons visible in the image | Not applicable, as the image is taken indoors | N/A |
-| 228 | 20240907_195546100_iOS | salt flats, mountains, sky | No visible persons | Sunny | N/A |
-| 229 | 20240910_042338673_iOS | Bar counter, beverages, picture frames, bottles, hanging lights, ornate ceiling tiles | Four men visible, engaging in conversation, casually dressed, wearing lanyards, presumably at a social or professional event | Not visible as the image is indoors | N/A |
-| 230 | 20240910_014621617_iOS | Table, Chairs, Drinks (glasses with beverages), Name badges, Building, Trees, Body of water (fountain) | There are six men visible, seated and standing around a table, dressed in casual attire, predominantly buttoned shirts and trousers. | The weather appears sunny based on the lighting and shadows. | N/A |
-| 231 | 20240905_185955000_iOS | smartphone interface displaying an email from Maya Mobile | No persons visible | Not applicable | N/A |
-| 232 | 20240912_221030404_iOS | Golden Nugget sign, pieces of metallic structures, light bulbs | No persons visible | Sunny | N/A |
-| 233 | 20240912_221500571_iOS | Jackpot Motel sign, Sahara sign, various other dismantled signs, metal structures, palm trees | No persons visible | Sunny | N/A |
-| 234 | 20240911_044438903_iOS | Large interior dome structure, Giant projected screen, Seating areas with chairs, Spectators, Lighting equipment | Multiple spectators visible, watching the screen or moving around. They show varied expressions and postures, indicating engagement and movement typical of an event environment. | Not applicable as the image is taken indoors. | N/A |
+| 225 | 20240910_013325624_iOS | Hotel building, Fountains, Trees, Sidewalk, Road, Buses, Clouds, Sunset | One person visible in the foreground, dressed in a robe, facing away from the camera. | Clear with partly cloudy sky. | The image conveys a peaceful and serene mood, enhanced by the sunset light and the elegance of the dancing fountains. |
+| 226 | 20240907_193957119_iOS | Pink jeep, black SUV, white salts on ground, mountains, blue sky with clouds, fence post | Several people visible, including two walking away from the camera near the center and others scattered near the vehicles | Sunny with some clouds | The image has a vast, open, and arid atmosphere, feeling somewhat harsh due to the bright sun and expansive landscape |
+| 227 | 20240912_163537937_iOS | Presentation screen showing a business chart, Graph titled 'Cloud Adoption Journey' with various colors indicating different technologies, Legend defining SaaS, PaaS, IaaS, and On-Prem for the graph, Text details about the number of On-Prem VMs and usage of Oracle DB, Steelcase logo at the top left | No persons visible in the image | Not applicable, as the image is taken indoors | Informative and professional |
+| 228 | 20240907_195546100_iOS | salt flats, mountains, sky | No visible persons | Sunny | Sparse and tranquil environment, with an expansive view that conveys isolation and calm |
+| 229 | 20240910_042338673_iOS | Bar counter, beverages, picture frames, bottles, hanging lights, ornate ceiling tiles | Four men visible, engaging in conversation, casually dressed, wearing lanyards, presumably at a social or professional event | Not visible as the image is indoors | Sociable and relaxed atmosphere in a well-lit, stylish bar setting |
+| 230 | 20240910_014621617_iOS | Table, Chairs, Drinks (glasses with beverages), Name badges, Building, Trees, Body of water (fountain) | There are six men visible, seated and standing around a table, dressed in casual attire, predominantly buttoned shirts and trousers. | The weather appears sunny based on the lighting and shadows. | The mood is relaxed and convivial, as the group appears to be engaged in casual socializing, possibly during a break from a conference or event. |
+| 231 | 20240905_185955000_iOS | smartphone interface displaying an email from Maya Mobile | No persons visible | Not applicable | Informative and administrative, conveying the notification of an eSIM activation |
+| 232 | 20240912_221030404_iOS | Golden Nugget sign, pieces of metallic structures, light bulbs | No persons visible | Sunny | Historic, nostalgic |
+| 233 | 20240912_221500571_iOS | Jackpot Motel sign, Sahara sign, various other dismantled signs, metal structures, palm trees | No persons visible | Sunny | Nostalgic, historical, slightly desolate |
+| 234 | 20240911_044438903_iOS | Large interior dome structure, Giant projected screen, Seating areas with chairs, Spectators, Lighting equipment | Multiple spectators visible, watching the screen or moving around. They show varied expressions and postures, indicating engagement and movement typical of an event environment. | Not applicable as the image is taken indoors. | The image conveys a dramatic and captivating mood due to the dim lighting and focus on the illuminated screen, typical of a public event like a concert or screening. |
 | 235 | 20240907_204340966_iOS | Road, Bushes, Rocks, Dirt | No persons visible | Sunny | Desolate, barren, and arid |
-| 236 | 20240911_052249606_iOS | Planet Earth projection, Audience in a theater, Seats, Dark ceiling | There is a large audience visible in the foreground, watching the projection. The individuals are mostly seen from behind, with varying hairstyles and clothing. | Not applicable, as this is an indoor scene. | N/A |
+| 236 | 20240911_052249606_iOS | Planet Earth projection, Audience in a theater, Seats, Dark ceiling | There is a large audience visible in the foreground, watching the projection. The individuals are mostly seen from behind, with varying hairstyles and clothing. | Not applicable, as this is an indoor scene. | The atmosphere is one of awe and fascination, as the audience gazes at a stunning visual display of Earth from space. |
 | 237 | 20240907_172953538_iOS | Mountains, Dry vegetation, Rocks, Sky, Distant flat white area which could be salt flats or a dry lake | No persons visible | Sunny with few clouds | Serene yet stark and desolate due to the arid, expansive landscape |
-| 238 | 20240907_172233421_iOS | Mountain slopes, Salt flats, Dry riverbeds, Textured terrain, Rocky surfaces | There are no visible persons in the image. | The weather appears sunny with clear conditions, as indicated by the strong sunlight and absence of clouds. | N/A |
-| 239 | 20240911_040229958_iOS | Large spherical building with a light display, people, a digital billboard, handrails, steps | Multiple people visible, men and women of various ages, mostly seen from behind or side, typical casual clothing, indicating a public, possibly tourist setting | Difficult to determine exact weather conditions due to night setting; however, there's no visible rain or adverse weather conditions | N/A |
+| 238 | 20240907_172233421_iOS | Mountain slopes, Salt flats, Dry riverbeds, Textured terrain, Rocky surfaces | There are no visible persons in the image. | The weather appears sunny with clear conditions, as indicated by the strong sunlight and absence of clouds. | The image conveys a mood of desolation and stark natural beauty, typical of arid, uninhabited landscapes. |
+| 239 | 20240911_040229958_iOS | Large spherical building with a light display, people, a digital billboard, handrails, steps | Multiple people visible, men and women of various ages, mostly seen from behind or side, typical casual clothing, indicating a public, possibly tourist setting | Difficult to determine exact weather conditions due to night setting; however, there's no visible rain or adverse weather conditions | The image conveys a vibrant and lively atmosphere, likely a place of entertainment or public gathering, enhanced by colorful lighting |
 | 240 | 20240912_224321799_iOS | bench, neon sign, paved ground, wall, rocks | One man seated. Wearing glasses, horizontal striped t-shirt, denim shorts, white sneakers, black socks. Smiling at the camera. | Sunny with shadows indicating bright daylight | Casual, relaxed setting with a friendly and cheerful mood |
-| 241 | 20240902_090954932_iOS | Airplane (Douglas DC-3), Tarmac, Airport Terminal Buildings, Staircase, Vehicles | One person visible, a ground crew member or pilot, wearing dark blue clothes and walking near the airplane | Sunny with clear skies | N/A |
+| 241 | 20240902_090954932_iOS | Airplane (Douglas DC-3), Tarmac, Airport Terminal Buildings, Staircase, Vehicles | One person visible, a ground crew member or pilot, wearing dark blue clothes and walking near the airplane | Sunny with clear skies | Active, historic due to vintage aircraft, clear and vibrant |
 | 242 | 20240924_144323996_iOS | Man, Glasses, Polo shirt, Lanyard, Window, Curtain | One middle-aged man with glasses; visible features include a mustache and he is partially smiling while raising his hand in a waving gesture. | Not clearly visible, but slight brightness outside the window suggests it might be sunny. | The mood appears friendly and welcoming, as the man is smiling and waving. |
-| 243 | 20240923_082719004_iOS | One man, headphones around neck, sweater, airplane seat, airplane cabin interior | One visible person, a middle-aged man with glasses and a mustache, sitting inside an airplane. | Not visible, as the setting is indoors (inside an airplane). | N/A |
-| 244 | 20240908_193456934_iOS | Pine tree, metal fence, concrete sidewalk, banner with images and text, brown building, black security camera, green grass, purple-leafed shrubs, cloudless sky | Three persons are visible approaching the entrance gate. The group comprises an adult and two children, moving about or playing near the fence. | Sunny conditions with clear blue skies | N/A |
-| 245 | 20240910_020246084_iOS | Fountain display, Bellagio hotel building, Palm trees, People, Cars, Street, Street lamps, Statues | Multiple people visible, mostly in small groups or individually, engaged in watching the fountain display and walking along the sidewalks. | The weather appears clear with no visible clouds, indicative of a sunny or clear dusk. | N/A |
+| 243 | 20240923_082719004_iOS | One man, headphones around neck, sweater, airplane seat, airplane cabin interior | One visible person, a middle-aged man with glasses and a mustache, sitting inside an airplane. | Not visible, as the setting is indoors (inside an airplane). | The mood appears relaxed and comfortable, typical of a passenger seated in a flight. |
+| 244 | 20240908_193456934_iOS | Pine tree, metal fence, concrete sidewalk, banner with images and text, brown building, black security camera, green grass, purple-leafed shrubs, cloudless sky | Three persons are visible approaching the entrance gate. The group comprises an adult and two children, moving about or playing near the fence. | Sunny conditions with clear blue skies | The image conveys a casual, relaxed atmosphere, likely a family or community area |
+| 245 | 20240910_020246084_iOS | Fountain display, Bellagio hotel building, Palm trees, People, Cars, Street, Street lamps, Statues | Multiple people visible, mostly in small groups or individually, engaged in watching the fountain display and walking along the sidewalks. | The weather appears clear with no visible clouds, indicative of a sunny or clear dusk. | The atmosphere is vibrant and lively, enhanced by the grand fountain display and the bustling street activity, typically festive of a Las Vegas evening. |
 | 246 | 20240908_034616102_iOS | Bellagio hotel, fountains, water, buildings, the Cosmopolitan hotel sign | People visible from behind, watching the fountain show | Clear night sky | Exciting and vibrant, typical of a lively nighttime show |
-| 247 | 20240907_194154486_iOS | Man, Salt flats, Mountains, Sky | One person is visible. He appears as a middle-aged man wearing a red t-shirt, blue shorts, and sneakers. He is standing with his hands on his hips and is wearing sunglasses and a cap. | The weather appears sunny and clear. | N/A |
-| 248 | 20240907_204455870_iOS | hills, trail, sky | No visible persons | Sunny with some clouds | N/A |
-| 249 | 20240907_195544750_iOS | salt flats, mountains, sky, sparse vegetation | No persons visible | Sunny with a few scattered clouds | N/A |
-| 250 | 20240907_160700304_iOS | Dirt road, Car interior including dashboard, vent, steering fragment, Smartphone mount, Car windshield, Rearview mirror, Map and towel on the dashboard, Warning road sign | Partial view of a person visible, with blonde hair covering left part of the frame | Sunny, clear skies | N/A |
-| 251 | 20240907_164634020_iOS | Death Valley National Park sign, mountains, sky, ground | There are seven men visible, standing in front of the park sign. They are variously dressed in casual clothing such as T-shirts, shorts, and sunglasses. | Sunny with clear skies. | N/A |
+| 247 | 20240907_194154486_iOS | Man, Salt flats, Mountains, Sky | One person is visible. He appears as a middle-aged man wearing a red t-shirt, blue shorts, and sneakers. He is standing with his hands on his hips and is wearing sunglasses and a cap. | The weather appears sunny and clear. | The mood conveyed by the image is adventurous and stark, accentuated by the barren landscape and vast open space. |
+| 248 | 20240907_204455870_iOS | hills, trail, sky | No visible persons | Sunny with some clouds | Arid, isolated, rugged |
+| 249 | 20240907_195544750_iOS | salt flats, mountains, sky, sparse vegetation | No persons visible | Sunny with a few scattered clouds | Vast, tranquil, and serene |
+| 250 | 20240907_160700304_iOS | Dirt road, Car interior including dashboard, vent, steering fragment, Smartphone mount, Car windshield, Rearview mirror, Map and towel on the dashboard, Warning road sign | Partial view of a person visible, with blonde hair covering left part of the frame | Sunny, clear skies | The image conveys a sense of adventure and exploration, a tranquil journey through a deserted landscape. |
+| 251 | 20240907_164634020_iOS | Death Valley National Park sign, mountains, sky, ground | There are seven men visible, standing in front of the park sign. They are variously dressed in casual clothing such as T-shirts, shorts, and sunglasses. | Sunny with clear skies. | The image conveys a happy and adventurous mood, as the group appears to be enjoying their visit to the national park. |
 | 252 | 20240911_035420413_iOS | Cars, Traffic lights, Street lamps, People walking, Sidewalk, Trees, Illuminated spherical building | Several people are visible walking on the sidewalk, both individually and in groups. | The sky appears clear and dark, indicative of a dry and clear weather condition. | The image conveys a vibrant and busy urban night scene, illuminated by artificial lights and highlighted by the brightly lit spherical building. |
-| 253 | 20240908_230813359_iOS | Street, Vehicles, Palm trees, Electronic billboards, Buildings (including a castle-shaped hotel), Pedestrian bridges, Traffic signals, Street signs | There are no clearly visible people in the image. | Cloudy, looks like impending rain | N/A |
+| 253 | 20240908_230813359_iOS | Street, Vehicles, Palm trees, Electronic billboards, Buildings (including a castle-shaped hotel), Pedestrian bridges, Traffic signals, Street signs | There are no clearly visible people in the image. | Cloudy, looks like impending rain | The image conveys a bustling urban atmosphere but overshadowed by gloomy weather, giving a somewhat deserted and moody feeling. |
 | 254 | 20240911_210522105_iOS | Digital signages displaying schedules and information, Humans walking or interacting, Hallway carpets, Ceiling lights, Wall signs for room directions | Several individuals are present, both walking and standing, likely attendees of an event. Their appearances vary with some wearing business attire. | Not visible, indoor setting | The atmosphere appears businesslike and focused, typical of a professional conference environment. |
-| 255 | 20240907_201231132_iOS | sign reading 'BADWATER BASIN 282 FEET/85.5 METERS BELOW SEA LEVEL', mountain range in the distance, salt flats, wooden boardwalk | No persons are visible in the image. | Sunny with clear blue skies. | N/A |
-| 256 | 20240907_184151209_iOS | Exhibit banners (HOT, DRY, LOW), Background wall featuring multiple textures (rock, dried mud), Lighting fixtures, Large printed photograph of a landscape (appears to be Death Valley) | No persons visible | Weather conditions not applicable - indoor setting | N/A |
-| 257 | 20240908_230512041_iOS | Sofa with floral motif, Coffee table with books and remote, Shelf with decorative items and T-shirts, Wall decorated with string lights and letters, Multiple patterned chairs, Wooden tables, Floor lamp, Wall hanging, Decorative plants | No persons visible | Indoor setting; not applicable | N/A |
-| 258 | 20240911_035732467_iOS | Geodesic dome structure illuminated with blue light, several cars and trucks in a street, wet asphalt, light poles, trees, digital billboard, road signs | No visible persons | The pavement is wet, suggesting recent rain | N/A |
-| 259 | 20240907_193519492_iOS | Smartphone mounted on dashboard showing time 5:59, Car dashboard, Rearview mirror, Steering column, Car vents, Rear window, Outside landscape (desert road) | A person is partially visible in the rearview mirror, specifically the eyes are observable. | Sunny and clear skies as observed through the windshield and rear window. | N/A |
-| 260 | 20240912_221103245_iOS | Giant guitar sculpture, Different neon signs, Other varied signage, Metal fencing barriers, Concrete floor | People are walking and observing the exhibits, but not clearly identifiable due to distance. | Sunny with clear blue skies | N/A |
-| 261 | 20240912_221021396_iOS | Open sign, Metal stars, Metal objects, Structural beams | No persons visible | Sunny | N/A |
-| 262 | 20240912_225243693_iOS | Neon sign reading 'The Neon Boneyard', Palm trees, Decorative stars and letters on the sign, Fence, Sidewalk, Utility pole | No persons are visible in the image. | Sunny with clear skies. | N/A |
-| 263 | 20240912_221051679_iOS | Large metallic signs with embedded light bulbs, structural supports, and information placards | No visible persons in the image | Sunny with clear blue skies | N/A |
-| 264 | 20240907_173102177_iOS | salt flats, mountains, sky, clouds, vegetation | One person visible in the foreground, male, wearing a red T-shirt, black shorts, and a cap | Sunny with few scattered clouds | N/A |
-| 265 | 20240901_195827000_iOS | People, Clothing (variety including shirts, pants, skirts, ties), Wall | The image includes a group of men and women, appearing to be colleagues possibly taken in a professional setting. They exhibit a variety of expressions, with some smiling and others looking more neutral. | Not applicable as the setting is indoors. | N/A |
+| 255 | 20240907_201231132_iOS | sign reading 'BADWATER BASIN 282 FEET/85.5 METERS BELOW SEA LEVEL', mountain range in the distance, salt flats, wooden boardwalk | No persons are visible in the image. | Sunny with clear blue skies. | The image evokes a sense of aridity and extremeness, given its depiction of the harsh, expansive landscape of Badwater Basin, contrasting with the stark and empty salt flats. |
+| 256 | 20240907_184151209_iOS | Exhibit banners (HOT, DRY, LOW), Background wall featuring multiple textures (rock, dried mud), Lighting fixtures, Large printed photograph of a landscape (appears to be Death Valley) | No persons visible | Weather conditions not applicable - indoor setting | Educational and informative with a focus on natural extreme conditions |
+| 257 | 20240908_230512041_iOS | Sofa with floral motif, Coffee table with books and remote, Shelf with decorative items and T-shirts, Wall decorated with string lights and letters, Multiple patterned chairs, Wooden tables, Floor lamp, Wall hanging, Decorative plants | No persons visible | Indoor setting; not applicable | Cozy, nostalgic, reminiscent of a living room from a previous era |
+| 258 | 20240911_035732467_iOS | Geodesic dome structure illuminated with blue light, several cars and trucks in a street, wet asphalt, light poles, trees, digital billboard, road signs | No visible persons | The pavement is wet, suggesting recent rain | The illuminated dome and wet streets give a lively yet serene atmosphere, typically associated with urban nightlife |
+| 259 | 20240907_193519492_iOS | Smartphone mounted on dashboard showing time 5:59, Car dashboard, Rearview mirror, Steering column, Car vents, Rear window, Outside landscape (desert road) | A person is partially visible in the rearview mirror, specifically the eyes are observable. | Sunny and clear skies as observed through the windshield and rear window. | The setting appears rugged and adventurous, accentuated by the dusty and isolated desert road. |
+| 260 | 20240912_221103245_iOS | Giant guitar sculpture, Different neon signs, Other varied signage, Metal fencing barriers, Concrete floor | People are walking and observing the exhibits, but not clearly identifiable due to distance. | Sunny with clear blue skies | Nostalgic, artistic, with a sense of cultural heritage |
+| 261 | 20240912_221021396_iOS | Open sign, Metal stars, Metal objects, Structural beams | No persons visible | Sunny | Rustic and abandoned, conveying a sense of decay and nostalgia |
+| 262 | 20240912_225243693_iOS | Neon sign reading 'The Neon Boneyard', Palm trees, Decorative stars and letters on the sign, Fence, Sidewalk, Utility pole | No persons are visible in the image. | Sunny with clear skies. | Bright and nostalgic, evoking a classic Americana vibe with a focus on historic signage. |
+| 263 | 20240912_221051679_iOS | Large metallic signs with embedded light bulbs, structural supports, and information placards | No visible persons in the image | Sunny with clear blue skies | Nostalgic and historical, reflecting a preserved past of iconic signage |
+| 264 | 20240907_173102177_iOS | salt flats, mountains, sky, clouds, vegetation | One person visible in the foreground, male, wearing a red T-shirt, black shorts, and a cap | Sunny with few scattered clouds | Adventurous and serene, showcasing natural beauty and vastness |
+| 265 | 20240901_195827000_iOS | People, Clothing (variety including shirts, pants, skirts, ties), Wall | The image includes a group of men and women, appearing to be colleagues possibly taken in a professional setting. They exhibit a variety of expressions, with some smiling and others looking more neutral. | Not applicable as the setting is indoors. | The group's expressions and relaxed postures give a sense of casualness and maybe a moment of informal gathering or a brief respite during a busy day. |
 | 266 | 20240913_210819832_iOS | Whiskey bottles, Digital displays, Liquor serving trays, Counter, Backpack, Mobile digital tablet, Various advertisements | Three middle-aged men standing in front of a liquor sampling station; one man in front with floral shirt, another with a striped tank top and shorts, and the third wearing a green shirt; Female attendant at the sampling station, wearing a work uniform and seemingly engaging with the customers | Indoors (no visible weather conditions) | Casual and curious, as the individuals appear interested in the liquor samples |
-| 267 | 20240912_221956638_iOS | Glossy Vegas sign, crescent moon shape, star shapes, encircling arcs dotted with lights | No people are visible in the image. | The sky is clear and blue, indicating sunny weather conditions. | N/A |
-| 268 | 20240907_204300091_iOS | mountains, sky, cloud | No persons visible | Sunny | N/A |
-| 269 | 20240907_173624572_iOS | pink SUV van with 'Pink Jeep Tours' branding, asphalt parking area, mountainous landscape in the distance, clear blue sky with few clouds | No persons are visible in the image. | The weather appears sunny with a few clouds. | N/A |
-| 270 | 20240912_190136489_iOS | Cardboard box, Sticker label with 'Tidbyt' | Part of one person visible (hand holding the box) | Not visible | N/A |
+| 267 | 20240912_221956638_iOS | Glossy Vegas sign, crescent moon shape, star shapes, encircling arcs dotted with lights | No people are visible in the image. | The sky is clear and blue, indicating sunny weather conditions. | The atmosphere is vibrant and playful, typical of a festive or entertainment-focused locale. |
+| 268 | 20240907_204300091_iOS | mountains, sky, cloud | No persons visible | Sunny | Rugged and arid, the landscape conveys a sense of desolation and remote natural beauty. |
+| 269 | 20240907_173624572_iOS | pink SUV van with 'Pink Jeep Tours' branding, asphalt parking area, mountainous landscape in the distance, clear blue sky with few clouds | No persons are visible in the image. | The weather appears sunny with a few clouds. | The image conveys a sense of openness and readiness for adventure, underscored by the clear skies and the rugged vehicle prepared for touring. |
+| 270 | 20240912_190136489_iOS | Cardboard box, Sticker label with 'Tidbyt' | Part of one person visible (hand holding the box) | Not visible | Neutral, with a focus on the product being held |
 | 271 | 20240910_011055466_iOS | Statue of a seated figure, Eiffel Tower replica, Water body (likely a pond or lake), High-rise buildings (hotel facades with classical architectural design), Palm trees, People walking on the sidewalk, Cars and a van on the road, Street lamps | Several people are visible walking on the sidewalk. They appear as small figures in the distance, and their specific details are indiscernible. | The weather appears clear with scattered clouds, indicating a partly cloudy day. | The image conveys a serene yet lively urban atmosphere, blending architectural grandeur with a touch of nature and everyday city life. |
-| 272 | 20240906_230455062_iOS | Palm trees, Cars on the road, Encore hotel building, Wynn hotel building, skyline with other glass-fronted buildings, street lamps, pedestrian pathway | A group of three people walking on the pedestrian pathway | Sunny with clear blue skies | N/A |
-| 273 | 20240903_174805827_iOS | seating booth, dinner table, dinnerware, glasses, windows, olive oil container, salt and pepper shakers, a painting visible through a window | N/A | Not visible | N/A |
+| 272 | 20240906_230455062_iOS | Palm trees, Cars on the road, Encore hotel building, Wynn hotel building, skyline with other glass-fronted buildings, street lamps, pedestrian pathway | A group of three people walking on the pedestrian pathway | Sunny with clear blue skies | Busy, vibrant, and modern city atmosphere |
+| 273 | 20240903_174805827_iOS | seating booth, dinner table, dinnerware, glasses, windows, olive oil container, salt and pepper shakers, a painting visible through a window | N/A | Not visible | The setting appears cozy and intimate, likely in a casual dining environment, with a relaxed and happy atmosphere. |
 | 274 | 20240911_030935094_iOS | Grilled shishito pepper, Butter pat with container, Pulled beef on a grilled onion in aluminum foil wrapping, Tray, Table, Salad with various vegetables and grilled steak slices | No persons are visible in the image. | Not applicable. The image is taken indoors. | The setting seems casual and relaxed, typical of a fast casual dining environment. |
 | 275 | 20240907_164635870_iOS | Death Valley National Park sign, sandy ground, mountains, sparse vegetation | There are six men standing in front of the Death Valley National Park sign. They are casually dressed, suitable for a warm outdoor setting, including shorts and T-shirts. Most of them are wearing sunglasses and caps or hats. | The weather appears sunny with clear skies. | The mood seems cheerful and adventurous, as the group seems to be enjoying their visit to the national park. |
-| 276 | 20240907_194216998_iOS | Salt flats, distant mountains, sky | No persons visible | Sunny with a few clouds | N/A |
+| 276 | 20240907_194216998_iOS | Salt flats, distant mountains, sky | No persons visible | Sunny with a few clouds | Desolate, serene, expansive |
 | 277 | 20250104_13h58m44s_grim | N/A | N/A | N/A | N/A |
-| 278 | 20240901_194641000_iOS | Airplane (DC-3 with '50 Golden DC-3 Years' text), group of people, asphalt tarmac, clouds | Yes, there are numerous people in the image, ranging from children to adults, in various casual and business casual outfits. | The weather appears sunny with few clouds in the sky. | N/A |
-| 279 | 20240903_174834135_iOS | N/A | Not detected | Unknown | N/A |
+| 278 | 20240901_194641000_iOS | Airplane (DC-3 with '50 Golden DC-3 Years' text), group of people, asphalt tarmac, clouds | Yes, there are numerous people in the image, ranging from children to adults, in various casual and business casual outfits. | The weather appears sunny with few clouds in the sky. | The image conveys a festive or celebratory mood, possibly marking an anniversary or special event, given the assembled group and the commemorative text on the airplane. |
+| 279 | 20240903_174834135_iOS | N/A | Not detected | Unknown | Unknown |
 | 280 | 20240910_135942551_iOS | swimming pool, loungers, umbrellas, palazzo hotel building, palms, large planters with plants, crane, encore hotel building | No visible people in the image | Sunny weather, clear skies | Relaxing and calm, with an inviting luxurious outdoor pool area |
 | 281 | 20240912_151402637_iOS | White disposable plate, Plastic fork and spoon, Boiled egg, Croissant, Pastry or wrap, Small jar of jam, Yogurt container, Brown paper bag, Glass vase with green stems | No visible persons in the image. | Weather not visible. | The setting appears to be indoor, possibly at a conference or seminar, suggesting a neutral and functional mood. |
-| 282 | 20240907_164630280_iOS | Death Valley National Park sign, Asphalt road, Desert landscape with arid hills | Six adult males standing in front of a sign. They are casually dressed, wearing a mix of shorts and trousers, tee-shirts and shirts. Some of them are wearing sunglasses and hats or caps. | Sunny and clear | N/A |
+| 282 | 20240907_164630280_iOS | Death Valley National Park sign, Asphalt road, Desert landscape with arid hills | Six adult males standing in front of a sign. They are casually dressed, wearing a mix of shorts and trousers, tee-shirts and shirts. Some of them are wearing sunglasses and hats or caps. | Sunny and clear | Cheerful and adventurous, as the group seems to be enjoying a trip together in a scenic location. |
 | 283 | 20240910_200658154_iOS | Large video screen, Microphones, Ceiling structures, Audience (seated) | One man visible, giving a speech on a large screen, dressed in a dark polo shirt, gesturing with his right hand. | Not applicable as the scene is indoors. | Engaged, focused atmosphere with attentive audience. |
-| 284 | 20240912_221240806_iOS | Chief Hotel Court sign, variety of vintage neon signs, metal and neon sign elements, fence, building in the background | No visible persons in the image | Sunny conditions based on the clear sky and distinct shadows | N/A |
+| 284 | 20240912_221240806_iOS | Chief Hotel Court sign, variety of vintage neon signs, metal and neon sign elements, fence, building in the background | No visible persons in the image | Sunny conditions based on the clear sky and distinct shadows | Nostalgic and historical, related to vintage Americana |
 
 
 ## 1. 20240906_230318887_iOS
@@ -369,6 +369,7 @@ Minor overexposure in the sky
 | Objects | Display screen showing a technical presentation, Presentation contents including text and diagram, Room walls and possible shadows |
 | Persons | No persons visible |
 | Weather | Not visible/Not applicable |
+| Mood & Atmosphere | Informative and professional, suitable for a technical or business presentation |
 | Time of Day | Indeterminate, indoor environment |
 | Season & Date | Indeterminate, indoor environment |
 
@@ -425,6 +426,7 @@ Slight glare visible at the top right of the screen
 | Objects | Old steam locomotive, Wooden fences, Wagon wheels |
 | Persons | No visible persons |
 | Weather | Sunny with few clouds |
+| Mood & Atmosphere | Historic, rustic, abandoned |
 | Time of Day | Afternoon |
 | Season & Date | Possibly late summer or early autumn due to the clear weather and sunlight intensity |
 
@@ -482,6 +484,7 @@ Slightly cluttered foreground
 | Objects | Dry riverbed, Mountain ranges, Sky |
 | Persons | No persons visible in the image |
 | Weather | Sunny with some scattered clouds |
+| Mood & Atmosphere | Arid, desolate, yet majestic due to the vast wilderness and rugged terrain |
 | Time of Day | Afternoon |
 
 
@@ -539,6 +542,7 @@ Minor overexposure in the sky area
 | Objects | Presentation slide showing information about NVIDIA NIM, Icons representing different AI models: Speech, Digital Human, Computer Vision, Biology, Simulation, Language, Regional Language, Vision Lan... |
 | Persons | No real persons visible, only caricatured representations in the digital human and other model icons. |
 | Weather | Indoor scene; external weather conditions not applicable. |
+| Mood & Atmosphere | Informative and professional, themed around technology and AI. |
 | Time of Day | Indeterminate, indoor lighting seems consistent with any time of day. |
 | Season & Date | No indicators of specific season or date. |
 
@@ -653,6 +657,7 @@ There are no significant defects or artifacts. The foreground and background are
 | Objects | Car dashboard, Rearview mirror, Windshield |
 | Persons | Partially visible person, only hand and partial shoulder seen, likely a driver |
 | Weather | Partly cloudy |
+| Mood & Atmosphere | The mood is serene and adventurous, typical of a road trip in a quiet, expansive desert environment. |
 | Time of Day | Afternoon based on the brightness and length of shadows |
 
 
@@ -709,6 +714,7 @@ None significant, though front elements like the dashboard items could distract 
 | Objects | Yellow metal structure with circular ornamental shape, light bulbs attached to the structure, supporting beam |
 | Persons | No persons are visible in the image. |
 | Weather | Sunny |
+| Mood & Atmosphere | The image conveys a stark and minimalist atmosphere due to the clear sky and the isolated structure. |
 | Time of Day | Afternoon |
 | Season & Date | Season or specific date cannot be determined, although the weather suggests it could be a sunny day in spring or summer. |
 
@@ -759,6 +765,7 @@ Increase contrast by 10%, brighten shadows, enhance clarity of the structure det
 | Objects | Vehicle dashboard, Rearview mirror, Windshield |
 | Persons | No visible persons |
 | Weather | Sunny |
+| Mood & Atmosphere | Rugged, adventurous, and isolated |
 | Time of Day | Afternoon |
 | Season & Date | Season indicators not very clear, possibly summer due to sunny weather and barren landscape |
 
@@ -873,6 +880,7 @@ No significant composition issues or defects.
 | Objects | Large vintage neon signs, some with lettering (Cafe, Hotel, Casino, Stardust), metal poles, informational placards, concrete floor, distant buildings |
 | Persons | No visible persons in this image |
 | Weather | Sunny, clear skies |
+| Mood & Atmosphere | Historic, nostalgic, colorful, outdoor museum-like setting |
 | Time of Day | Afternoon |
 | Season & Date | Season cannot be precisely determined but likely during a warmer month due to clear skies and bright sunlight |
 
@@ -984,6 +992,7 @@ No significant defects, but overall clutter on the table could be minimized for 
 | Objects | variety of vintage neon signs, giant guitar sign, Red Barn sign |
 | Persons | Three individuals are visible in the background, walking along the path between the exhibits. |
 | Weather | Sunny with blue skies and no visible clouds. |
+| Mood & Atmosphere | The scene is dynamic and colorful, reflecting a vibrant and historical atmosphere typical of a museum outdoor exhibit. |
 | Time of Day | Afternoon, based on the length and angle of the shadows. |
 
 
@@ -1043,6 +1052,7 @@ No significant defects, but overall clutter on the table could be minimized for 
 | Objects | several pickup trucks, driving direction arrow on the ground, parking lot structures (pillars and ceiling) |
 | Persons | One person is visible walking in the parking lot, dressed in a dark color jacket and lighter pants. |
 | Weather | Not visible due to the indoor setting |
+| Mood & Atmosphere | The environment feels utilitarian and somewhat deserted, except for the presence of one person and multiple parked trucks. |
 | Time of Day | Not easily determinable from lighting due to artificial indoor lights, possibly evening or night based on the overall dimness. |
 
 
@@ -1104,6 +1114,7 @@ No significant defects, but overall clutter on the table could be minimized for 
 | Objects | street, palm trees, telephone pole |
 | Persons | No people visible |
 | Weather | Sunny with few clouds |
+| Mood & Atmosphere | Desolate, tranquil |
 | Time of Day | Afternoon |
 | Season & Date | Looks like summer due to clear weather and sun position |
 
@@ -1161,6 +1172,7 @@ Slight tilt in the horizon line
 | Objects | Sidewalk, The Mirage Casino & Resort sign, People |
 | Persons | Multiple people are visible, walking along the sidewalk. They appear to be adults of varying ages, dressed in casual attire. |
 | Weather | The sky is clear without visible clouds, suggesting fair weather conditions. |
+| Mood & Atmosphere | The image conveys a lively and vibrant atmosphere typical of a bustling city street at dusk. |
 | Time of Day | Evening |
 | Season & Date | No distinct seasonal indicators; possibly spring or summer due to the attire of people and lighting. |
 
@@ -1269,6 +1281,7 @@ No enhancements recommended as the image serves its purpose well with clear visi
 | Objects | temperature display sign showing 112°F/44°C, mosaic art panel, mountainous background |
 | Persons | No persons visible in the image. |
 | Weather | Sunny with clear skies. |
+| Mood & Atmosphere | The image conveys a sense of extreme heat and barrenness, typical of a desert landscape under harsh sunlight. |
 | Time of Day | Afternoon, based on the strong overhead sunlight and minimal shadows. |
 
 
@@ -1325,6 +1338,7 @@ No significant defects or artifacts.
 | Objects | green sports car, horse, road |
 | Persons | No visible persons in the image |
 | Weather | Partly cloudy |
+| Mood & Atmosphere | Peaceful and natural |
 | Time of Day | Late afternoon |
 | Season & Date | Seems like spring or early autumn |
 
@@ -1383,6 +1397,7 @@ The car and horse are well placed but the horse is cut off on the left
 | Objects | giant spherical building with digital display, cars, street lamps, pedestrian sidewalk |
 | Persons | Several individuals are visible walking on the sidewalk; their features are not distinct due to the nighttime lighting. |
 | Weather | The sky is clear, indicative of likely dry and fair weather conditions. |
+| Mood & Atmosphere | The scene is vibrant and bustling, typical of a busy urban night with bright lights and active traffic. |
 | Time of Day | night |
 | Season & Date | Difficult to determine the specific season from the image; attire of the pedestrians suggests possibly warm weather. |
 
@@ -1437,6 +1452,7 @@ There are no major defects or artifacts; the composition is well-balanced.
 
 | Aspect | Details |
 |--------|---------|
+| Mood & Atmosphere | The image conveys a stark and uninhabited environment, highlighted by the vast and textured salt flats under a clear blue sky |
 
 ---
 
@@ -1563,6 +1579,7 @@ Increase contrast by 10% to bring out more details and depth in the landscape. C
 | Objects | information sign, 3D topographic map, metal frame |
 | Persons | No visible persons in the image |
 | Weather | Sunny, as indicated by the clear shadows on the ground |
+| Mood & Atmosphere | Educational and informative, with a detailed presentation of geographical information |
 | Time of Day | Afternoon, deduced from the angle and intensity of the shadows |
 | Season & Date | Not explicitly clear, but the clear skies and sunlight might suggest a warmer season |
 
@@ -1616,6 +1633,7 @@ Minimal enhancements recommended; the image is well-balanced as is. Slight sharp
 | Objects | Presentation screen displaying information about Oracle Gen2 Cloud Network and ZPR Software, Audience chairs filled with people, People |
 | Persons | The image shows a crowd of people seated, facing towards a large presentation screen. They appear engaged in viewing the presentation. |
 | Weather | Not applicable as the setting appears to be indoors. |
+| Mood & Atmosphere | The mood is focused and academic, suggesting a professional or educational conference setting. |
 | Time of Day | Not determinable due to indoor setting. |
 
 
@@ -1672,6 +1690,7 @@ The image is generally well composed but might benefit from a tighter crop to re
 | Objects | Exhibit panels, informational displays, wooden benches, floor carpet |
 | Persons | No people are visible in the image. |
 | Weather | Not applicable as the scene is indoors. |
+| Mood & Atmosphere | Educational and informative, with a calm and quiet ambiance typical of a museum or exhibition space. |
 | Time of Day | Indeterminate as the scene is indoors with artificial lighting. |
 | Season & Date | No seasonal or specific date indicators visible. |
 
@@ -1727,6 +1746,7 @@ No major defects or artifacts detected. Composition is well balanced for an inte
 | Objects | Cartoon-style sign with a character wearing a sombrero, MOTEL sign letters, Midsection of letters from restaurant sign with fruit images |
 | Persons | No visible people in the image |
 | Weather | Clear and sunny |
+| Mood & Atmosphere | Vibrant and nostalgic, typical of roadside Americana |
 | Time of Day | Afternoon |
 | Season & Date | No specific indicators but the clarity of the sky suggests a possibly spring or summer day |
 
@@ -1789,6 +1809,7 @@ No major defects or artifacts detected. Composition is well balanced for an inte
 | Objects | Plate of food containing rice, breaded chicken, salad, broccoli, and a creamy sauce dish, Compostable plate, Napkins |
 | Persons | No people visible in the image |
 | Weather | Not applicable as the image is taken indoors |
+| Mood & Atmosphere | The image conveys a casual dining setting, possibly at an event or a buffet |
 | Time of Day | Indeterminate due to indoor setting |
 
 
@@ -1838,6 +1859,7 @@ No specific enhancements needed based on current analysis; image quality is sati
 | Objects | LED screen ceiling, People, Stores and stalls |
 | Persons | Multiple people of various genders and ages are visible, walking or standing, some are holding cups. |
 | Weather | Not applicable, this is an indoor scene. |
+| Mood & Atmosphere | The atmosphere is lively and bustling with activity, underscored by bright and colorful lights. |
 | Time of Day | Time cannot be precisely determined given the indoor setting and artificial lighting. |
 | Season & Date | Season or specific date cannot be determined from the image. |
 
@@ -1953,6 +1975,7 @@ No major defects or artifacts. Composition is well-centered with active balanced
 | Objects | hole in the ground filled with muddy water, shadows of a person taking a photo, footprint impressed into the salty, clay-like surface |
 | Persons | No direct depiction of persons, only the shadow of the person taking the photo is visible. |
 | Weather | Sunny, as indicated by the clear shadows and bright sunlight |
+| Mood & Atmosphere | The image appears stark and somewhat desolate, conveying a sense of isolation. |
 | Time of Day | Hard to pin down exactly but possibly afternoon based on the length and angle of the shadow |
 | Season & Date | Not explicitly shown, but the presence of dried, cracked ground may suggest summer or a dry season |
 
@@ -2127,6 +2150,7 @@ General enhancements are not necessary; image is well-produced for the intended 
 | Objects | Water bottles, Sunglasses, Fast food containers |
 | Persons | Two children (girls) and one adult woman visible, interacting and eating |
 | Weather | Not visible directly, indoor location |
+| Mood & Atmosphere | Casual, joyful with visible smiles and relaxed posture |
 | Time of Day | Day, natural light from windows suggests afternoon |
 
 
@@ -2188,6 +2212,7 @@ General enhancements are not necessary; image is well-produced for the intended 
 | Objects | Digital display screen showing a leaderboard, Points and names of participants, Customer Success Champions banner |
 | Persons | There are images of people displayed on the leaderboard, representing participants or champions. |
 | Weather | Not applicable, as the image is taken indoors. |
+| Mood & Atmosphere | Professional and competitive, emphasized by the leaderboard style display. The context is likely a business or tech event. |
 | Time of Day | Indeterminate; the image is taken indoors without visible external light sources. |
 | Season & Date | No visible indicators to estimate the season or date. |
 
@@ -2299,6 +2324,7 @@ no significant defects or artifacts
 | Objects | mountains, road, shrubs |
 | Persons | No visible persons |
 | Weather | Sunny |
+| Mood & Atmosphere | The image conveys a sense of solitude and serenity, highlighting the vast, open and rugged landscape typical of a desert environment. |
 | Time of Day | Afternoon |
 | Season & Date | The bright sunlight and clear skies suggest a season of either late spring or early fall. |
 
@@ -2414,6 +2440,7 @@ No specific enhancements are necessary for this image. It is well-balanced in te
 | Objects | road, mountains, vegetation on the sides |
 | Persons | No persons visible in the image |
 | Weather | Sunny |
+| Mood & Atmosphere | Desolate and tranquil, with a sense of isolation |
 | Time of Day | Afternoon |
 | Season & Date | Likely summer, considering the harsh sunlight and lack of green vegetation |
 
@@ -2535,6 +2562,7 @@ The composition is generally good, though it could benefit from a slight crop to
 | Objects | salt flats, mountains, sky |
 | Persons | No persons visible |
 | Weather | Partly cloudy |
+| Mood & Atmosphere | Arid, barren, expansive |
 | Time of Day | Afternoon |
 | Season & Date | Season not clearly identifiable, potentially summer due to brightness and clear visibility |
 
@@ -2593,6 +2621,7 @@ No major defects or artifacts
 | Objects | Metal corrugated wall with signs/advertisements for Route US 66, Coca-Cola, and Texaco Gasoline Motor Oil, Wooden structure with a cartoonish wooden figure, Reserved parking sign and a vintage wago... |
 | Persons | No visible people in the image |
 | Weather | Mostly sunny with some clouds |
+| Mood & Atmosphere | Retro and nostalgic due to the vintage advertising signs |
 | Time of Day | Afternoon, based on the shadow direction and brightness |
 | Season & Date | Unknown, but likely warm due to the clear skies and brightness of the sun |
 
@@ -2652,6 +2681,7 @@ none evident
 | Objects | salt formations, distant mountains, barren landscape |
 | Persons | No visible persons |
 | Weather | Sunny |
+| Mood & Atmosphere | Harsh, desolate, and arid |
 | Time of Day | Afternoon |
 | Season & Date | Difficult to determine specific season, likely during a dry period |
 
@@ -2713,6 +2743,7 @@ none evident
 | Objects | car dashboard, windshield, rearview mirror |
 | Persons | Partial left side view of a person's head (likely a woman based on hairstyle) visible at the left edge. |
 | Weather | Sunny, with clear skies indicating no visible clouds or signs of precipitation. |
+| Mood & Atmosphere | The atmosphere feels adventurous and tranquil, with an open road in a sparse, sunny desert landscape. |
 | Time of Day | Morning, based on the shadows and quality of light. |
 
 
@@ -2771,6 +2802,7 @@ There is a slight glare visible on the windshield. The dashboard items may be co
 | Objects | Text labels, Icons, Colored rectangles corresponding to different layers of technology |
 | Persons | No people are visible in the image. |
 | Weather | Weather conditions are not applicable to this indoor image. |
+| Mood & Atmosphere | The image conveys a professional and structured atmosphere, typical of a business or technical presentation. |
 | Time of Day | Time of day is not discernible from the image. |
 | Season & Date | Season or date period cannot be determined from the image. |
 
@@ -2941,6 +2973,7 @@ No significant defects or artifacts; however, the large empty spaces may be cons
 | Objects | Hotel building, Fountains, Palm trees |
 | Persons | No visible persons |
 | Weather | Partly cloudy, as seen in the background |
+| Mood & Atmosphere | Grand and tranquil; a sense of luxury and relaxation emanates from the scene |
 | Time of Day | Evening, based on the warm golden lighting and long shadows |
 
 
@@ -3082,6 +3115,7 @@ The lighting is normal, well-exposed with no significant shadow details or highl
 | Objects | mountains, white salt flats, sparse vegetation |
 | Persons | One adult male wearing a red t-shirt, black shorts, and a cap, standing on the left side of the frame, looking towards the landscape. |
 | Weather | Sunny with sparse clouds |
+| Mood & Atmosphere | The image conveys a sense of adventure and vastness, emphasizing solitude amidst a dramatic natural landscape. |
 | Time of Day | Afternoon, based on the shadow direction and intensity. |
 
 
@@ -3137,6 +3171,7 @@ Increase contrast slightly, enhance midtone details to bring out more textures i
 | Objects | Thermometer displaying temperature, Information sign next to thermometer, Desert landscape (mountains, sparse vegetation) |
 | Persons | {'Description': 'One male, wearing a red-orange striped T-shirt, blue shorts, and light-colored sneakers, standing next to a thermometer.'} |
 | Weather | Sunny |
+| Mood & Atmosphere | Hot, clear and dry desert environment |
 | Time of Day | Afternoon |
 | Season & Date | Likely summer given the extreme heat indicated on the thermometer |
 
@@ -3160,6 +3195,7 @@ Increase contrast slightly, enhance midtone details to bring out more textures i
 | Objects | Salt formations, Dirt, Mountain range |
 | Persons | No visible persons in the image |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | Arid, barren, desolate |
 | Time of Day | Afternoon |
 | Season & Date | Unknown, but conditions suggest a dry season or summer |
 
@@ -3279,6 +3315,7 @@ No visible defects or artifacts
 | Objects | Signs for 'The Flame', 'Barbary Coast Casino', 'Steak', 'Prime Rib', 'Breakfast-Lunch-Dinner', '24 HRS', 'American Express cards accepted' |
 | Persons | No visible people in the image |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | Vintage and nostalgic, showcasing an array of old neon signs from extinct establishments |
 | Time of Day | Mid-day, judging by the harsh shadows and bright sunlight |
 | Season & Date | Season not definitively indicated, but the clear sky and intense sunlight might suggest late spring through early fall |
 
@@ -3333,6 +3370,7 @@ No significant defects or artifacts. The composition is clean with a balanced ar
 | Objects | hanging chair, pillows, blue lights |
 | Persons | One person visible, apparently male, seen sitting in the hanging chair in a relaxed pose with eyes closed. |
 | Weather | Not discernible as the image is taken indoors. |
+| Mood & Atmosphere | The mood is tranquil and serene, emphasized by the surrounding blue lighting and relaxed posture of the person. |
 | Time of Day | Not determinable, indoor and artificially illuminated space. |
 | Season & Date | Not determinable from the image. |
 
@@ -3383,6 +3421,7 @@ Increase overall brightness by 20%, add contrast by 30%, apply noise reduction, 
 | Objects | Signboard with text 'MOT', depictions of a smiling animated character wearing a traditional Mexican hat, Light bulbs arranged around the sign |
 | Persons | No real persons visible, only an animated character depicted on the sign |
 | Weather | Sunny, clear blue sky |
+| Mood & Atmosphere | Cheerful and colorful, likely intended to be inviting |
 | Time of Day | Afternoon, based on the brightness and angle of sunlight |
 | Season & Date | Season is not directly indicated but the clear sky and sun suggest a summer or spring day |
 
@@ -3442,6 +3481,7 @@ Increase overall brightness by 20%, add contrast by 30%, apply noise reduction, 
 | Objects | N/A |
 | Persons | Not detected |
 | Weather | Unknown |
+| Mood & Atmosphere | Unknown |
 | Time of Day | Unknown |
 | Season & Date | Unknown |
 
@@ -3491,6 +3531,7 @@ Unable to assess
 | Objects | mountains, trails, colored mineral deposits |
 | Persons | No visible persons |
 | Weather | Sunny with clear blue skies |
+| Mood & Atmosphere | Rugged, arid, and peaceful with a sense of natural beauty |
 | Time of Day | Afternoon |
 | Season & Date | Cannot accurately determine season or date; typical of a dry desert environment year-round |
 
@@ -3806,6 +3847,7 @@ Panoramic stitching artifacts slightly visible, particularly in areas around the
 | Objects | People sitting in pews, Projector screen displaying text, Ceiling with wooden beams |
 | Persons | Multiple individuals (mostly adults) seen from behind and focused on the front, likely engaged in an activity related to the displayed content on the projector. |
 | Weather | Indoor setting - external weather conditions not visible. |
+| Mood & Atmosphere | The environment is tranquil and solemn, typical of a religious gathering, focused and reflective. |
 | Time of Day | Indeterminate from the indoors but the lighting suggests daytime. |
 
 
@@ -3859,6 +3901,7 @@ There is a piece of equipment or a covered item to the left on stage that could 
 | Objects | man with headphones around his neck, various seated people, handrail |
 | Persons | Man in foreground, middle-aged, wearing glasses, with headphones around his neck, sporting a casual black T-shirt. |
 | Weather | Not visible directly but implied indoor environment with sunlight filtering through windows indicating possibly sunny weather. |
+| Mood & Atmosphere | Busy, typical of an airport setting, slightly relaxed mood with people casually waiting. |
 | Time of Day | Difficult to determine precisely, likely afternoon based on the intensity of natural light and activity level. |
 
 
@@ -3918,6 +3961,7 @@ There is a piece of equipment or a covered item to the left on stage that could 
 | Objects | Pink van with open door, People, Parking lot |
 | Persons | Five people visible, some entering/exiting the pink van, with two of them looking towards the van and the others walking or facing away. |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | The mood appears adventurous, with a group possibly starting or ending a recreational activity. |
 | Time of Day | Afternoon, based on the harsh sunlight and length of shadows. |
 | Season & Date | Appears to be during a warm season, potentially summer, considering the clear skies and light clothing of people. |
 
@@ -4217,6 +4261,7 @@ No major defects or artifacts present
 | Objects | Person, Newspaper, Pillow |
 | Persons | One visible older adult male, wearing glasses and a sweater, seated and reading a newspaper. |
 | Weather | Not applicable (indoor scene) |
+| Mood & Atmosphere | Cozy, relaxed, and tranquil atmosphere; the setting is warm and inviting. |
 | Time of Day | Evening |
 | Season & Date | Indeterminate season, but indoor warmth suggests colder outside temperatures |
 
@@ -4275,6 +4320,7 @@ Some shadowed areas are overly dark with lost details; the top right corner has 
 | Objects | Large pentagonal structure with illuminated rods, cables, columns, some barriers, and floor circles for standing |
 | Persons | Multiple people visible; they are scattered across the floor, either grouped or walking, and are too distant to describe specifics |
 | Weather | Not applicable as this is an indoor setting |
+| Mood & Atmosphere | Futuristic and vibrant due to the illuminated structural design and blue ambient lighting |
 | Time of Day | Indeterminate due to indoor setting; likely evening or night based on ambient lighting |
 
 
@@ -4382,6 +4428,7 @@ No significant composition issues detected.
 | Objects | Road, parked van with opened trunk, directional signs, mountains, sandy terrain |
 | Persons | Several individuals, male and female, mostly from behind, looking at the van or standing near the sign |
 | Weather | Sunny |
+| Mood & Atmosphere | Explorative and casual |
 | Time of Day | Afternoon |
 | Season & Date | Likely summer given attire and location |
 
@@ -4502,6 +4549,7 @@ Slightly cluttered on the left side due to varied group positioning
 | Objects | People walking, Reflective floor, Arched illuminated tunnels |
 | Persons | Multiple people are visible, walking in various directions or standing. They are dressed casually, suggesting a public or recreational indoor setting. |
 | Weather | Indoors—weather conditions are not applicable. |
+| Mood & Atmosphere | The atmosphere appears modern and vibrant, with a sense of motion and activity enhanced by the bright, colorful lighting. |
 | Time of Day | Indeterminate due to indoor setting. |
 
 
@@ -4557,6 +4605,7 @@ none detected
 
 | Aspect | Details |
 |--------|---------|
+| Mood & Atmosphere | The mood appears arid and resilient, typical of desert scenes. |
 
 
 ### Enhancement Recommendations
@@ -4792,6 +4841,7 @@ The paper under the windshield may distract from the overall scene; could be tid
 | Objects | pancake, scrambled eggs, bacon |
 | Persons | No persons visible in the image |
 | Weather | Not clearly visible, but outdoor lighting suggests it might be a sunny or partially sunny day |
+| Mood & Atmosphere | The setting appears relaxed and casual, likely a laid-back breakfast or brunch scenario |
 | Time of Day | Morning, based on the typical breakfast foods and quality of light |
 
 
@@ -4846,6 +4896,7 @@ No significant defects or artifacts. The composition is straightforward with a f
 | Objects | TV screen displaying a diagram, wall, FortiWeb (WAF) HA Deployment on OCI diagram showing network architecture |
 | Persons | No persons visible in the image |
 | Weather | Not applicable as the setting is indoors |
+| Mood & Atmosphere | Technical, informative, professional |
 | Time of Day | Indeterminable, interior shot with artificial light |
 | Season & Date | No visible indicators to estimate season or date |
 
@@ -4900,6 +4951,7 @@ No major defects or artifacts, though reflections/glare on the screen from surro
 | Objects | Large digital screen displaying wave imagery, Street lamps, Casino signs |
 | Persons | Multiple people visible walking or standing; predominantly adults in casual attire |
 | Weather | Conditions appear sunny, as indicated by the shadows and brightness |
+| Mood & Atmosphere | Lively and vibrant, typical of a busy entertainment district |
 | Time of Day | Afternoon, based on the length and angle of shadows |
 | Season & Date | Difficult to determine season precisely without clear indicators; the attire suggests a warmer season or climate |
 
@@ -5019,6 +5071,7 @@ Normal; effective highlighting of the main subject though slightly uneven lighti
 | Objects | pink SUV, grey car, people |
 | Persons | Several persons present: a person on top of a rocky mound and four other persons standing or walking by the cars. |
 | Weather | Sunny with some sparse clouds |
+| Mood & Atmosphere | Outdoor adventure and exploration feel under bright sunlight |
 | Time of Day | Afternoon based on the lighting and shadow directions |
 
 
@@ -5075,6 +5128,7 @@ No major defects or artifacts, although the composition might feel slightly unba
 | Objects | Metal tables and chairs, neon signs, wire fencing, trees, benches, pavement, decorative rocks |
 | Persons | No persons visible |
 | Weather | Clear and sunny |
+| Mood & Atmosphere | Relaxed and inviting outdoor seating area, with an artistic, historical touch provided by neon signs |
 | Time of Day | Afternoon |
 
 
@@ -5311,6 +5365,7 @@ No major defects or artifacts visible; however, the bottom right corner of the i
 | Objects | Walkway, Salt flats, Mountains |
 | Persons | Several people are visible walking on the walkway and far into the salt flats, indistinct due to distance. |
 | Weather | Partly cloudy with enough sunlight. |
+| Mood & Atmosphere | The atmosphere is serene and expansive, showcasing nature's vastness and the desolation of the salt flats. |
 | Time of Day | Afternoon |
 | Season & Date | The image looks like it was taken in a dry season, possibly summer due to the barren landscape and bright sunlight. |
 
@@ -5367,6 +5422,7 @@ Increase contrast by 10%, slightly enhance saturation to bring out the colors of
 | Objects | Two children, Red and black sequin embellished shirt, Blue 'DREAM' shirt |
 | Persons | Two young girls with blonde hair, both smiling at the camera. One girl is wearing a blue shirt with the word 'DREAM' and is sitting on a sofa. The other has a red and black sequin embellished shirt... |
 | Weather | Not visible in the image |
+| Mood & Atmosphere | The image conveys a cheerful and playful mood with both children smiling. |
 | Time of Day | Indoor lighting makes it difficult to estimate the time of day accurately. |
 
 
@@ -5484,6 +5540,7 @@ No significant defects or artifacts; composition focuses on the bush with a wide
 | Objects | Dessert plate with multiple items including a small sponge cake, two scoops of ice cream, crème brûlée, pieces of fresh fruit, and various garnishes. |
 | Persons | No persons visible |
 | Weather | Not applicable, indoor shot |
+| Mood & Atmosphere | Appealing, gourmet, and indulgent |
 | Time of Day | Not discernible |
 
 
@@ -5533,6 +5590,7 @@ Straighten image orientation by 90 degrees; increase contrast by 10%; reduce gla
 | Objects | mountain range, salt flats, clouds |
 | Persons | No persons visible in the image |
 | Weather | Sunny with few clouds |
+| Mood & Atmosphere | The image conveys a stark, remote, and tranquil mood, emphasizing the vast, untouched landscape. |
 | Time of Day | Afternoon |
 | Season & Date | The image does not provide clear indicators of a particular season or date |
 
@@ -5593,6 +5651,7 @@ None visible, well-balanced composition
 | Objects | Audience seats, Large presentation screens, Stage |
 | Persons | There is a large audience visibly seated facing towards two presenters sitting on chairs on the stage. Additionally, the two presenters are being shown on large projection screens. |
 | Weather | Indoor event, no weather conditions applicable |
+| Mood & Atmosphere | The atmosphere appears professional, focused, and engaging, typical of a corporate or industry conference |
 | Time of Day | Indeterminate from image; appears to be an indoor event without natural lighting |
 
 
@@ -5738,6 +5797,7 @@ No major defects or artifacts observed, but some areas could benefit from more e
 | Objects | People, sofas, carpet, ceiling lights, banners, windows |
 | Persons | Multiple people visible, engaged in conversations, standing or sitting; includes a mix of genders and various attire from business casual to casual. |
 | Weather | Not visible directly, but natural light suggests it might be clear outside. |
+| Mood & Atmosphere | The scene is lively with a casual, interactive atmosphere common to a conference or a professional gathering. |
 | Time of Day | Afternoon, based on the natural light coming from the windows. |
 
 
@@ -5794,6 +5854,7 @@ No major defects; however, alignment could be improved to focus more on central 
 | Objects | salt flats, soil, mountains |
 | Persons | No visible persons |
 | Weather | Partly cloudy |
+| Mood & Atmosphere | Serene, isolated, vast |
 | Time of Day | Afternoon |
 | Season & Date | Difficult to determine specific season from the image |
 
@@ -5852,6 +5913,7 @@ No visible defects or artifacts
 | Objects | Man, Salt flats, Mountain range |
 | Persons | One person visible. A man wearing a red T-shirt, blue shorts, sneakers, a cap, and sunglasses. |
 | Weather | Sunny and clear |
+| Mood & Atmosphere | Expansive and isolated, reflecting a sense of adventure and openness. |
 | Time of Day | Afternoon |
 
 
@@ -5905,6 +5967,7 @@ None significant
 | Objects | Vehicle interior/dashboard, Windshield, Road |
 | Persons | No clearly visible persons; partial view of a person's head and arm visible to left which is not detailed enough for further description |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | The image conveys a sense of adventure and exploration, typical of a road trip through a scenic, arid environment |
 | Time of Day | Afternoon, based on the brightness and the angle of shadows |
 | Season & Date | Indicators such as clear blue skies and arid landscape suggest a dry season, possibly summer |
 
@@ -6083,6 +6146,7 @@ No major issues; well-composed shot capturing the essence of the location
 | Objects | Table, fast food trays, food remnants, drinking glasses, orange juice bottle, smartphone, purse |
 | Persons | Three people visible. An adult woman with blonde hair, a young girl with glasses and blonde hair, another young girl with light blonde hair. All are seated and appear engaged or entertained. |
 | Weather | Not visible in the image |
+| Mood & Atmosphere | The mood is casual and joyful, typically of a family enjoying a meal together in a fast food restaurant. |
 | Time of Day | Daytime, based on the indoor lighting and visible daylight through windows |
 
 
@@ -6140,6 +6204,7 @@ Minor clutter on the table which can distract from the subjects
 | Objects | Piano, Chair, Leather Jackets |
 | Persons | Three young males, two facing forward and one facing backward. Two wear leather jackets, and one wears a light jacket. Only two faces are partially visible. |
 | Weather | Indoor photo, weather conditions not applicable |
+| Mood & Atmosphere | Casual, intimate, a sense of camaraderie among friends in a relaxed indoor setting |
 | Time of Day | Indeterminate due to indoor setting |
 | Season & Date | Not determinable from the image |
 
@@ -6200,6 +6265,7 @@ Some cropping might be necessary to focus more on subjects and reduce the portio
 | Objects | Ferris wheel, Palm trees, People |
 | Persons | Multiple people of various genders and ages walking or sitting along the promenade. There are no specific individuals described in detail. |
 | Weather | The environment appears clear, typical of a dry night with no visible precipitation or strong winds. |
+| Mood & Atmosphere | The image conveys a lively, bustling atmosphere with bright lights and crowded paths, suggesting a festive and energetic mood. |
 | Time of Day | Night, as indicated by artificial lighting and dark sky. |
 
 ---
@@ -6279,6 +6345,7 @@ Minor issues with some areas of the image being slightly tilted and crowded, whi
 
 | Aspect | Details |
 |--------|---------|
+| Mood & Atmosphere | The image conveys a feeling of vastness and isolation, underscored by the stark natural beauty and dry, harsh environment |
 
 
 ### Enhancement Recommendations
@@ -6335,6 +6402,7 @@ No significant defects or artifacts visible
 | Objects | Modified vintage car, roadway, traffic light pole, pedestrian barrier, shrubbery, parked cars in the background |
 | Persons | One person, visible driving the car, wearing casual attire and sunglasses |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | Dynamic and vintage feel due to the classic car on a modern road setting |
 | Time of Day | Afternoon based on the harsh shadows and high sun angle |
 | Season & Date | No clear seasonal indicators, but likely in a warm season due to clear weather and green foliage |
 
@@ -6392,6 +6460,7 @@ Slight tilting of horizon line; could be straightened for a better balance
 | Objects | mountains, valleys, desert floor |
 | Persons | No visible people in the image |
 | Weather | Sunny with scattered clouds |
+| Mood & Atmosphere | Expansive, tranquil, desolate |
 | Time of Day | Afternoon |
 | Season & Date | Cannot be determined definitively; potentially late summer or early fall given the clear skies and dry terrain |
 
@@ -6449,6 +6518,7 @@ None significant; balanced composition
 | Objects | Giant red guitar with 'Hard Rock Cafe' logo, Row of illuminated star shapes in red, Bench |
 | Persons | One person sitting on a bench, using a mobile phone, partially visible with a cap and sunglasses |
 | Weather | Sunny with clear blue skies |
+| Mood & Atmosphere | Bright, vibrant, and eclectic, depicting a lively outdoor setting, characteristic of a museum or exhibit |
 | Time of Day | Afternoon, indicated by the strong and direct sunlight |
 
 
@@ -6506,6 +6576,7 @@ None particularly significant. Well-balanced composition with a clear focal poin
 | Objects | Light bulbs, Signs (vacancy, heat), Metal architectural structures |
 | Persons | No persons visible |
 | Weather | Day seems sunny based on the brightness and shadows |
+| Mood & Atmosphere | The image conveys a retro or nostalgic atmosphere, likely given its content and setup |
 | Time of Day | Daytime, possible afternoon due to the quality of light |
 | Season & Date | Not specifically indicated; however, the clear sky might suggest a dry season |
 
@@ -6566,6 +6637,7 @@ None particularly significant. Well-balanced composition with a clear focal poin
 | Objects | Tables, Chairs, Glasses |
 | Persons | Multiple people varying in gender and approximate ages from their 30s to 50s, dressed in business and casual attire, engaged in conversations. Two men at the foreground table, one facing the camera... |
 | Weather | Partly cloudy, as indicated by the shadows and diffused sunlight. |
+| Mood & Atmosphere | The setting is relaxed and social, typical of a business casual meeting or networking event. |
 | Time of Day | Afternoon, based on the quality of the light and shadows. |
 
 
@@ -6684,6 +6756,7 @@ There are no major defects or artifacts. Minor shadow detail loss under food ite
 | Objects | Modern wedge-shaped car, possibly electric or hybrid, Street pole, Sidewalk |
 | Persons | There is at least one person visible in the background, walking. Due to distance, specific details about the person are not clear. |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | The image conveys a modern and upscale atmosphere, likely a luxury or trendy urban area. |
 | Time of Day | Afternoon, based on the shadows and brightness |
 
 
@@ -6744,6 +6817,7 @@ There are no major defects or artifacts. Minor shadow detail loss under food ite
 | Objects | Salt flats, Mountains in the distance |
 | Persons | No visible persons |
 | Weather | Sunny |
+| Mood & Atmosphere | Barren, stark, and desolate |
 | Time of Day | Afternoon |
 | Season & Date | Difficult to determine specific season; appears dry and arid suggesting summer or a generally hot climate |
 
@@ -6805,6 +6879,7 @@ There are no major defects or artifacts. Minor shadow detail loss under food ite
 | Objects | rearview mirror, road, mountains |
 | Persons | Partial view of a person's hair in the rearview mirror |
 | Weather | Sunny |
+| Mood & Atmosphere | The image conveys a sense of freedom and adventure, typical of a road trip in a scenic, deserted area |
 | Time of Day | Afternoon |
 | Season & Date | Late summer or early autumn, judging by the dry vegetation and clear skies |
 
@@ -6863,6 +6938,7 @@ The view might be improved by tidying the dashboard to remove items that distrac
 | Objects | Futuristic space with green, crystalline object centered, surrounded by high-tech architecture and alien figures |
 | Persons | Two alien figures seen in the background, wearing intricate red and orange outfits |
 | Weather | Not applicable (interior scene) |
+| Mood & Atmosphere | Mysterious and technological, with a sense of discovery or awe |
 | Time of Day | Not applicable (interior scene) |
 | Season & Date | Not visible or applicable |
 
@@ -6980,6 +7056,7 @@ No significant defects or artifacts, though the scene is slightly cluttered with
 | Objects | Man, Digital temperature display with Fahrenheit and Celsius readings, Information sign |
 | Persons | One adult male visible, wearing sunglasses, a cap, a short-sleeve shirt, and shorts. He appears to be casually posing next to a temperature display. |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | The image conveys a sense of adventure and heat, likely due to the extreme temperature displayed and the desert setting. |
 | Time of Day | Afternoon, based on the strong sunlight and the length of the shadows |
 | Season & Date | Likely late spring to summer, indicated by the intense heat (112°F/44°C) and the light clothing worn by the person |
 
@@ -7095,6 +7172,7 @@ Minor issue with the partial viewing of the palm tree on the right, which could 
 | Objects | Highway directional signpost, Car interior including dashboard, rearview mirror and windshield, GPS mount |
 | Persons | No persons are visible in the image |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | The image conveys a mood of travel and exploration, emphasized by the clear, sunny day and open road. |
 | Time of Day | Morning or afternoon based on the bright sunlight and long shadows |
 | Season & Date | Hard to determine specific season; possibly spring or summer given the clear, bright weather |
 
@@ -7271,6 +7349,7 @@ No visible defects or artifacts
 | Objects | N/A |
 | Persons | Not detected |
 | Weather | Unknown |
+| Mood & Atmosphere | Unknown |
 | Time of Day | Unknown |
 | Season & Date | Unknown |
 
@@ -7320,6 +7399,7 @@ Unable to assess
 | Objects | Car dashboard, rear-view mirror, GPS mount, towel, steering wheel, road, road signs (curved road indicator and speed limit), mountains, desert vegetation |
 | Persons | Driver's hand visible on the steering wheel |
 | Weather | Sunny, clear skies |
+| Mood & Atmosphere | Serene, adventurous, expansive |
 | Time of Day | Midday |
 | Season & Date | Appears to be a dry season, possibly summer or early autumn |
 
@@ -7379,6 +7459,7 @@ Partial reflection in the rear-view mirror, minor glare on the dashboard
 | Objects | Bartender behind the bar counter, Patrons at the bar, Alcoholic beverages and dispensers on the bar |
 | Persons | Three male patrons at the bar, each engaged in different activities: standing with a camera, holding a phone, and standing idle. Male bartender, standing behind the bar, interacting with patrons. |
 | Weather | Indoor setting, not applicable. |
+| Mood & Atmosphere | Casual and social environment, possibly in a sports bar setting, suggesting a relaxed and interactive mood. |
 | Time of Day | Indeterminate due to indoor setting and lighting. |
 
 
@@ -7431,6 +7512,7 @@ None significant; all main elements are well-framed and balanced in the image.
 | Objects | Audience, Large screen, Amphitheater interior |
 | Persons | Multiple individuals visible, predominantly standing or moving, diverse in gender and dress. |
 | Weather | Indoor setting — not applicable |
+| Mood & Atmosphere | Social and lively, potentially anticipatory of an event |
 | Time of Day | Indeterminate due to indoor setting; likely evening based on context and visible lighting |
 
 
@@ -7539,6 +7621,7 @@ Slight crop to reduce foreground clutter, enhance overall composition.
 | Objects | Man, Office desk, Whiteboard with markers and drawings |
 | Persons | One middle-aged male visible, standing confidently in a business-casual outfit consisting of jeans, a blazer, and a dress shirt. |
 | Weather | Not visible. |
+| Mood & Atmosphere | The office setting suggests a professional and structured environment, potentially creative given the whiteboard drawings. |
 | Time of Day | Indoor lighting does not clearly indicate the time of day; it appears to be daytime. |
 
 
@@ -7593,6 +7676,7 @@ No major defects or artifacts; the image could better utilize the rule of thirds
 | Objects | Fountain, palm trees, cars, large hotel building, people walking on sidewalks, street lamps, lake, distant mountains |
 | Persons | Several people, primarily visible near the waterfront and on the sidewalks, too small to describe in detail |
 | Weather | Partly cloudy, as indicated by the soft scattered clouds and sunlight diffused across the scene |
+| Mood & Atmosphere | The image conveys a vibrant and lively atmosphere, enhanced by the dynamic fountain display and the grandeur of the hotel |
 | Time of Day | Evening, inferred from the warm, diffused sunlight and the long shadows |
 
 
@@ -7702,6 +7786,7 @@ No significant defects or artifacts; however, the central composition and perspe
 | Objects | TV screen, text, icons, lines on a graph, logo |
 | Persons | No persons visible |
 | Weather | No external weather conditions visible |
+| Mood & Atmosphere | Informative and professional |
 | Time of Day | Not applicable (indoor setting) |
 | Season & Date | Not determinable from the image |
 
@@ -7759,6 +7844,7 @@ None
 | Objects | Relief map of a mountainous area, Text labels, Boundary lines |
 | Persons | No persons visible in the image |
 | Weather | Weather conditions are not determinable from the image |
+| Mood & Atmosphere | The image conveys a detailed and informative mood, focusing on geographic features |
 | Time of Day | Not applicable as the image does not provide indicators of time |
 | Season & Date | Not applicable as the image does not provide indicators of season or date |
 
@@ -7816,6 +7902,7 @@ No visible defects or artifacts
 | Objects | People walking, LED canopy, Buildings with signage ('Las Vegas Jewelry Gifts', 'Las Vegas T-Shirt and Souvenirs') |
 | Persons | Several visible people including pedestrians walking across the area and one individual on a mobility scooter |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | Energetic and touristy in a busy urban setting |
 | Time of Day | Early afternoon based on the high sun and long shadows |
 
 
@@ -7890,6 +7977,7 @@ None observed
 | Objects | N/A |
 | Persons | Not detected |
 | Weather | Unknown |
+| Mood & Atmosphere | Unknown |
 | Time of Day | Unknown |
 | Season & Date | Unknown |
 
@@ -7939,6 +8027,7 @@ Unable to assess
 | Objects | Vehicles on the road including cars and trucks, Road signs, Buildings |
 | Persons | The back of a person's head (driver) is partially visible in the rearview mirror |
 | Weather | Conditions appear clear and sunny |
+| Mood & Atmosphere | The image conveys a busy, somewhat hectic urban travel scene during a clear day |
 | Time of Day | Evening, based on the directional light and long shadows |
 
 
@@ -7997,6 +8086,7 @@ No significant defects or artifacts; foreground dashboard items are slightly dis
 | Objects | Mixed appetizers including slices of cured meats, cheese, small toasts, a variety of small prepared dishes such as a green apple sorbet on a tomato base, macarons, possibly olives, and small cups o... |
 | Persons | No persons visible in the image |
 | Weather | Not applicable, as the setting is indoors |
+| Mood & Atmosphere | Elegant and gourmet, suggesting a fine dining experience |
 | Time of Day | Indeterminate from the lighting; indoor lighting is used |
 
 ---
@@ -8019,6 +8109,7 @@ No significant defects or artifacts; foreground dashboard items are slightly dis
 | Objects | mountains, salt flats, vegetation (scrub bushes) |
 | Persons | No persons visible |
 | Weather | Sunny with some scattered clouds |
+| Mood & Atmosphere | Arid, expansive, isolated |
 | Time of Day | Afternoon |
 | Season & Date | No distinct seasonal indicators, but appearance suggests a dry period, possibly summer |
 
@@ -8076,6 +8167,7 @@ No significant defects or artifacts
 | Objects | desert landscape, mountains, salt flats |
 | Persons | No visible people/persons |
 | Weather | Sunny with a few small clouds |
+| Mood & Atmosphere | Isolated, expansive, and serene |
 | Time of Day | Afternoon |
 
 
@@ -8133,6 +8225,7 @@ None significant, though the lower part of the image shows a vehicle dashboard s
 | Objects | Person, Mountains, Vegetation (sparse bushes) |
 | Persons | {'details': 'One person visible, male, wearing a red t-shirt, dark hat, and sunglasses, in a dynamic pose with spread legs and stretched out arms.'} |
 | Weather | Sunny with minimal clouds |
+| Mood & Atmosphere | Adventurous, serene, and expansive |
 | Time of Day | Afternoon |
 | Season & Date | Possibly summer or early autumn due to clear, bright skies and the person's light clothing |
 
@@ -8195,6 +8288,7 @@ None significant, though the lower part of the image shows a vehicle dashboard s
 | Objects | Various bottles of wine and beer, Wicker basket, Green decorative shred paper |
 | Persons | No persons visible in the image |
 | Weather | Not applicable as the image is indoors |
+| Mood & Atmosphere | Festive and celebratory, with a focus on gourmet or specialty beverages |
 | Time of Day | Indoors, specific time not identifiable |
 
 
@@ -8368,6 +8462,7 @@ No significant composition issues visible; the image is well-balanced and struct
 | Objects | man, salt flat, mountains |
 | Persons | One adult male visible. He is wearing a red T-shirt, light-colored shorts, hiking shoes, and a baseball cap. The person appears relaxed and has his hands on his hips. |
 | Weather | Sunny and clear skies |
+| Mood & Atmosphere | The mood is serene and peaceful, evoking a sense of solitude and vastness in the barren landscape. |
 | Time of Day | Afternoon, based on the shadow direction and length |
 | Season & Date | Season estimated as possibly summer, considering the clear skies and attire suitable for warm weather |
 
@@ -8428,6 +8523,7 @@ None evident
 | Objects | Man, Salt flats, Mountain range |
 | Persons | One man visible in the image, wearing a red t-shirt, blue shorts, sunglasses, and a dark cap. |
 | Weather | Sunny, clear blue skies with no visible clouds. |
+| Mood & Atmosphere | The mood is serene and adventurous, emphasized by the expansive and stark landscape. |
 | Time of Day | Afternoon based on the high sun and the depth of shadows. |
 
 ---
@@ -8501,6 +8597,7 @@ Consider slight increase in shadow detail to enhance texture on ground, adjust a
 | Objects | Salt formations, Ground |
 | Persons | No visible persons in the image |
 | Weather | Sunny |
+| Mood & Atmosphere | Natural and tranquil, with a stark and minimalistic beauty |
 | Time of Day | Afternoon |
 | Season & Date | Cannot be precisely determined, likely dry season due to the arid environment |
 
@@ -8677,6 +8774,7 @@ Slight crowding in the image can lead to a lack of clear focus on any single ele
 | Objects | salt formations, mountains, sky |
 | Persons | No persons visible in the image. |
 | Weather | Partly cloudy with ample sunlight. |
+| Mood & Atmosphere | The scene conveys a stark, arid, and expansive atmosphere typical of a desert environment. |
 | Time of Day | Afternoon, based on the strong sunlight and the angle of the shadows. |
 | Season & Date | Hard to determine the exact season; however, the clear sky and harsh light might suggest late spring or summer. |
 
@@ -8790,6 +8888,7 @@ There are no major composition issues, but the pole on which the signpost is mou
 | Objects | Car dashboard, Rearview mirror, Smartphone mount |
 | Persons | A person's hand is visible, but no detailed facial or body characteristics can be identified. |
 | Weather | Sunny day with clear skies |
+| Mood & Atmosphere | The mood is adventurous and seems like a road trip through a desert landscape, evoking a sense of exploration and freedom. |
 | Time of Day | Approximately midday, based on the high position of the sun and the shadowing inside the car. |
 
 
@@ -9076,6 +9175,7 @@ No significant defects or artifacts are apparent. The framing captures the scene
 | Objects | Douglas DC-3 airplane labeled '50 GOLDEN DC-3 YEARS' with Hewlett Packard logo, asphalt tarmac, clouds |
 | Persons | Multiple people, approximately 30, consisting of adults and children, standing in front of the airplane. Both genders are present, wearing a variety of clothing styles from business casual to casua... |
 | Weather | Sunny with some clouds in the sky |
+| Mood & Atmosphere | Group appears to be in a cheerful and casual gathering, possibly a special event given the group photo setup in front of a historic airplane. |
 | Time of Day | Daytime, likely afternoon given the brightness and the direction of shadows |
 
 
@@ -9433,6 +9533,7 @@ Enhance details in shadows slightly, increase contrast by 10%, and possibly enha
 | Objects | mountains, canyon, clouds |
 | Persons | Yes, there are people visible; specifically, two individuals walking through rocky terrain, dressed casually for warm weather. |
 | Weather | Sunny with scattered clouds. |
+| Mood & Atmosphere | The image conveys a sense of adventure and exploration in a rugged and arid environment. |
 | Time of Day | Afternoon, based on the high and harsh sunlight. |
 
 
@@ -9490,6 +9591,7 @@ Minor stitching imperfections visible at the horizon, which slightly affect the 
 | Objects | presentation screen, content on the screen including text and graphical representations |
 | Persons | No persons visible in the image |
 | Weather | Not applicable as the image is taken indoors |
+| Mood & Atmosphere | Educational and professional, intended for conveying structured information |
 | Time of Day | Not discernible from the image |
 | Season & Date | Not discernible from the image |
 
@@ -9545,6 +9647,7 @@ No significant enhancements recommended
 | Objects | Table, Chairs, Drinks |
 | Persons | Six men, seated around a table, holding drinks, variously dressed in business casual attire, displaying relaxed and friendly expressions. |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | Casual, relaxed, and social |
 | Time of Day | Afternoon |
 
 
@@ -9603,6 +9706,7 @@ Slightly tight cropping on the leftmost person
 | Objects | Yucca motel sign, Other assorted signs and parts of signs, Stylized metallic sculpture resembling a torch on top of the sign |
 | Persons | There are no people visible in the image. |
 | Weather | Sunny with clear blue skies. |
+| Mood & Atmosphere | The atmosphere is nostalgic and artistic, reflecting a vintage or retro vibe, typical of a museum or collection of historical items. |
 | Time of Day | Afternoon based on the angle and intensity of the shadows. |
 
 
@@ -9715,6 +9819,7 @@ There are no significant defects or artifacts. However, attention may be needed 
 | Objects | Death Valley National Park sign, mountains, road |
 | Persons | Six adult males dressed in casual summer clothing, standing in front of a park sign. |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | Cheerful and adventurous |
 | Time of Day | Afternoon |
 | Season & Date | Seems like summer, given the clear sky and attire of the persons |
 
@@ -9885,6 +9990,7 @@ No major defects or artifacts noted. The composition is balanced with good use o
 | Objects | mountains, valley, salt flats |
 | Persons | No visible persons in the image |
 | Weather | Clear and sunny |
+| Mood & Atmosphere | The image conveys a sense of vastness and isolation, typical of desert landscapes. |
 | Time of Day | Afternoon, based on the angle and intensity of sunlight |
 | Season & Date | Not specifically identifiable, but appears to be a dry season considering the clear skies and lack of vegetation |
 
@@ -9944,6 +10050,7 @@ No significant defects or artifacts
 | Objects | Tables, Candles, Drinks |
 | Persons | Three visible male individuals, engaged in conversation, wearing casual attire |
 | Weather | Not visible directly, but ambient light suggests an indoor or well-covered area |
+| Mood & Atmosphere | Social, relaxed, and engaged, typical of a networking event or casual gathering |
 | Time of Day | Night, indicated by artificial lighting and overall ambiance |
 
 
@@ -10063,6 +10170,7 @@ Over-lit areas near the candles could be distracting
 | Objects | Large hotels with classic architecture, Fountain in a lake, Replica of the Eiffel Tower |
 | Persons | Several people are visible walking on the streets below. |
 | Weather | The weather appears sunny with clear skies. |
+| Mood & Atmosphere | The image conveys a vibrant and bustling city atmosphere, enhanced by the luxurious architecture and sunny weather. |
 | Time of Day | Evening, based on the long shadows and the warm lighting. |
 
 
@@ -10119,6 +10227,7 @@ No major defects or artifacts visible.
 | Objects | Sahara sign, Theatre Wool signage fragment, cement or gravel floor |
 | Persons | No persons visible in the image. |
 | Weather | Sunny with clear blue skies. |
+| Mood & Atmosphere | The mood is somewhat nostalgic and artistic, likely reflecting the history of the objects displayed. |
 | Time of Day | Afternoon, as indicated by the bright and direct sunlight with harsh shadows. |
 | Season & Date | Season is not clearly indicated, but the clear sky and brightness suggest a sunny day, possibly in a warmer season. |
 
@@ -10176,6 +10285,7 @@ No significant defects or artifacts; however, some signs are partially cut-off, 
 | Objects | Spherical building illuminated with blue lights displaying the text 'sphere', Various vehicles including SUVs and a pickup truck, Trees |
 | Persons | No visible persons in the image |
 | Weather | The sky appears clear, suggesting dry weather conditions |
+| Mood & Atmosphere | The atmosphere appears vibrant and urban, with the illuminated sphere creating a focal point of interest amidst the nighttime setting |
 | Time of Day | Night |
 | Season & Date | Not clearly determinable from the image, but the absence of snow or people in heavy clothing might suggest a warmer season or a mild climate |
 
@@ -10238,6 +10348,7 @@ No significant defects or artifacts; however, some signs are partially cut-off, 
 | Objects | Round table with white tablecloth, Laptop, Mobile phones |
 | Persons | Three men sitting around a round table, all facing towards the camera with smiles. They wear lanyards and casual to business casual attire. One has a laptop open in front of him. |
 | Weather | Indoor setting, weather conditions not applicable. |
+| Mood & Atmosphere | The atmosphere appears informal and friendly, suitable for networking or a conference environment. |
 | Time of Day | Indeterminate due to indoor lighting; appears well lit suggesting daytime or well-lit evening event. |
 
 
@@ -10295,6 +10406,7 @@ No major defects or artifacts
 | Objects | Signboard for Death Valley National Park, Desert landscape, Stones arranged at base of sign |
 | Persons | {'brief_description': 'One person, male, wearing a red t-shirt, denim shorts, and sports cap, standing next to the signboard.'} |
 | Weather | Sunny |
+| Mood & Atmosphere | Bright and clear, evoking a sense of adventure and openness typical of a desert national park. |
 | Time of Day | Afternoon |
 | Season & Date | Seems like summer given the bright sunlight and attire of the person |
 
@@ -10418,6 +10530,7 @@ No major defects or artifacts
 | Objects | Mountains, Salt flats, Vegetation (shrubs and grasses) |
 | Persons | No visible persons |
 | Weather | Appears clear and dry |
+| Mood & Atmosphere | Arid, stark, and somewhat desolate |
 | Time of Day | Afternoon |
 | Season & Date | Indeterminate season, likely dry period |
 
@@ -10600,6 +10713,7 @@ No major defects or artifacts
 | Objects | mountains, salt flats, vegetation |
 | Persons | No visible persons in the image. |
 | Weather | Sunny with some scattered clouds. |
+| Mood & Atmosphere | The image conveys a vast, desolate, and rugged atmosphere, highlighting the natural beauty and harsh environment of the landscape. |
 | Time of Day | Afternoon, based on the brightness and angle of the sunlight. |
 
 
@@ -10656,6 +10770,7 @@ No notable defects or artifacts. Composition is well-framed with a good balance 
 | Objects | Red angular vehicle (resembling a futuristic truck), White sedan, White SUV |
 | Persons | There are no visible persons in the image. |
 | Weather | Daytime conditions seem moderately sunny, filtered through cloud coverage or architectural shadows. |
+| Mood & Atmosphere | The mood appears affluent and sophisticated, given the context of a well-maintained premises with luxury or futuristic vehicles. |
 | Time of Day | Afternoon, based on the intensity and angle of the shadows. |
 | Season & Date | Season or specific date cannot be determined precisely; however, the presence of lush greenery and sunny weather suggests it might be a warm season. |
 
@@ -10706,6 +10821,7 @@ Increase overall brightness by 10% to alleviate slight underexposure, increase c
 | Objects | trees, water, lily pads |
 | Persons | No visible persons in the image |
 | Weather | Sunny with visible sunlight and clear skies |
+| Mood & Atmosphere | Peaceful, calm, and serene |
 | Time of Day | Morning |
 | Season & Date | Likely late summer or early autumn based on the lush greenery and maturity of foliage |
 
@@ -10824,6 +10940,7 @@ No significant defects or artifacts
 | Objects | illuminated ferris wheel emitting blue light patterns, cars, trees |
 | Persons | No visible persons |
 | Weather | Clear night sky |
+| Mood & Atmosphere | Dynamic and vibrant due to the illuminated ferris wheel, suggesting a lively urban night scene |
 | Time of Day | Night |
 | Season & Date | Hard to determine the exact season from the image alone |
 
@@ -10964,6 +11081,7 @@ None apparent, well-composed
 | Objects | trees, leaves, path |
 | Persons | No visible people |
 | Weather | Sunny |
+| Mood & Atmosphere | Peaceful and serene |
 | Time of Day | Morning or afternoon |
 | Season & Date | Autumn, indicated by fallen leaves and green-yellow leaves |
 
@@ -11023,6 +11141,7 @@ Some highlight clipping in the sky area
 | Objects | Salt flat surface, Mountains in the distance, Cloud-filled sky |
 | Persons | There are four people visible in the image. Three are clustered in small groups appearing in casual tourist attire, engaging in conversation or walking. |
 | Weather | The weather is partly cloudy with sunlight filtering through gaps in the clouds, indicating variable cloud cover. |
+| Mood & Atmosphere | The mood is adventurous and tranquil, dominated by the vast, expansive view of the salt flats and mountains coupled with a wide open sky. |
 | Time of Day | Afternoon, based on the brightness and length of the shadows present. |
 
 
@@ -11132,6 +11251,7 @@ No major defects or artifacts, though the view might benefit from a clearer focu
 | Objects | pool table, pool cues, pool balls |
 | Persons | There are multiple persons visible; main focus on a male playing pool, white shirt, patterned shorts, aligning for a pool shot. Other patrons in the background, including a person possibly waiting ... |
 | Weather | Indoor environment, weather not applicable |
+| Mood & Atmosphere | Casual and focused atmosphere, common in a social sporting environment |
 | Time of Day | Not explicitly indicated due to indoor lighting; potentially afternoon or evening based on the environment's leisurely activity |
 
 
@@ -11193,6 +11313,7 @@ No major defects or artifacts, though the view might benefit from a clearer focu
 | Objects | salty plains, small pools of water, mountains |
 | Persons | No people visible in the image |
 | Weather | Sunny, with some clouds visible in the distance |
+| Mood & Atmosphere | Desolate, arid, and expansive with a stark natural beauty |
 | Time of Day | Afternoon, given the brightness and shadow direction |
 
 
@@ -11250,6 +11371,7 @@ No major defects or artifacts visible
 | Objects | mountains, road, vegetation |
 | Persons | No people visible in this image |
 | Weather | Sunny |
+| Mood & Atmosphere | Solitary and serene, evoking a sense of isolation and the vast open landscape |
 | Time of Day | Afternoon |
 | Season & Date | Probably summer, judging from the clear skies and barren landscape |
 
@@ -11308,6 +11430,7 @@ No major defects or artifacts, balanced composition
 | Objects | Information panel, satellite image, text describing geological features |
 | Persons | No persons visible in the image |
 | Weather | Not discernible from the image |
+| Mood & Atmosphere | Educational and informative, aimed at providing geological insights |
 | Time of Day | Not discernible from the image |
 | Season & Date | Not discernible from the image |
 
@@ -11422,6 +11545,7 @@ No noticeable defects or artifacts
 | Objects | Television screen displaying a network diagram, Words 'Fortinet HA Deployment on OCI' at the top, Annotation 'Kyndryl Confidential' on the top right |
 | Persons | No people are visible in the image. |
 | Weather | Not applicable as the image is indoors. |
+| Mood & Atmosphere | Professional and technical focused on information presentation. |
 | Time of Day | Not determinable from the image. |
 
 
@@ -11791,6 +11915,7 @@ No major defects or artifacts detected
 | Objects | Venetian Hotel and Casino building, palm trees, cars |
 | Persons | There are no discernible individuals visible in this image. |
 | Weather | The weather appears sunny with clear blue skies. |
+| Mood & Atmosphere | The image conveys a vibrant and tourist-friendly atmosphere, typical of Las Vegas. |
 | Time of Day | Based on the shadows and the quality of light, it seems to be late afternoon. |
 
 
@@ -11845,6 +11970,7 @@ The image appears quite balanced as captured. Minor enhancements could include s
 | Objects | Vintage hotel sign featuring a Native American chief, text labels such as 'Chief Hotel Court', 'Vacancy', 'Tam', 'Steam Heated', and various partial signs and metal structures., Background includes... |
 | Persons | No persons visible in the image. |
 | Weather | Sunny, clear sky indicating good weather conditions. |
+| Mood & Atmosphere | The image has a nostalgic, retro feel, perhaps invoking a sense of historical Americana. |
 | Time of Day | Daytime, likely afternoon based on the intensity and angle of the sunlight. |
 
 
@@ -11899,6 +12025,7 @@ No major visible defects or artifacts, though the partial visibility of other si
 | Objects | Paris Las Vegas Hotel & Casino, including replica Eiffel Tower and hot air balloon sign, Vehicles on the road including various cars, Large LED billboard displaying an advertisement |
 | Persons | Several people are visible in the image, mostly pedestrians casually dressed, crossing the street or walking along the sidewalk. |
 | Weather | The weather is sunny with some clouds in the sky. |
+| Mood & Atmosphere | The image conveys a lively and bustling atmosphere typical of a busy tourist spot on a clear day. |
 | Time of Day | Afternoon, based on the length and position of the shadows cast by objects. |
 
 
@@ -11979,6 +12106,7 @@ No major defects are visible, but the top left corner shows a slight intrusion o
 | Objects | Sculptural pole with colorful, abstract shapes, Security cameras, A ladder |
 | Persons | No persons visible in the image |
 | Weather | Sunny |
+| Mood & Atmosphere | The image has a quirky and artistic feel, likely indicative of a creative or urban environment. |
 | Time of Day | Afternoon (based on the strong sunlight and shadows) |
 | Season & Date | Unable to determine the specific season or date from the image alone |
 
@@ -12029,6 +12157,7 @@ Consider minor adjustments to shadows to reveal more detail, possibly increase s
 | Objects | Old vintage metal signs including words 'MOD', 'WEDDING INFORMATION', 'laundry', and parts of other letters, Metal stands and supports for signs, Visible bolts and light bulbs on signs |
 | Persons | No persons visible in the image. |
 | Weather | Sunny conditions with clear blue skies. |
+| Mood & Atmosphere | Historic and nostalgic, evoking a sense of the past and the culture of old signage. |
 | Time of Day | Afternoon, judging by the sharpness of the shadows cast. |
 | Season & Date | Impossible to accurately determine without context, but potentially spring or summer due to bright sunlight and lack of foliage. |
 
@@ -12085,6 +12214,7 @@ None obvious, although the partial visibility of some letters may affect aesthet
 | Objects | paved parking area, bare trees, wooden fencing |
 | Persons | No persons visible in the image. |
 | Weather | Sunny with few clouds. |
+| Mood & Atmosphere | Historic, serene, and empty, evoking a sense of quiet and nostalgia. |
 | Time of Day | Afternoon, based on the shadows and brightness. |
 
 
@@ -12142,6 +12272,7 @@ No major defects or artifacts visible.
 | Objects | N/A |
 | Persons | Not detected |
 | Weather | Unknown |
+| Mood & Atmosphere | Unknown |
 | Time of Day | Unknown |
 | Season & Date | Unknown |
 
@@ -12249,6 +12380,7 @@ No major defects or artifacts are visible.
 | Objects | rock formation, wooden panels, bird sculpture |
 | Persons | No visible persons |
 | Weather | Indoor scene; weather conditions are not applicable |
+| Mood & Atmosphere | Educational and informative, with a focus on natural history and geology |
 | Time of Day | Indoor lighting makes it indeterminate, likely artificial lighting simulating daytime |
 | Season & Date | No indicators of specific season or date |
 
@@ -12305,6 +12437,7 @@ No visible defects or artifacts
 | Objects | Two yellow balls, child's T-shirt, child's pants, socks |
 | Persons | One toddler visible, sitting on a floor, holding two yellow balls, wearing a gray T-shirt with red sleeves and graphic, dark pants, and white socks. |
 | Weather | Not visible as the image is indoors |
+| Mood & Atmosphere | Playful and curious, as the child looks slightly puzzled or focused |
 | Time of Day | Indeterminate, indoor lighting does not reveal time of day |
 
 
@@ -12361,6 +12494,7 @@ No significant defects or artifacts, well-balanced framing
 | Objects | man, salty ground, mountains |
 | Persons | One person visible, a man standing with his hands on his hips wearing a red t-shirt, navy shorts, white sneakers, and sunglasses. |
 | Weather | Sunny |
+| Mood & Atmosphere | The image conveys a sense of adventure and openness, emphasized by the vast empty landscape and the solitary figure. |
 | Time of Day | Afternoon |
 | Season & Date | Likely summer, considering the clear sky and brightness of the sun. |
 
@@ -12588,6 +12722,7 @@ No significant defects or artifacts; however, the shadow patterns might distract
 | Objects | Red and white neon sign depicting a chef-like figure holding a milk bottle, Parts of other signs such as letters and shapes, Metal supports and stands |
 | Persons | No visible persons in the image |
 | Weather | Sunny day with clear blue sky |
+| Mood & Atmosphere | Bright and vibrant, emphasizing retro and nostalgic themes |
 | Time of Day | Afternoon, based on the bright sunlight and long shadows |
 | Season & Date | Possibly summer given the clear sky and brightness |
 
@@ -12703,6 +12838,7 @@ No significant composition issues noted. The main subjects are well-placed withi
 | Objects | Hotel building, Fountains, Trees |
 | Persons | One person visible in the foreground, dressed in a robe, facing away from the camera. |
 | Weather | Clear with partly cloudy sky. |
+| Mood & Atmosphere | The image conveys a peaceful and serene mood, enhanced by the sunset light and the elegance of the dancing fountains. |
 | Time of Day | Evening, around sunset. |
 
 
@@ -12764,6 +12900,7 @@ No significant composition issues noted. The main subjects are well-placed withi
 | Objects | Pink jeep, black SUV, white salts on ground |
 | Persons | Several people visible, including two walking away from the camera near the center and others scattered near the vehicles |
 | Weather | Sunny with some clouds |
+| Mood & Atmosphere | The image has a vast, open, and arid atmosphere, feeling somewhat harsh due to the bright sun and expansive landscape |
 | Time of Day | Midday, indicated by the high position of the sun and minimal shadows |
 
 
@@ -12821,6 +12958,7 @@ None significant, though the central placement of the vehicles could be adjusted
 | Objects | Presentation screen showing a business chart, Graph titled 'Cloud Adoption Journey' with various colors indicating different technologies, Legend defining SaaS, PaaS, IaaS, and On-Prem for the graph |
 | Persons | No persons visible in the image |
 | Weather | Not applicable, as the image is taken indoors |
+| Mood & Atmosphere | Informative and professional |
 | Time of Day | Not applicable, as the image is taken indoors |
 
 
@@ -12875,6 +13013,7 @@ None significant, though the central placement of the vehicles could be adjusted
 | Objects | salt flats, mountains, sky |
 | Persons | No visible persons |
 | Weather | Sunny |
+| Mood & Atmosphere | Sparse and tranquil environment, with an expansive view that conveys isolation and calm |
 | Time of Day | Afternoon |
 | Season & Date | Indeterminate, but likely dry season due to apparent lack of vegetation and dry soil |
 
@@ -12932,6 +13071,7 @@ None
 | Objects | Bar counter, beverages, picture frames, bottles, hanging lights, ornate ceiling tiles |
 | Persons | Four men visible, engaging in conversation, casually dressed, wearing lanyards, presumably at a social or professional event |
 | Weather | Not visible as the image is indoors |
+| Mood & Atmosphere | Sociable and relaxed atmosphere in a well-lit, stylish bar setting |
 | Time of Day | Indeterminate, image is indoors but suggests an indoor evening event based on context and lighting |
 
 
@@ -12981,6 +13121,7 @@ Could potentially warm up colors slightly to enhance the cozy atmosphere, minor 
 | Objects | Table, Chairs, Drinks (glasses with beverages) |
 | Persons | There are six men visible, seated and standing around a table, dressed in casual attire, predominantly buttoned shirts and trousers. |
 | Weather | The weather appears sunny based on the lighting and shadows. |
+| Mood & Atmosphere | The mood is relaxed and convivial, as the group appears to be engaged in casual socializing, possibly during a break from a conference or event. |
 | Time of Day | Afternoon, inferred from the strong sunlight and shadows. |
 
 
@@ -13038,6 +13179,7 @@ No major defects or artifacts are visible, but the brightness in the sky could b
 | Objects | smartphone interface displaying an email from Maya Mobile |
 | Persons | No persons visible |
 | Weather | Not applicable |
+| Mood & Atmosphere | Informative and administrative, conveying the notification of an eSIM activation |
 | Time of Day | Not applicable |
 | Season & Date | Not applicable |
 
@@ -13094,6 +13236,7 @@ No specific enhancements necessary; image is clear and well-presented
 | Objects | Golden Nugget sign, pieces of metallic structures, light bulbs |
 | Persons | No persons visible |
 | Weather | Sunny |
+| Mood & Atmosphere | Historic, nostalgic |
 | Time of Day | Afternoon |
 | Season & Date | Cannot be precisely determined from the image |
 
@@ -13152,6 +13295,7 @@ No major defects or artifacts; edges of the sign could benefit from slight cropp
 | Objects | Jackpot Motel sign, Sahara sign, various other dismantled signs |
 | Persons | No persons visible |
 | Weather | Sunny |
+| Mood & Atmosphere | Nostalgic, historical, slightly desolate |
 | Time of Day | Afternoon |
 | Season & Date | Season is indeterminate, but the presence of strong sunlight and clear skies might suggest a warmer season |
 
@@ -13210,6 +13354,7 @@ No major defects or artifacts visible
 | Objects | Large interior dome structure, Giant projected screen, Seating areas with chairs |
 | Persons | Multiple spectators visible, watching the screen or moving around. They show varied expressions and postures, indicating engagement and movement typical of an event environment. |
 | Weather | Not applicable as the image is taken indoors. |
+| Mood & Atmosphere | The image conveys a dramatic and captivating mood due to the dim lighting and focus on the illuminated screen, typical of a public event like a concert or screening. |
 | Time of Day | Indeterminate as the image is indoors; likely evening or night based on context of the event. |
 
 
@@ -13328,6 +13473,7 @@ No major defects or artifacts visible
 | Objects | Planet Earth projection, Audience in a theater, Seats |
 | Persons | There is a large audience visible in the foreground, watching the projection. The individuals are mostly seen from behind, with varying hairstyles and clothing. |
 | Weather | Not applicable, as this is an indoor scene. |
+| Mood & Atmosphere | The atmosphere is one of awe and fascination, as the audience gazes at a stunning visual display of Earth from space. |
 | Time of Day | Indeterminate, as the scene is indoors and illuminated by the projection. |
 | Season & Date | Not discernible from the image. |
 
@@ -13444,6 +13590,7 @@ No visible defects or artifacts
 | Objects | Mountain slopes, Salt flats, Dry riverbeds |
 | Persons | There are no visible persons in the image. |
 | Weather | The weather appears sunny with clear conditions, as indicated by the strong sunlight and absence of clouds. |
+| Mood & Atmosphere | The image conveys a mood of desolation and stark natural beauty, typical of arid, uninhabited landscapes. |
 | Time of Day | Based on the strong sunlight and shadows, it is likely afternoon. |
 
 
@@ -13502,6 +13649,7 @@ The large expanse of sky could be cropped slightly to enhance the focus on the t
 | Objects | Large spherical building with a light display, people, a digital billboard, handrails, steps |
 | Persons | Multiple people visible, men and women of various ages, mostly seen from behind or side, typical casual clothing, indicating a public, possibly tourist setting |
 | Weather | Difficult to determine exact weather conditions due to night setting; however, there's no visible rain or adverse weather conditions |
+| Mood & Atmosphere | The image conveys a vibrant and lively atmosphere, likely a place of entertainment or public gathering, enhanced by colorful lighting |
 | Time of Day | Night, indicated by the artificial lighting and dark sky |
 
 
@@ -13607,6 +13755,7 @@ None apparent, subject is well-framed with balanced distribution of objects
 | Objects | Airplane (Douglas DC-3), Tarmac, Airport Terminal Buildings |
 | Persons | One person visible, a ground crew member or pilot, wearing dark blue clothes and walking near the airplane |
 | Weather | Sunny with clear skies |
+| Mood & Atmosphere | Active, historic due to vintage aircraft, clear and vibrant |
 | Time of Day | Afternoon based on the shadows and lighting |
 | Season & Date | Hard to determine precise season; possibly spring or summer due to the clear, sunny weather |
 
@@ -13724,6 +13873,7 @@ Minor overexposure and slight motion blur on the hand.
 | Objects | One man, headphones around neck, sweater, airplane seat, airplane cabin interior |
 | Persons | One visible person, a middle-aged man with glasses and a mustache, sitting inside an airplane. |
 | Weather | Not visible, as the setting is indoors (inside an airplane). |
+| Mood & Atmosphere | The mood appears relaxed and comfortable, typical of a passenger seated in a flight. |
 | Time of Day | Indeterminate from the image as it is taken inside an enclosed space. |
 
 
@@ -13773,6 +13923,7 @@ Increase brightness by 10%, add 10% contrast, and apply a slight sharpening filt
 | Objects | Pine tree, metal fence, concrete sidewalk |
 | Persons | Three persons are visible approaching the entrance gate. The group comprises an adult and two children, moving about or playing near the fence. |
 | Weather | Sunny conditions with clear blue skies |
+| Mood & Atmosphere | The image conveys a casual, relaxed atmosphere, likely a family or community area |
 | Time of Day | Afternoon, based on the strong, direct sunlight and shadows |
 
 
@@ -13830,6 +13981,7 @@ No major defects or artifacts noticed. The large pine tree somewhat dominates th
 | Objects | Fountain display, Bellagio hotel building, Palm trees |
 | Persons | Multiple people visible, mostly in small groups or individually, engaged in watching the fountain display and walking along the sidewalks. |
 | Weather | The weather appears clear with no visible clouds, indicative of a sunny or clear dusk. |
+| Mood & Atmosphere | The atmosphere is vibrant and lively, enhanced by the grand fountain display and the bustling street activity, typically festive of a Las Vegas evening. |
 | Time of Day | Evening, as indicated by the warm colors in the sky and illuminated street lights. |
 
 
@@ -13944,6 +14096,7 @@ None major, but the heads in the lower part of the frame could be seen as a slig
 | Objects | Man, Salt flats, Mountains |
 | Persons | One person is visible. He appears as a middle-aged man wearing a red t-shirt, blue shorts, and sneakers. He is standing with his hands on his hips and is wearing sunglasses and a cap. |
 | Weather | The weather appears sunny and clear. |
+| Mood & Atmosphere | The mood conveyed by the image is adventurous and stark, accentuated by the barren landscape and vast open space. |
 | Time of Day | Afternoon, based on the shadow direction and length. |
 
 
@@ -14002,6 +14155,7 @@ No major composition issues, but centering the individual slightly off to one si
 | Objects | hills, trail, sky |
 | Persons | No visible persons |
 | Weather | Sunny with some clouds |
+| Mood & Atmosphere | Arid, isolated, rugged |
 | Time of Day | Afternoon |
 | Season & Date | Cannot precisely determine, possibly summer given the clear skies and arid landscape |
 
@@ -14061,6 +14215,7 @@ Enhance details subtly to bring out textures in the landscape
 | Objects | salt flats, mountains, sky |
 | Persons | No persons visible |
 | Weather | Sunny with a few scattered clouds |
+| Mood & Atmosphere | Vast, tranquil, and serene |
 | Time of Day | Afternoon |
 | Season & Date | Difficult to determine exact season, but likely dry season based on the arid landscape |
 
@@ -14119,6 +14274,7 @@ No significant defects or artifacts visible
 | Objects | Dirt road, Car interior including dashboard, vent, steering fragment, Smartphone mount |
 | Persons | Partial view of a person visible, with blonde hair covering left part of the frame |
 | Weather | Sunny, clear skies |
+| Mood & Atmosphere | The image conveys a sense of adventure and exploration, a tranquil journey through a deserted landscape. |
 | Time of Day | Morning, based on the sharpness of shadows and the quality of the light |
 
 
@@ -14173,6 +14329,7 @@ No significant defects or artifacts, but there could be a reduction in distracti
 | Objects | Death Valley National Park sign, mountains, sky |
 | Persons | There are seven men visible, standing in front of the park sign. They are variously dressed in casual clothing such as T-shirts, shorts, and sunglasses. |
 | Weather | Sunny with clear skies. |
+| Mood & Atmosphere | The image conveys a happy and adventurous mood, as the group appears to be enjoying their visit to the national park. |
 | Time of Day | Afternoon based on the sunlight and shadows. |
 
 
@@ -14286,6 +14443,7 @@ No significant defects or artifacts; however, the large area of dark sky at the 
 | Objects | Street, Vehicles, Palm trees |
 | Persons | There are no clearly visible people in the image. |
 | Weather | Cloudy, looks like impending rain |
+| Mood & Atmosphere | The image conveys a bustling urban atmosphere but overshadowed by gloomy weather, giving a somewhat deserted and moody feeling. |
 | Time of Day | It looks like late afternoon based on the ambient light. |
 
 
@@ -14399,6 +14557,7 @@ Perhaps enhancing the sharpness slightly in post-processing could bring out more
 | Objects | sign reading 'BADWATER BASIN 282 FEET/85.5 METERS BELOW SEA LEVEL', mountain range in the distance, salt flats |
 | Persons | No persons are visible in the image. |
 | Weather | Sunny with clear blue skies. |
+| Mood & Atmosphere | The image evokes a sense of aridity and extremeness, given its depiction of the harsh, expansive landscape of Badwater Basin, contrasting with the stark and empty salt flats. |
 | Time of Day | Afternoon based on the length and angle of shadows. |
 
 
@@ -14448,6 +14607,7 @@ Consider slight adjustments for enhancing visual appeal: boost contrast by 10% t
 | Objects | Exhibit banners (HOT, DRY, LOW), Background wall featuring multiple textures (rock, dried mud), Lighting fixtures |
 | Persons | No persons visible |
 | Weather | Weather conditions not applicable - indoor setting |
+| Mood & Atmosphere | Educational and informative with a focus on natural extreme conditions |
 | Time of Day | Not applicable - indoor lighting |
 | Season & Date | Not applicable - indoor setting |
 
@@ -14508,6 +14668,7 @@ Consider slight adjustments for enhancing visual appeal: boost contrast by 10% t
 | Objects | Sofa with floral motif, Coffee table with books and remote, Shelf with decorative items and T-shirts |
 | Persons | No persons visible |
 | Weather | Indoor setting; not applicable |
+| Mood & Atmosphere | Cozy, nostalgic, reminiscent of a living room from a previous era |
 | Time of Day | Indoor lighting; specific time of day is indeterminate |
 
 
@@ -14560,6 +14721,7 @@ None apparent
 | Objects | Geodesic dome structure illuminated with blue light, several cars and trucks in a street, wet asphalt, light poles, trees, digital billboard, road signs |
 | Persons | No visible persons |
 | Weather | The pavement is wet, suggesting recent rain |
+| Mood & Atmosphere | The illuminated dome and wet streets give a lively yet serene atmosphere, typically associated with urban nightlife |
 | Time of Day | Night |
 | Season & Date | Not specifically identifiable, but the wet streets might suggest a season of frequent rains |
 
@@ -14618,6 +14780,7 @@ The image is well-composed; no significant artifacts or defects detected
 | Objects | Smartphone mounted on dashboard showing time 5:59, Car dashboard, Rearview mirror |
 | Persons | A person is partially visible in the rearview mirror, specifically the eyes are observable. |
 | Weather | Sunny and clear skies as observed through the windshield and rear window. |
+| Mood & Atmosphere | The setting appears rugged and adventurous, accentuated by the dusty and isolated desert road. |
 | Time of Day | Afternoon, suggested by the bright sunlight and the time displayed on phone (5:59) being close to evening. |
 
 
@@ -14672,6 +14835,7 @@ Some reflections in the windows and mirror could be distracting. The rearview mi
 | Objects | Giant guitar sculpture, Different neon signs, Other varied signage |
 | Persons | People are walking and observing the exhibits, but not clearly identifiable due to distance. |
 | Weather | Sunny with clear blue skies |
+| Mood & Atmosphere | Nostalgic, artistic, with a sense of cultural heritage |
 | Time of Day | Afternoon |
 | Season & Date | Likely warm season due to clear skies and clothing of people |
 
@@ -14732,6 +14896,7 @@ Some reflections in the windows and mirror could be distracting. The rearview mi
 | Objects | Open sign, Metal stars, Metal objects |
 | Persons | No persons visible |
 | Weather | Sunny |
+| Mood & Atmosphere | Rustic and abandoned, conveying a sense of decay and nostalgia |
 | Time of Day | Daytime, likely afternoon given the strong sunlight and shadows |
 
 
@@ -14789,6 +14954,7 @@ The edge of the object partly cuts into the frame on the right side; can conside
 | Objects | Neon sign reading 'The Neon Boneyard', Palm trees, Decorative stars and letters on the sign |
 | Persons | No persons are visible in the image. |
 | Weather | Sunny with clear skies. |
+| Mood & Atmosphere | Bright and nostalgic, evoking a classic Americana vibe with a focus on historic signage. |
 | Time of Day | Afternoon, based on the high position and intensity of the sunlight. |
 
 
@@ -14841,6 +15007,7 @@ No major composition issues; a well-balanced image. Minor attention might be dra
 | Objects | Large metallic signs with embedded light bulbs, structural supports, and information placards |
 | Persons | No visible persons in the image |
 | Weather | Sunny with clear blue skies |
+| Mood & Atmosphere | Nostalgic and historical, reflecting a preserved past of iconic signage |
 | Time of Day | Afternoon, based on the shadows and brightness of the sunlight |
 | Season & Date | Unknown, but the clear skies and bright sunlight might suggest a summer day |
 
@@ -14898,6 +15065,7 @@ No significant composition issues, but slight clutter in the background could be
 | Objects | salt flats, mountains, sky |
 | Persons | One person visible in the foreground, male, wearing a red T-shirt, black shorts, and a cap |
 | Weather | Sunny with few scattered clouds |
+| Mood & Atmosphere | Adventurous and serene, showcasing natural beauty and vastness |
 | Time of Day | Afternoon |
 | Season & Date | No distinct seasonal indicators; appears to be dry and warm, possibly summer |
 
@@ -14955,6 +15123,7 @@ None visible
 | Objects | People, Clothing (variety including shirts, pants, skirts, ties), Wall |
 | Persons | The image includes a group of men and women, appearing to be colleagues possibly taken in a professional setting. They exhibit a variety of expressions, with some smiling and others looking more ne... |
 | Weather | Not applicable as the setting is indoors. |
+| Mood & Atmosphere | The group's expressions and relaxed postures give a sense of casualness and maybe a moment of informal gathering or a brief respite during a busy day. |
 | Time of Day | Indeterminate due to indoor setting; no windows or natural light visible. |
 
 
@@ -15068,6 +15237,7 @@ Image is well-composed but suffers from graininess and a lack of sharpness overa
 | Objects | Glossy Vegas sign, crescent moon shape, star shapes |
 | Persons | No people are visible in the image. |
 | Weather | The sky is clear and blue, indicating sunny weather conditions. |
+| Mood & Atmosphere | The atmosphere is vibrant and playful, typical of a festive or entertainment-focused locale. |
 | Time of Day | The strong, direct sunlight suggests it is midday. |
 
 
@@ -15121,6 +15291,7 @@ No significant defects or artifacts are noticeable.
 | Objects | mountains, sky, cloud |
 | Persons | No persons visible |
 | Weather | Sunny |
+| Mood & Atmosphere | Rugged and arid, the landscape conveys a sense of desolation and remote natural beauty. |
 | Time of Day | Afternoon |
 
 ---
@@ -15143,6 +15314,7 @@ No significant defects or artifacts are noticeable.
 | Objects | pink SUV van with 'Pink Jeep Tours' branding, asphalt parking area, mountainous landscape in the distance |
 | Persons | No persons are visible in the image. |
 | Weather | The weather appears sunny with a few clouds. |
+| Mood & Atmosphere | The image conveys a sense of openness and readiness for adventure, underscored by the clear skies and the rugged vehicle prepared for touring. |
 | Time of Day | Afternoon, based on the shadow direction and length. |
 
 
@@ -15192,6 +15364,7 @@ Slightly increase contrast by 10% to enhance visual dynamics, consider saturatin
 | Objects | Cardboard box, Sticker label with 'Tidbyt' |
 | Persons | Part of one person visible (hand holding the box) |
 | Weather | Not visible |
+| Mood & Atmosphere | Neutral, with a focus on the product being held |
 | Time of Day | Indeterminate due to indoor setting |
 | Season & Date | Not determinable from the image |
 
@@ -15309,6 +15482,7 @@ No significant defects or artifacts observed. However, the complex scene might b
 | Objects | Palm trees, Cars on the road, Encore hotel building |
 | Persons | A group of three people walking on the pedestrian pathway |
 | Weather | Sunny with clear blue skies |
+| Mood & Atmosphere | Busy, vibrant, and modern city atmosphere |
 | Time of Day | Afternoon |
 | Season & Date | Appears to be summer, given clear skies and lush greenery |
 
@@ -15363,6 +15537,7 @@ No significant defects or artifacts. Composition is balanced.
 | Objects | seating booth, dinner table, dinnerware, glasses, windows, olive oil container, salt and pepper shakers, a painting visible through a window |
 | Persons | {'person1': 'An older male, prominently smiling, wearing a grey t-shirt with yellow sleeve highlights.', 'person2': 'Another older male, slightly out of focus in the background, dressed in a colorf... |
 | Weather | Not visible |
+| Mood & Atmosphere | The setting appears cozy and intimate, likely in a casual dining environment, with a relaxed and happy atmosphere. |
 | Time of Day | Evening, indicated by the indoor lighting and ambiance |
 
 
@@ -15534,6 +15709,7 @@ The composition is balanced but the signage could be centered better relative to
 | Objects | Salt flats, distant mountains, sky |
 | Persons | No persons visible |
 | Weather | Sunny with a few clouds |
+| Mood & Atmosphere | Desolate, serene, expansive |
 | Time of Day | Afternoon based on the overhead sunlight and slight shadows |
 | Season & Date | Hard to determine specific season, likely warmer months due to clear skies and lack of snow |
 
@@ -15608,6 +15784,7 @@ Slightly increase contrast, enhance shadows to bring out mountain textures, slig
 | Objects | Airplane (DC-3 with '50 Golden DC-3 Years' text), group of people, asphalt tarmac |
 | Persons | Yes, there are numerous people in the image, ranging from children to adults, in various casual and business casual outfits. |
 | Weather | The weather appears sunny with few clouds in the sky. |
+| Mood & Atmosphere | The image conveys a festive or celebratory mood, possibly marking an anniversary or special event, given the assembled group and the commemorative text on the airplane. |
 | Time of Day | Daytime, likely afternoon based on the lighting and shadows. |
 
 
@@ -15666,6 +15843,7 @@ No significant defects or artifacts. Composition is centered and balanced, thoug
 | Objects | N/A |
 | Persons | Not detected |
 | Weather | Unknown |
+| Mood & Atmosphere | Unknown |
 | Time of Day | Unknown |
 | Season & Date | Unknown |
 
@@ -15835,6 +16013,7 @@ Increase sharpness slightly to enhance text readability and texture detail, spec
 | Objects | Death Valley National Park sign, Asphalt road, Desert landscape with arid hills |
 | Persons | Six adult males standing in front of a sign. They are casually dressed, wearing a mix of shorts and trousers, tee-shirts and shirts. Some of them are wearing sunglasses and hats or caps. |
 | Weather | Sunny and clear |
+| Mood & Atmosphere | Cheerful and adventurous, as the group seems to be enjoying a trip together in a scenic location. |
 | Time of Day | Afternoon (based on the length and direction of shadows) |
 
 
@@ -15953,6 +16132,7 @@ Overall well lit, balanced exposure with no visible shadow detail or highlight c
 | Objects | Chief Hotel Court sign, variety of vintage neon signs, metal and neon sign elements |
 | Persons | No visible persons in the image |
 | Weather | Sunny conditions based on the clear sky and distinct shadows |
+| Mood & Atmosphere | Nostalgic and historical, related to vintage Americana |
 | Time of Day | Afternoon based on the angle and intensity of sunlight |
 
 

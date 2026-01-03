@@ -169,7 +169,16 @@ class ReportGenerator:
             weather = metadata.get('weather', metadata.get('weather_conditions', 'N/A'))
             weather = str(weather).replace('|', '\\|')
             
-            mood = metadata.get('mood_atmosphere', 'N/A')
+            # Check for mood/atmosphere with various field names
+            mood = metadata.get('mood_atmosphere') or metadata.get('mood/atmosphere') or metadata.get('mood') or metadata.get('Mood/Atmosphere', 'N/A')
+            # Handle mood if it's a dict/list structure
+            if isinstance(mood, dict):
+                mood = mood.get('description', mood.get('mood', str(mood)))
+            elif isinstance(mood, list):
+                if mood and isinstance(mood[0], dict):
+                    mood = mood[0].get('description', mood[0].get('mood', str(mood[0])))
+                else:
+                    mood = mood[0] if mood else 'N/A'
             mood = str(mood).replace('|', '\\|')
             
             lines.append(f"| {idx} | {item['name']} | {objects} | {persons} | {weather} | {mood} |")
@@ -257,6 +266,9 @@ class ReportGenerator:
                 ('weather', 'Weather'),
                 ('weather_conditions', 'Weather Conditions'),
                 ('mood_atmosphere', 'Mood & Atmosphere'),
+                ('mood/atmosphere', 'Mood & Atmosphere'),
+                ('mood', 'Mood & Atmosphere'),
+                ('Mood/Atmosphere', 'Mood & Atmosphere'),
                 ('time_of_day', 'Time of Day'),
                 ('season_date', 'Season & Date'),
                 ('scene_type', 'Scene Type'),
@@ -269,9 +281,9 @@ class ReportGenerator:
             # Build list with available fields
             seen_fields = set()
             for field_key, display_name in field_mapping:
-                if field_key in metadata and field_key not in seen_fields:
+                if field_key in metadata and display_name not in seen_fields:
                     metadata_display.append((display_name, metadata[field_key]))
-                    seen_fields.add(field_key)
+                    seen_fields.add(display_name)
             
             for aspect, detail in metadata_display:
                 # Format detail - handle lists/dicts
