@@ -283,7 +283,12 @@ class ReportGenerator:
                 
                 for profile in profiles:
                     name = profile.get('profile', 'Unknown')
-                    conf = f"{profile.get('confidence', 0):.0%}"
+                    confidence = profile.get('confidence', 0)
+                    # Handle both decimal (0.6) and percentage (60) formats
+                    if confidence > 1:
+                        conf = f"{confidence:.0f}%"
+                    else:
+                        conf = f"{confidence:.0%}"
                     reason = profile.get('reason', 'N/A')
                     lines.append(f"| {name.title()} | {conf} | {reason} |")
                 
