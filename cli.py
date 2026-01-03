@@ -272,21 +272,48 @@ def cmd_batch(args):
             if args.restore_slide:
                 restore_input = str(enhanced_path) if (args.enhance and enhanced_exists) else str(analyzed_path)
                 
-                if args.restore_slide == 'auto':
-                    SlideRestoration.auto_restore_slide(
-                        restore_input,
-                        analysis,
-                        str(restored_path)
-                    )
-                else:
-                    SlideRestoration.restore_slide(
-                        restore_input,
-                        profile=args.restore_slide,
-                        output_path=str(restored_path)
-                    )
+                # Determine which profile(s) to use
+                profiles_to_process = []
                 
-                if Path(restored_path).exists():
-                    EXIFHandler.copy_exif(str(analyzed_path), str(restored_path), str(restored_path))
+                if args.restore_slide == 'auto':
+                    # Check if analysis has slide profile recommendations
+                    slide_profiles = analysis.get('slide_profiles', [])
+                    if slide_profiles:
+                        # Use all recommended profiles with confidence >= 50%
+                        profiles_to_process = [p['profile'] for p in slide_profiles if p.get('confidence', 0) >= 50]
+                        if profiles_to_process:
+                            print(f"  → Suggested profiles: {', '.join(profiles_to_process)}")
+                    
+                    # If no recommendations or all below 50%, fall back to auto-detect
+                    if not profiles_to_process:
+                        profiles_to_process = ['auto']
+                else:
+                    # User specified a profile
+                    profiles_to_process = [args.restore_slide]
+                
+                # Process each profile
+                for profile in profiles_to_process:
+                    if len(profiles_to_process) > 1:
+                        # Multiple profiles: add profile name to output
+                        profile_restored_path = str(restored_path).replace('.jpg', f'_{profile}.jpg')
+                    else:
+                        profile_restored_path = str(restored_path)
+                    
+                    if profile == 'auto':
+                        SlideRestoration.auto_restore_slide(
+                            restore_input,
+                            analysis,
+                            profile_restored_path
+                        )
+                    else:
+                        SlideRestoration.restore_slide(
+                            restore_input,
+                            profile=profile,
+                            output_path=profile_restored_path
+                        )
+                    
+                    if Path(profile_restored_path).exists():
+                        EXIFHandler.copy_exif(str(analyzed_path), profile_restored_path, profile_restored_path)
             
             success_count += 1
             print(f"  ✓ Complete")
@@ -389,27 +416,52 @@ def cmd_process(args):
         step_num = 3
         print(f"\n[{step_num}/3] Restoring slide")
         
-        if args.restore_slide == 'auto':
-            # Auto-detect profile from analysis
-            result = SlideRestoration.auto_restore_slide(
-                analyzed_path,  # Restore from analyzed image, not enhanced
-                analysis,
-                restored_path
-            )
-        else:
-            # Use specified profile
-            result = SlideRestoration.restore_slide(
-                analyzed_path,  # Restore from analyzed image, not enhanced
-                profile=args.restore_slide,
-                output_path=restored_path
-            )
+        # Determine which profile(s) to use
+        profiles_to_process = []
         
-        if result:
-            print(f"✓ Slide restoration complete: {result}")
-            # Copy EXIF to restored image
-            EXIFHandler.copy_exif(analyzed_path, restored_path, restored_path)
+        if args.restore_slide == 'auto':
+            # Check if analysis has slide profile recommendations
+            slide_profiles = analysis.get('slide_profiles', [])
+            if slide_profiles:
+                # Use all recommended profiles with confidence >= 50%
+                profiles_to_process = [p['profile'] for p in slide_profiles if p.get('confidence', 0) >= 50]
+                if profiles_to_process:
+                    print(f"  → Suggested profiles: {', '.join(profiles_to_process)}")
+            
+            # If no recommendations or all below 50%, fall back to auto-detect
+            if not profiles_to_process:
+                profiles_to_process = ['auto']
         else:
-            print("⚠ Slide restoration failed")
+            # User specified a profile
+            profiles_to_process = [args.restore_slide]
+        
+        # Process each profile
+        for profile in profiles_to_process:
+            if len(profiles_to_process) > 1:
+                # Multiple profiles: add profile name to output
+                profile_restored_path = restored_path.replace('.jpg', f'_{profile}.jpg')
+            else:
+                profile_restored_path = restored_path
+            
+            if profile == 'auto':
+                result = SlideRestoration.auto_restore_slide(
+                    analyzed_path,  # Restore from analyzed image, not enhanced
+                    analysis,
+                    profile_restored_path
+                )
+            else:
+                result = SlideRestoration.restore_slide(
+                    analyzed_path,  # Restore from analyzed image, not enhanced
+                    profile=profile,
+                    output_path=profile_restored_path
+                )
+            
+            if result:
+                print(f"✓ Slide restoration complete ({profile}): {result}")
+                # Copy EXIF to restored image
+                EXIFHandler.copy_exif(analyzed_path, profile_restored_path, profile_restored_path)
+            else:
+                print(f"⚠ Slide restoration failed ({profile})")
     
     print(f"\nResults:")
     print(f"  Analyzed image: {analyzed_path}")

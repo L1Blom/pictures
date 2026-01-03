@@ -35,9 +35,16 @@ ANALYSIS_PROMPT = """Analyze this image and provide detailed information in two 
 16. **Composition Issues**: Any visible defects, artifacts, or areas needing attention
 17. **Recommended Enhancements**: Specific suggestions like "increase brightness by 20%", "add contrast", "reduce noise", "warm up colors", etc.
 
-Format your response as a structured JSON object with two top-level keys:
+=== SLIDE RESTORATION PROFILES (if this appears to be a scanned slide/dia positive) ===
+18. **Suggested Profiles**: List the most suitable slide restoration profiles with confidence scores (0-100%).
+    Available profiles: faded (very faded with lost color/contrast), color_cast (generic color casts), red_cast (red/magenta aging), yellow_cast (yellow/warm aging), aged (moderate aging), well_preserved (minimal aging).
+    Format: [{"profile": "profile_name", "confidence": 85}, {"profile": "profile_name", "confidence": 60}]
+    Only include this section if the image appears to be a scanned slide or vintage photograph. If uncertain or not a slide, set to empty array: []
+
+Format your response as a structured JSON object with three top-level keys:
 - "metadata": {objects, persons, weather, mood, time_of_day, season_date, scene_type, location_setting, activity, photography_style, composition_quality}
 - "enhancement": {lighting_quality, color_analysis, sharpness_clarity, contrast_level, composition_issues, recommended_enhancements}
+- "slide_profiles": [] (array of profile recommendations with confidence scores, empty if not a slide)
 """
 
 # EXIF Configuration
