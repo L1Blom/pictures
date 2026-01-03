@@ -160,6 +160,20 @@ def main():
         default=None
     )
     
+    # Generate gallery report command
+    gallery_parser = subparsers.add_parser('gallery', help='Generate image gallery report showing all images in a table')
+    gallery_parser.add_argument(
+        'directory',
+        type=str,
+        help='Path to output directory containing analyzed images'
+    )
+    gallery_parser.add_argument(
+        '-o', '--output',
+        type=str,
+        help='Output path for markdown gallery report',
+        default=None
+    )
+    
     # Parse arguments
     args = parser.parse_args()
     
@@ -185,6 +199,9 @@ def main():
         
         elif args.command == 'report':
             return cmd_report(args)
+        
+        elif args.command == 'gallery':
+            return cmd_gallery(args)
     
     except Exception as e:
         print(f"Error: {e}")
@@ -574,6 +591,33 @@ def cmd_report(args):
     generator.generate_report(directory, report_path)
     
     print(f"\n✓ Report generation complete: {report_path}")
+    return 0
+
+
+def cmd_gallery(args):
+    """Generate gallery report showing all images in table format"""
+    from report_generator import ReportGenerator
+    
+    directory = Path(args.directory)
+    
+    if not directory.exists():
+        print(f"✗ Directory not found: {directory}")
+        return 1
+    
+    # Determine output path
+    if args.output:
+        report_path = Path(args.output)
+    else:
+        report_path = directory / "gallery.md"
+    
+    print(f"Generating gallery report from: {directory}")
+    print(f"Gallery report will be saved to: {report_path}")
+    print("")
+    
+    generator = ReportGenerator()
+    generator.generate_gallery_report(directory, report_path)
+    
+    print(f"\n✓ Gallery report generation complete: {report_path}")
     return 0
 
 if __name__ == '__main__':

@@ -127,6 +127,141 @@ class ReportGenerator:
         
         return markdown
     
+    def generate_gallery_report(self, output_dir: Path, report_path: Optional[Path] = None) -> str:
+        """
+        Generate a gallery report showing all images for each input in a table format
+        
+        Args:
+            output_dir: Directory containing analyzed images and analyzed.json files
+            report_path: Optional path to save report. If None, returns as string
+            
+        Returns:
+            Markdown gallery report content
+        """
+        output_dir = Path(output_dir)
+        
+        # Collect all image analysis results (same logic as generate_report)
+        analyses = []
+        
+        # First, try to find JSON files directly in output_dir
+        for json_file in output_dir.glob("*_analyzed.json"):
+            with open(json_file, 'r') as f:
+                analysis = json.load(f)
+            
+            base_name = json_file.stem.replace('_analyzed', '')
+            
+            analyzed_img = None
+            for ext in ['*.jpg', '*.png', '*.gif', '*.bmp', '*.tiff', '*.webp', '*.heic']:
+                for file in output_dir.glob(f"{base_name}*_analyzed.{ext.split('.')[-1]}"):
+                    analyzed_img = file
+                    break
+                if analyzed_img:
+                    break
+            
+            enhanced_img = None
+            for file in output_dir.glob(f"{base_name}*_enhanced.*"):
+                enhanced_img = file
+                break
+            
+            restored_imgs = []
+            for file in output_dir.glob(f"{base_name}*_restored*.jpg"):
+                restored_imgs.append(file)
+            
+            analyses.append({
+                'name': base_name,
+                'analyzed_img': analyzed_img,
+                'enhanced_img': enhanced_img,
+                'restored_imgs': sorted(restored_imgs),
+                'dir': output_dir
+            })
+        
+        # Then, look for nested structure
+        image_dirs = [d for d in output_dir.iterdir() if d.is_dir()]
+        for img_dir in sorted(image_dirs):
+            analysis_file = img_dir / "analyzed.json"
+            if analysis_file.exists():
+                analyzed_img = None
+                enhanced_img = None
+                restored_imgs = []
+                
+                for file in img_dir.glob("*_analyzed.jpg"):
+                    analyzed_img = file
+                
+                for file in img_dir.glob("*_enhanced.jpg"):
+                    enhanced_img = file
+                
+                for file in img_dir.glob("*_restored*.jpg"):
+                    restored_imgs.append(file)
+                
+                analyses.append({
+                    'name': img_dir.name,
+                    'analyzed_img': analyzed_img,
+                    'enhanced_img': enhanced_img,
+                    'restored_imgs': sorted(restored_imgs),
+                    'dir': img_dir
+                })
+        
+        # Sort by name
+        analyses = sorted(analyses, key=lambda x: x['name'])
+        
+        # Generate gallery report
+        markdown = self._build_gallery_markdown(analyses)
+        
+        # Save if path provided
+        if report_path:
+            report_path = Path(report_path)
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(report_path, 'w') as f:
+                f.write(markdown)
+            print(f"✅ Gallery report saved to: {report_path}")
+        
+        return markdown
+    
+    def _build_gallery_markdown(self, analyses: List[Dict]) -> str:
+        """Build markdown gallery report showing all images in table format"""
+        lines = []
+        
+        # Header
+        lines.append("# Picture Gallery Report")
+        lines.append(f"\n**Total Images:** {len(analyses)}")
+        lines.append("")
+        
+        # Gallery table with images
+        lines.append("## Image Gallery")
+        lines.append("")
+        lines.append("| # | Image Name | Original | Enhanced | Restored |")
+        lines.append("|---|------------|----------|----------|----------|")
+        
+        for idx, item in enumerate(analyses, 1):
+            original = ""
+            enhanced = ""
+            restored = ""
+            
+            # Original image
+            if item['analyzed_img'] and item['analyzed_img'].exists():
+                img_path = item['analyzed_img'].name
+                original = f"![Original]({img_path})"
+            
+            # Enhanced image
+            if item['enhanced_img'] and item['enhanced_img'].exists():
+                img_path = item['enhanced_img'].name
+                enhanced = f"![Enhanced]({img_path})"
+            
+            # Restored images (show up to 2 in this column)
+            if item['restored_imgs']:
+                restored_links = []
+                for i, restored in enumerate(item['restored_imgs'][:2]):
+                    img_path = restored.name
+                    profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
+                    restored_links.append(f"![{profile}]({img_path})")
+                restored = " ".join(restored_links)
+            
+            lines.append(f"| {idx} | {item['name']} | {original} | {enhanced} | {restored} |")
+        
+        lines.append("")
+        
+        return "\n".join(lines)
+
     def _build_markdown(self, analyses: List[Dict]) -> str:
         """Build markdown report from analyses"""
         lines = []
