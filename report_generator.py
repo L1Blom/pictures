@@ -149,7 +149,21 @@ class ReportGenerator:
                 objects = ', '.join(str(o) for o in objects) if objects else 'N/A'
             objects = str(objects).replace('|', '\\|')
             
+            # Format persons - handle list of dicts
             persons = metadata.get('persons', metadata.get('persons_count', 'N/A'))
+            if isinstance(persons, list):
+                # Extract descriptions from list of dicts
+                descriptions = []
+                for person in persons:
+                    if isinstance(person, dict):
+                        # Try common keys for descriptions
+                        for key in ['description', 'Description', 'brief_description', 'person_1', 'person_2', 'person_3', 'person_4', 'details']:
+                            if key in person:
+                                descriptions.append(person[key])
+                                break
+                    else:
+                        descriptions.append(str(person))
+                persons = '; '.join(descriptions) if descriptions else 'N/A'
             persons = str(persons).replace('|', '\\|')
             
             weather = metadata.get('weather', metadata.get('weather_conditions', 'N/A'))
