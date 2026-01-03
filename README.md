@@ -251,19 +251,22 @@ pictures/
 ├── SETUP_COMPLETE.md        # Setup summary
 ├── SLIDE_RESTORATION_GUIDE.md # Detailed slide restoration docs
 │
-├── cli.py                   # Command-line interface (5 commands)
+├── cli.py                   # Command-line interface (6 commands)
 ├── picture_analyzer.py      # OpenAI Vision API analysis
 ├── picture_enhancer.py      # Smart enhancement engine
 ├── slide_restoration.py     # Specialized slide restoration
 ├── exif_handler.py          # EXIF metadata handling
+├── report_generator.py      # Markdown report generation
 ├── config.py                # Configuration and prompts
 │
 └── output/                  # Results directory
+    ├── analysis_report.md           # Generated markdown report
     └── [image_name]/
         ├── [name]_analyzed.jpg      # Original + EXIF
         ├── [name]_analyzed.json     # Detailed analysis
         ├── [name]_enhanced.jpg      # Enhanced version + EXIF
-        └── [name]_restored.jpg      # Restored slide + EXIF (if requested)
+        ├── [name]_restored.jpg      # Restored slide + EXIF (if requested)
+        └── description.txt          # Optional context file (user-created)
 ```
 
 ## Configuration
