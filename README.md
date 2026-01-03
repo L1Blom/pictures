@@ -39,6 +39,8 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
   - **yellow_cast**: Yellow/warm color casts (boost blue)
   - **aged**: Moderately aged with some fading
   - **well_preserved**: Minimal aging
+- **AI-guided profile recommendations**: Analysis automatically suggests best restoration profiles with confidence scores
+- **Multiple profile processing**: Auto-detection can generate multiple restored versions with different profiles for comparison
 - Auto-detection of slide condition from analysis
 - 7-step restoration pipeline: despeckle → color balance → brightness → contrast → saturation → denoise → sharpness
 
@@ -109,21 +111,29 @@ python cli.py analyze picture.jpg -o output/
 # Batch analyze a directory
 python cli.py batch pictures/
 
-# Batch with full processing: analyze → enhance → restore-slide
+# Batch with full processing: analyze → enhance → restore-slide (specific profile)
 python cli.py batch pictures/ --enhance --restore-slide red_cast
 
 # Batch with auto-detect slide restoration
+# Generates multiple restored versions if multiple profiles recommended
 python cli.py batch pictures/ --enhance --restore-slide
 
-# Full workflow for single image: analyze → enhance → restore-slide
+# Full workflow for single image: analyze → enhance → restore-slide (specific profile)
 python cli.py process picture.jpg --restore-slide red_cast
 
-# Auto-detect slide restoration profile
+# Auto-detect slide restoration profile with AI recommendations
+# May generate multiple restored versions for comparison
 python cli.py process picture.jpg --restore-slide
 
 # Restore slide with specific profile only
 python cli.py restore-slide picture.jpg -p faded -o output/restored.jpg
 ```
+
+**Example output with auto-detection:**
+When using `--restore-slide` without a profile on a slide image, the analysis provides recommendations:
+- Creates `*_restored_aged.jpg` if "aged" profile is recommended (confidence 75%)
+- Creates `*_restored_yellow_cast.jpg` if "yellow_cast" profile is recommended (confidence 60%)
+- All versions include EXIF metadata from analysis
 
 ### Python API
 
