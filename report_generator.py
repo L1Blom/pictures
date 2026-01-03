@@ -188,21 +188,16 @@ class ReportGenerator:
             
             # Analyzed image
             if item['analyzed_img'] and item['analyzed_img'].exists():
-                # Handle both flat and nested structures
-                try:
-                    img_rel_path = item['analyzed_img'].relative_to(item['analyzed_img'].parent.parent)
-                except ValueError:
-                    img_rel_path = item['analyzed_img'].name
-                lines.append(f"**Original with EXIF:**  \n![Analyzed]({img_rel_path})")
+                # Use just filename since images are in same directory as report
+                img_path = item['analyzed_img'].name
+                lines.append(f"**Original with EXIF:**  \n![Analyzed]({img_path})")
                 lines.append("")
             
             # Enhanced image
             if item['enhanced_img'] and item['enhanced_img'].exists():
-                try:
-                    img_rel_path = item['enhanced_img'].relative_to(item['enhanced_img'].parent.parent)
-                except ValueError:
-                    img_rel_path = item['enhanced_img'].name
-                lines.append(f"**Enhanced:**  \n![Enhanced]({img_rel_path})")
+                # Use just filename since images are in same directory as report
+                img_path = item['enhanced_img'].name
+                lines.append(f"**Enhanced:**  \n![Enhanced]({img_path})")
                 lines.append("")
             
             # Restored images
@@ -211,11 +206,8 @@ class ReportGenerator:
                 lines.append("")
                 for restored in item['restored_imgs']:
                     profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
-                    try:
-                        img_rel_path = restored.relative_to(restored.parent.parent)
-                    except ValueError:
-                        img_rel_path = restored.name
-                    lines.append(f"- **{profile.title()}:** ![{profile}]({img_rel_path})")
+                    img_path = restored.name
+                    lines.append(f"- **{profile.title()}:** ![{profile}]({img_path})")
                 lines.append("")
             
             # Full metadata table
