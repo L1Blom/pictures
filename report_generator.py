@@ -113,6 +113,8 @@ class ReportGenerator:
                 })
         
         # Generate report
+        # Sort analyses by name
+        analyses = sorted(analyses, key=lambda x: x['name'])
         markdown = self._build_markdown(analyses)
         
         # Save if path provided
