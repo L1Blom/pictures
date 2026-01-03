@@ -238,12 +238,21 @@ def cmd_batch(args):
     success_count = 0
     for idx, image_path in enumerate(image_files, 1):
         image_stem = image_path.stem
-        analysis_dir = Path(output_dir) / image_stem
-        analysis_dir.mkdir(exist_ok=True)
         
-        analyzed_path = analysis_dir / f"{image_stem}_analyzed.jpg"
-        enhanced_path = analysis_dir / f"{image_stem}_enhanced.jpg" if args.enhance else None
-        restored_path = analysis_dir / f"{image_stem}_restored.jpg" if args.restore_slide else None
+        # When using restore-slide, put files directly in output dir
+        # Otherwise, organize by subdirectories
+        if args.restore_slide:
+            analyzed_path = Path(output_dir) / f"{image_stem}_analyzed.jpg"
+            enhanced_path = Path(output_dir) / f"{image_stem}_enhanced.jpg" if args.enhance else None
+            restored_path = Path(output_dir) / f"{image_stem}_restored.jpg"
+            analysis_json = Path(output_dir) / f"{image_stem}_analyzed.json"
+        else:
+            analysis_dir = Path(output_dir) / image_stem
+            analysis_dir.mkdir(exist_ok=True)
+            analyzed_path = analysis_dir / f"{image_stem}_analyzed.jpg"
+            enhanced_path = analysis_dir / f"{image_stem}_enhanced.jpg" if args.enhance else None
+            restored_path = None
+            analysis_json = analysis_dir / f"{image_stem}_analyzed.json"
         
         print(f"[{idx}/{total}] Processing: {image_path.name}")
         
