@@ -135,6 +135,38 @@ When using `--restore-slide` without a profile on a slide image, the analysis pr
 - Creates `*_restored_yellow_cast.jpg` if "yellow_cast" profile is recommended (confidence 60%)
 - All versions include EXIF metadata from analysis
 
+### Context-Aware Analysis with description.txt
+
+You can enhance EXIF analysis by placing a `description.txt` file in the same directory as your image. The description provides context that helps AI understand the image better, resulting in more accurate and detailed metadata.
+
+**Example description.txt:**
+```
+Family vacation in Switzerland, summer 2015.
+Taken at Jungfrau region during hiking trip in late July.
+Shows traditional alpine village with mountains in background.
+Grandpa's 80th birthday celebration gathering.
+Weather was partly cloudy, early morning light.
+```
+
+**Directory structure:**
+```
+pictures/
+├── vacation_2015/
+│   ├── mountain_view.jpg
+│   ├── description.txt          # Context for all images in directory
+│   ├── family_photo.jpg
+│   └── sunrise.jpg
+```
+
+When analyzing any image in a directory with `description.txt`, the analysis includes this context. This improves:
+- Location and setting identification
+- Event and occasion detection
+- People and gathering context
+- Time period estimation
+- Overall scene understanding
+
+The context is automatically read and passed to the OpenAI Vision API, enhancing the accuracy of generated EXIF metadata.
+
 ### Python API
 
 ```python

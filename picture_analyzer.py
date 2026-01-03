@@ -45,11 +45,14 @@ class PictureAnalyzer:
         if not self._validate_image_file(image_path):
             raise ValueError(f"Invalid or unsupported image file: {image_path}")
         
+        # Check for description.txt in the same directory
+        description = self._read_description(image_path)
+        
         # Encode image to base64
         image_data = self._encode_image(image_path)
         
         # Send to OpenAI Vision API
-        response = self._call_openai_vision(image_data)
+        response = self._call_openai_vision(image_data, description)
         
         # Parse response
         analysis_result = self._parse_response(response)
@@ -226,8 +229,36 @@ class PictureAnalyzer:
         }
         return media_types.get(ext, 'image/jpeg')
     
-    def _call_openai_vision(self, image_data: str) -> str:
+    def _read_description(self, image_path: str) -> Optional[str]:
+        """
+        Read description.txt from the same directory as the image
+        
+        Args:
+            image_path: Path to the image file
+            
+        Returns:
+            Description text if found, None otherwise
+        """
+        image_dir = Path(image_path).parent
+        description_file = image_dir / 'description.txt'
+        
+        if description_file.exists():
+            try:
+                with open(description_file, 'r', encoding='utf-8') as f:
+                    return f.read().strip()
+            except Exception as e:
+                print(f"Warning: Could not read description.txt: {e}")
+                return None
+        
+        return None
+    
+    def _call_openai_vision(self, image_data: str, description: Optional[str] = None) -> str:
         """Call OpenAI Vision API with the image"""
+        # Prepare the prompt with optional context
+        prompt = ANALYSIS_PROMPT
+        if description:
+            prompt = f"{prompt}\n\n=== CONTEXT FROM DESCRIPTION.TXT ===\n{description}\n\nPlease consider this context when analyzing the image."
+        
         response = self.client.chat.completions.create(
             model=self.model,
             max_tokens=1024,
@@ -236,14 +267,14 @@ class PictureAnalyzer:
                     "role": "user",
                     "content": [
                         {
+                            "type": "text",
+                            "text": prompt
+                        },
+                        {
                             "type": "image_url",
                             "image_url": {
                                 "url": f"data:image/jpeg;base64,{image_data}",
                             },
-                        },
-                        {
-                            "type": "text",
-                            "text": ANALYSIS_PROMPT
                         }
                     ],
                 }
