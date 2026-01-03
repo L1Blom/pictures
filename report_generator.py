@@ -218,7 +218,7 @@ class ReportGenerator:
         return markdown
     
     def _build_gallery_markdown(self, analyses: List[Dict]) -> str:
-        """Build markdown gallery report showing all images in table format"""
+        """Build markdown gallery report showing all images in table format with up to 2 restored profiles"""
         lines = []
         
         # Header
@@ -226,39 +226,41 @@ class ReportGenerator:
         lines.append(f"\n**Total Images:** {len(analyses)}")
         lines.append("")
         
-        # Gallery table with images
+        # Gallery table with images - 6 columns: #, Name, Original, Enhanced, Restored 1, Restored 2
         lines.append("## Image Gallery")
         lines.append("")
-        lines.append("| # | Image Name | Original | Enhanced | Restored |")
-        lines.append("|---|------------|----------|----------|----------|")
+        lines.append("| # | Image Name | Original | Enhanced | Restored 1 | Restored 2 |")
+        lines.append("|---|------------|----------|----------|-----------|-----------|")
         
         for idx, item in enumerate(analyses, 1):
             original = ""
             enhanced = ""
-            restored = ""
+            restored_1 = ""
+            restored_2 = ""
             
-            # Original image
+            # Original image - use HTML to control size
             if item['analyzed_img'] and item['analyzed_img'].exists():
                 img_path = item['analyzed_img'].name
-                original = f"![Original]({img_path})"
+                original = f"<img src='{img_path}' width='150' />"
             
-            # Enhanced image
+            # Enhanced image - same size
             if item['enhanced_img'] and item['enhanced_img'].exists():
                 img_path = item['enhanced_img'].name
-                enhanced = f"![Enhanced]({img_path})"
+                enhanced = f"<img src='{img_path}' width='150' />"
             
-            # Restored images - display side by side
+            # Restored images - show up to first 2 in separate columns
             if item['restored_imgs']:
-                # Extract profile names and format each with its image side by side
-                restored_items = []
-                for restored in item['restored_imgs']:
+                for i, restored in enumerate(item['restored_imgs'][:2]):
+                    img_path = restored.name
                     profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
-                    restored_items.append(f"**{profile.title()}** ![{profile}]({restored.name})")
-                
-                # Join with escaped pipe separator to avoid table parsing issues
-                restored = " \\| ".join(restored_items)
+                    img_html = f"<img src='{img_path}' width='150' /><br>**{profile.title()}**"
+                    
+                    if i == 0:
+                        restored_1 = img_html
+                    elif i == 1:
+                        restored_2 = img_html
             
-            lines.append(f"| {idx} | {item['name']} | {original} | {enhanced} | {restored} |")
+            lines.append(f"| {idx} | {item['name']} | {original} | {enhanced} | {restored_1} | {restored_2} |")
         
         lines.append("")
         
