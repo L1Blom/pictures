@@ -247,18 +247,16 @@ class ReportGenerator:
                 img_path = item['enhanced_img'].name
                 enhanced = f"![Enhanced]({img_path})"
             
-            # Restored images - create a sub-table with profile columns
+            # Restored images - create a list with profile headers and images
             if item['restored_imgs']:
-                # Extract profile names and create headers
-                profiles = []
+                # Extract profile names and format each on its own line
+                restored_lines = []
                 for restored in item['restored_imgs']:
                     profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
-                    profiles.append((profile, restored.name))
+                    restored_lines.append(f"**{profile.title()}**<br>![{profile}]({restored.name})")
                 
-                # Create mini-table format
-                restored = "| " + " | ".join([p[0].title() for p in profiles]) + " |\n"
-                restored += "|" + "|".join(["---"] * len(profiles)) + "|\n"
-                restored += "| " + " | ".join([f"![{p[0]}]({p[1]})" for p in profiles]) + " |"
+                # Join with HTML line breaks
+                restored = "<br>".join(restored_lines)
             
             lines.append(f"| {idx} | {item['name']} | {original} | {enhanced} | {restored} |")
         
