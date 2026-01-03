@@ -247,7 +247,7 @@ class ReportGenerator:
                 img_path = item['enhanced_img'].name
                 enhanced = f"![Enhanced]({img_path})"
             
-            # Restored images - display side by side with non-breaking spaces
+            # Restored images - display side by side
             if item['restored_imgs']:
                 # Extract profile names and format each with its image side by side
                 restored_items = []
@@ -255,8 +255,8 @@ class ReportGenerator:
                     profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
                     restored_items.append(f"**{profile.title()}** ![{profile}]({restored.name})")
                 
-                # Join with non-breaking spaces
-                restored = "&nbsp;&nbsp;".join(restored_items)
+                # Join with pipe separator (no spaces around it to avoid breaks)
+                restored = " | ".join(restored_items)
             
             lines.append(f"| {idx} | {item['name']} | {original} | {enhanced} | {restored} |")
         
