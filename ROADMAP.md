@@ -37,6 +37,24 @@
 - [x] CLI command with profile selection
 - [x] Comprehensive documentation (SLIDE_RESTORATION_GUIDE.md)
 
+## Phase 2.6: Context-Aware Analysis ✅ COMPLETED
+- [x] Support for description.txt files in image directories
+- [x] Description context passed to OpenAI Vision API
+- [x] Enhanced EXIF generation with contextual understanding
+- [x] Automatic description file reading and integration
+
+## Phase 2.7: Report Generation ✅ COMPLETED
+- [x] Markdown report generation from analysis results
+- [x] Summary table with numbered images and key metadata
+- [x] Detailed analysis sections for each image
+- [x] Description.txt content integration in reports
+- [x] Image references and links in reports
+- [x] Complete metadata tables (all 11 aspects)
+- [x] Enhancement recommendations tables
+- [x] Slide restoration profile recommendations in reports
+- [x] 'report' CLI command for markdown generation
+- [x] Configurable report output paths
+
 ## Phase 3: Advanced Features (NEXT)
 - [ ] Database storage for analysis results
   - [ ] SQLite for local storage

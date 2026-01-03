@@ -16,7 +16,7 @@ from exif_handler import EXIFHandler
 def main():
     """Main entry point for the CLI"""
     parser = argparse.ArgumentParser(
-        description='Analyze pictures using OpenAI Vision API and generate EXIF metadata'
+        description='Analyze pictures using OpenAI Vision API, generate EXIF metadata, enhance images, restore slides, and create reports'
     )
     
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
