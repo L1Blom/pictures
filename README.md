@@ -44,9 +44,11 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
 
 **CLI Tool**
 - 5 commands: `analyze`, `batch`, `enhance`, `process`, `restore-slide`
-- `process` command combines all steps: analyze → enhance → optionally restore
+- `process` command: single image - analyze → enhance → optionally restore
+- `batch` command: multiple images with optional enhancement and restoration in one pass
 - Extensive help and argument validation
-- Output directory organization
+- Output directory organization with progress tracking
+- Error handling and success reporting
 
 **Metadata & EXIF**
 - Automatic EXIF embedding with analysis data
@@ -104,13 +106,16 @@ python cli.py analyze picture.jpg
 # Analyze and save with EXIF
 python cli.py analyze picture.jpg -o output/
 
-# Batch process a directory
+# Batch analyze a directory
 python cli.py batch pictures/
 
-# Enhance based on AI recommendations
-python cli.py enhance picture.jpg
+# Batch with full processing: analyze → enhance → restore-slide
+python cli.py batch pictures/ --enhance --restore-slide red_cast
 
-# Full workflow: analyze → enhance → restore-slide
+# Batch with auto-detect slide restoration
+python cli.py batch pictures/ --enhance --restore-slide
+
+# Full workflow for single image: analyze → enhance → restore-slide
 python cli.py process picture.jpg --restore-slide red_cast
 
 # Auto-detect slide restoration profile
