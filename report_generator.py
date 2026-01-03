@@ -143,28 +143,20 @@ class ReportGenerator:
         for idx, item in enumerate(analyses, 1):
             metadata = item['analysis'].get('metadata', {})
             
-            # Extract and format fields
+            # Extract and format fields - NO TRUNCATION
             objects = metadata.get('objects', metadata.get('objects_subjects', 'N/A'))
             if isinstance(objects, list):
-                objects = ', '.join(str(o) for o in objects[:3]) if objects else 'N/A'
-            objects = str(objects)
-            if len(objects) > 50:
-                objects = objects[:47] + "..."
+                objects = ', '.join(str(o) for o in objects) if objects else 'N/A'
+            objects = str(objects).replace('|', '\\|')
             
             persons = metadata.get('persons', metadata.get('persons_count', 'N/A'))
-            persons = str(persons)
-            if len(persons) > 40:
-                persons = persons[:37] + "..."
+            persons = str(persons).replace('|', '\\|')
             
             weather = metadata.get('weather', metadata.get('weather_conditions', 'N/A'))
-            weather = str(weather)
-            if len(weather) > 40:
-                weather = weather[:37] + "..."
+            weather = str(weather).replace('|', '\\|')
             
             mood = metadata.get('mood_atmosphere', 'N/A')
-            mood = str(mood)
-            if len(mood) > 50:
-                mood = mood[:47] + "..."
+            mood = str(mood).replace('|', '\\|')
             
             lines.append(f"| {idx} | {item['name']} | {objects} | {persons} | {weather} | {mood} |")
         
@@ -183,33 +175,50 @@ class ReportGenerator:
                 lines.append(f"> {item['description']}")
                 lines.append("")
             
-            # Image thumbnails
+            # Image thumbnails in side-by-side layout
             lines.append("")
             lines.append("### Images")
             lines.append("")
             
-            # Analyzed image
-            if item['analyzed_img'] and item['analyzed_img'].exists():
-                # Use just filename since images are in same directory as report
-                img_path = item['analyzed_img'].name
-                lines.append(f"**Original with EXIF:**  \n![Analyzed]({img_path})")
+            # Original and Enhanced side by side
+            has_analyzed = item['analyzed_img'] and item['analyzed_img'].exists()
+            has_enhanced = item['enhanced_img'] and item['enhanced_img'].exists()
+            
+            if has_analyzed or has_enhanced:
+                lines.append("| Original | Enhanced |")
+                lines.append("|----------|----------|")
+                
+                analyzed_cell = ""
+                enhanced_cell = ""
+                
+                if has_analyzed:
+                    img_path = item['analyzed_img'].name
+                    analyzed_cell = f"![Original]({img_path})"
+                
+                if has_enhanced:
+                    img_path = item['enhanced_img'].name
+                    enhanced_cell = f"![Enhanced]({img_path})"
+                
+                lines.append(f"| {analyzed_cell} | {enhanced_cell} |")
                 lines.append("")
             
-            # Enhanced image
-            if item['enhanced_img'] and item['enhanced_img'].exists():
-                # Use just filename since images are in same directory as report
-                img_path = item['enhanced_img'].name
-                lines.append(f"**Enhanced:**  \n![Enhanced]({img_path})")
-                lines.append("")
-            
-            # Restored images
+            # Restored images in table format
             if item['restored_imgs']:
-                lines.append("**Restored versions:**")
                 lines.append("")
+                lines.append("### Restored Versions")
+                lines.append("")
+                
+                # Create table with 2 columns of restored images
+                restored_list = []
                 for restored in item['restored_imgs']:
                     profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
                     img_path = restored.name
-                    lines.append(f"- **{profile.title()}:** ![{profile}]({img_path})")
+                    restored_list.append((profile.title(), f"![{profile}]({img_path})"))
+                
+                lines.append("| Profile | Image |")
+                lines.append("|---------|-------|")
+                for profile_name, img_markdown in restored_list:
+                    lines.append(f"| {profile_name} | {img_markdown} |")
                 lines.append("")
             
             # Full metadata table
@@ -273,30 +282,41 @@ class ReportGenerator:
             
             lines.append("")
             
-            # Enhancement recommendations
+            # Enhancement recommendations with nice formatting
             enhancement = item['analysis'].get('enhancement', {})
             if enhancement:
                 lines.append("")
                 lines.append("### Enhancement Recommendations")
                 lines.append("")
-                lines.append("| Parameter | Recommendation |")
-                lines.append("|-----------|-----------------|")
                 
                 for param, value in enhancement.items():
                     if param != 'summary' and param.lower() != 'raw_response':
-                        # Format value - avoid raw JSON
-                        if isinstance(value, (dict, list)):
-                            value_str = str(value)[:100] + "..." if len(str(value)) > 100 else str(value)
+                        lines.append(f"**{param.title().replace('_', ' ')}:**")
+                        lines.append("")
+                        
+                        # Format value nicely based on type
+                        if isinstance(value, dict):
+                            # Format dict as key-value pairs
+                            for key, val in value.items():
+                                key_display = key.replace('_', ' ').title()
+                                lines.append(f"- **{key_display}:** {val}")
+                        elif isinstance(value, list):
+                            # Format list as bullet points
+                            for item_val in value:
+                                if isinstance(item_val, dict):
+                                    item_str = ', '.join(f"{k}: {v}" for k, v in item_val.items())
+                                    lines.append(f"- {item_str}")
+                                else:
+                                    lines.append(f"- {item_val}")
                         else:
-                            value_str = str(value).replace('|', '\\|')
-                        lines.append(f"| {param.title()} | {value_str} |")
+                            lines.append(str(value))
+                        
+                        lines.append("")
                 
                 if 'summary' in enhancement:
                     lines.append("")
                     lines.append(f"**Summary:** {enhancement['summary']}")
                     lines.append("")
-                
-                lines.append("")
             
             # Slide restoration profiles (if available)
             profiles = item['analysis'].get('slide_profiles', [])
