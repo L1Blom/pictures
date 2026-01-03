@@ -221,20 +221,34 @@ class ReportGenerator:
             lines.append("| Aspect | Details |")
             lines.append("|--------|---------|")
             
-            # Map metadata to readable format (handle both old and new field names)
-            metadata_display = [
-                ("Objects", metadata.get('objects', metadata.get('objects_subjects', 'N/A'))),
-                ("Persons", metadata.get('persons', metadata.get('persons_count', 'N/A'))),
-                ("Weather", metadata.get('weather', metadata.get('weather_conditions', 'N/A'))),
-                ("Mood & Atmosphere", metadata.get('mood_atmosphere', 'N/A')),
-                ("Time of Day", metadata.get('time_of_day', 'N/A')),
-                ("Season & Date", metadata.get('season_date', 'N/A')),
-                ("Scene Type", metadata.get('scene_type', 'N/A')),
-                ("Location & Setting", metadata.get('location_setting', 'N/A')),
-                ("Activity", metadata.get('activity', 'N/A')),
-                ("Photography Style", metadata.get('photography_style', 'N/A')),
-                ("Composition Quality", metadata.get('composition_quality', 'N/A')),
+            # Map metadata to readable format - dynamically build based on what's available
+            metadata_display = []
+            
+            # Add fields that are present in the data
+            field_mapping = [
+                ('objects', 'Objects'),
+                ('objects_subjects', 'Objects & Subjects'),
+                ('persons', 'Persons'),
+                ('persons_count', 'Persons Count'),
+                ('persons_position', 'Persons Position'),
+                ('weather', 'Weather'),
+                ('weather_conditions', 'Weather Conditions'),
+                ('mood_atmosphere', 'Mood & Atmosphere'),
+                ('time_of_day', 'Time of Day'),
+                ('season_date', 'Season & Date'),
+                ('scene_type', 'Scene Type'),
+                ('location_setting', 'Location & Setting'),
+                ('activity', 'Activity'),
+                ('photography_style', 'Photography Style'),
+                ('composition_quality', 'Composition Quality'),
             ]
+            
+            # Build list with available fields
+            seen_fields = set()
+            for field_key, display_name in field_mapping:
+                if field_key in metadata and field_key not in seen_fields:
+                    metadata_display.append((display_name, metadata[field_key]))
+                    seen_fields.add(field_key)
             
             for aspect, detail in metadata_display:
                 # Format detail - handle lists/dicts
