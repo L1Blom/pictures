@@ -304,8 +304,17 @@ class ReportGenerator:
                 lines.append("")
                 lines.append("### Recommended Restoration Profiles")
                 lines.append("")
-                lines.append("| Profile | Confidence | Reason |")
-                lines.append("|---------|------------|--------|")
+                lines.append("| Profile | Confidence | Description |")
+                lines.append("|---------|------------|-------------|")
+                
+                profile_descriptions = {
+                    'faded': 'Very faded with lost color and contrast',
+                    'color_cast': 'Generic color casts from aging',
+                    'red_cast': 'Red/magenta color casts from aging',
+                    'yellow_cast': 'Yellow/warm color casts from aging',
+                    'aged': 'Moderately aged with some fading',
+                    'well_preserved': 'Minimal aging',
+                }
                 
                 for profile in profiles:
                     name = profile.get('profile', 'Unknown')
@@ -315,8 +324,9 @@ class ReportGenerator:
                         conf = f"{confidence:.0f}%"
                     else:
                         conf = f"{confidence:.0%}"
-                    reason = profile.get('reason', 'N/A')
-                    lines.append(f"| {name.title()} | {conf} | {reason} |")
+                    # Use profile description if available, otherwise use generic description
+                    description = profile_descriptions.get(name, 'Slide restoration profile')
+                    lines.append(f"| {name.title()} | {conf} | {description} |")
                 
                 lines.append("")
             
