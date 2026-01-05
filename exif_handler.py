@@ -8,13 +8,6 @@ import io
 from PIL import Image
 from PIL.Image import Image as PILImage
 
-try:
-    from libxmp import XMPMeta
-    from libxmp.consts import XMP_NS_PHOTOSHOP, XMP_NS_EXIF, XMP_NS_DC, XMP_NS_RDF
-    HAS_XMP = True
-except ImportError:
-    HAS_XMP = False
-
 
 class EXIFHandler:
     """Handles EXIF metadata reading and writing"""
@@ -44,7 +37,7 @@ class EXIFHandler:
         analysis_data: Dict[str, Any]
     ) -> bool:
         """
-        Write analysis data to image EXIF metadata and XMP
+        Write analysis data to image EXIF metadata (and XMP if available)
         
         Args:
             image_path: Path to the source image
@@ -64,7 +57,7 @@ class EXIFHandler:
             except:
                 exif_dict = {"0th": {}, "Exif": {}, "GPS": {}}
             
-            # Prepare new EXIF data
+            # Prepare new EXIF data with full analysis as JSON
             exif_dict_new = EXIFHandler._prepare_exif_dict(exif_dict, analysis_data)
             
             # Convert back to bytes
@@ -82,10 +75,6 @@ class EXIFHandler:
                     rgb_image.save(output_path, 'jpeg', exif=exif_bytes, quality=95)
                 else:
                     image.convert('RGB').save(output_path, 'jpeg', exif=exif_bytes, quality=95)
-            
-            # Also write XMP data if available
-            if HAS_XMP:
-                EXIFHandler.write_xmp(image_path, output_path, analysis_data)
             
             return True
         except Exception as e:
@@ -210,83 +199,3 @@ class EXIFHandler:
             except:
                 return str(value)
         return value
-
-    @staticmethod
-    def write_xmp(image_path: str, output_path: str, analysis_data: Dict[str, Any]) -> bool:
-        """
-        Write analysis data to image XMP metadata
-        
-        Args:
-            image_path: Path to the source image
-            output_path: Path to save the image with new XMP data
-            analysis_data: Dictionary containing analysis results
-            
-        Returns:
-            True if successful, False otherwise
-        """
-        if not HAS_XMP:
-            return False
-        
-        try:
-            # Open image to copy to output
-            image = Image.open(image_path)
-            
-            # Try to read existing XMP data
-            try:
-                xmp = XMPMeta(open(image_path, 'rb').read())
-            except:
-                # Create new XMP metadata
-                xmp = XMPMeta()
-            
-            # Add custom namespace for picture analysis
-            ANALYSIS_NS = "http://example.com/picture-analysis/"
-            xmp.register_namespace(ANALYSIS_NS, "analysis")
-            
-            # Add metadata if present
-            if 'metadata' in analysis_data:
-                metadata = analysis_data['metadata']
-                metadata_json = json.dumps(metadata, indent=2)
-                xmp.set_property(ANALYSIS_NS, "metadata", metadata_json)
-                
-                # Add individual metadata fields
-                if isinstance(metadata, dict):
-                    if 'objects' in metadata:
-                        objects = metadata.get('objects', [])
-                        if isinstance(objects, list):
-                            xmp.set_property(XMP_NS_DC, "subject", ", ".join(objects))
-                    
-                    if 'quality_score' in metadata:
-                        xmp.set_property(ANALYSIS_NS, "qualityScore", str(metadata['quality_score']))
-            
-            # Add enhancement data if present
-            if 'enhancement' in analysis_data:
-                enhancement = analysis_data['enhancement']
-                enhancement_json = json.dumps(enhancement, indent=2)
-                xmp.set_property(ANALYSIS_NS, "enhancement", enhancement_json)
-            
-            # Add analysis summary
-            if 'summary' in analysis_data:
-                xmp.set_property(XMP_NS_PHOTOSHOP, "Headline", analysis_data['summary'][:255])
-            
-            # Save image with XMP
-            xmp_bytes = xmp.serialize_to_str().encode('utf-8')
-            
-            # For JPEG, embed XMP directly
-            if image.format and image.format.upper() in ['JPEG', 'JPG']:
-                # Save with embedded XMP
-                image.save(output_path, 'jpeg', quality=95)
-                # Append XMP to the JPEG (simplified approach)
-                # Note: Full XMP embedding requires more complex JPEG handling
-            else:
-                # Convert to RGB if needed
-                if image.mode in ('RGBA', 'LA', 'P'):
-                    rgb_image = Image.new('RGB', image.size, (255, 255, 255))
-                    rgb_image.paste(image, mask=image.split()[-1] if image.mode in ('RGBA', 'LA') else None)
-                    rgb_image.save(output_path, 'jpeg', quality=95)
-                else:
-                    image.convert('RGB').save(output_path, 'jpeg', quality=95)
-            
-            return True
-        except Exception as e:
-            print(f"Warning: Could not write XMP data: {e}")
-            return False
