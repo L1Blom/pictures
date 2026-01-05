@@ -1,6 +1,7 @@
 """Report generator for picture analysis results"""
 
 import json
+import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from PIL import Image
@@ -220,8 +221,8 @@ class ReportGenerator:
         # Sort by name
         analyses = sorted(analyses, key=lambda x: x['name'])
         
-        # Generate gallery report
-        markdown = self._build_gallery_markdown(analyses)
+        # Generate gallery report with paths relative to output_dir
+        markdown = self._build_gallery_markdown(analyses, output_dir, report_path)
         
         # Save if path provided
         if report_path:
@@ -233,9 +234,32 @@ class ReportGenerator:
         
         return markdown
     
-    def _build_gallery_markdown(self, analyses: List[Dict]) -> str:
-        """Build markdown gallery report showing all images in table format with up to 2 restored profiles"""
+    def _build_gallery_markdown(self, analyses: List[Dict], images_dir: Path, report_path: Optional[Path] = None) -> str:
+        """Build markdown gallery report showing all images in table format with up to 2 restored profiles
+        
+        Args:
+            analyses: List of analysis dictionaries
+            images_dir: Directory containing the image files
+            report_path: Path where the report will be saved (used to calculate relative paths)
+        """
         lines = []
+        
+        # Calculate relative path from report to images
+        if report_path:
+            report_path = Path(report_path)
+            # Get relative path from report directory to images directory
+            try:
+                rel_path = Path(os.path.relpath(images_dir, report_path.parent))
+                # Convert to forward slashes for markdown compatibility
+                rel_path_str = rel_path.as_posix()
+                # If it's the same directory, use empty string
+                if rel_path_str == ".":
+                    rel_path_str = ""
+            except ValueError:
+                # If on different drives (Windows), use the images_dir as-is
+                rel_path_str = images_dir.as_posix()
+        else:
+            rel_path_str = images_dir.as_posix()
         
         # Header
         lines.append("# Picture Gallery Report")
@@ -259,14 +283,16 @@ class ReportGenerator:
                 thumb_path = self._create_thumbnail(item['analyzed_img'], item['dir'])
                 if thumb_path:
                     thumb_name = f"{item['analyzed_img'].stem}_thumb.jpg"
-                    original = f"![](output/{thumb_name})"
+                    thumb_rel_path = f"{rel_path_str}/{thumb_name}" if rel_path_str else thumb_name
+                    original = f"![]({thumb_rel_path})"
             
             # Enhanced image - same size
             if item['enhanced_img'] and item['enhanced_img'].exists():
                 thumb_path = self._create_thumbnail(item['enhanced_img'], item['dir'])
                 if thumb_path:
                     thumb_name = f"{item['enhanced_img'].stem}_thumb.jpg"
-                    enhanced = f"![](output/{thumb_name})"
+                    thumb_rel_path = f"{rel_path_str}/{thumb_name}" if rel_path_str else thumb_name
+                    enhanced = f"![]({thumb_rel_path})"
             
             # Restored images - show up to first 2 in separate columns
             if item['restored_imgs']:
@@ -275,7 +301,8 @@ class ReportGenerator:
                     if thumb_path:
                         profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
                         thumb_name = f"{restored.stem}_thumb.jpg"
-                        img_html = f"![](output/{thumb_name})"
+                        thumb_rel_path = f"{rel_path_str}/{thumb_name}" if rel_path_str else thumb_name
+                        img_html = f"![]({thumb_rel_path})"
                         
                         if i == 0:
                             restored_1 = f"{img_html} **{profile.title()}**"
