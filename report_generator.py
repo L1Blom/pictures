@@ -56,12 +56,16 @@ class ReportGenerator:
             # Look for enhanced and restored versions
             enhanced_img = None
             for file in output_dir.glob(f"{base_name}*_enhanced.*"):
-                enhanced_img = file
-                break
+                # Skip thumbnails
+                if '_thumb' not in file.stem:
+                    enhanced_img = file
+                    break
             
             restored_imgs = []
             for file in output_dir.glob(f"{base_name}*_restored*.jpg"):
-                restored_imgs.append(file)
+                # Skip thumbnails
+                if '_thumb' not in file.stem:
+                    restored_imgs.append(file)
             
             analyses.append({
                 'name': base_name,
@@ -97,10 +101,14 @@ class ReportGenerator:
                     analyzed_img = file
                 
                 for file in img_dir.glob("*_enhanced.jpg"):
-                    enhanced_img = file
+                    # Skip thumbnails
+                    if '_thumb' not in file.stem:
+                        enhanced_img = file
                 
                 for file in img_dir.glob("*_restored*.jpg"):
-                    restored_imgs.append(file)
+                    # Skip thumbnails
+                    if '_thumb' not in file.stem:
+                        restored_imgs.append(file)
                 
                 analyses.append({
                     'name': img_dir.name,
@@ -160,12 +168,16 @@ class ReportGenerator:
             
             enhanced_img = None
             for file in output_dir.glob(f"{base_name}*_enhanced.*"):
-                enhanced_img = file
-                break
+                # Skip thumbnails
+                if '_thumb' not in file.stem:
+                    enhanced_img = file
+                    break
             
             restored_imgs = []
             for file in output_dir.glob(f"{base_name}*_restored*.jpg"):
-                restored_imgs.append(file)
+                # Skip thumbnails
+                if '_thumb' not in file.stem:
+                    restored_imgs.append(file)
             
             analyses.append({
                 'name': base_name,
@@ -188,10 +200,14 @@ class ReportGenerator:
                     analyzed_img = file
                 
                 for file in img_dir.glob("*_enhanced.jpg"):
-                    enhanced_img = file
+                    # Skip thumbnails
+                    if '_thumb' not in file.stem:
+                        enhanced_img = file
                 
                 for file in img_dir.glob("*_restored*.jpg"):
-                    restored_imgs.append(file)
+                    # Skip thumbnails
+                    if '_thumb' not in file.stem:
+                        restored_imgs.append(file)
                 
                 analyses.append({
                     'name': img_dir.name,
@@ -243,14 +259,14 @@ class ReportGenerator:
                 thumb_path = self._create_thumbnail(item['analyzed_img'], item['dir'])
                 if thumb_path:
                     thumb_name = f"{item['analyzed_img'].stem}_thumb.jpg"
-                    original = f"![]({thumb_name})"
+                    original = f"![](output/{thumb_name})"
             
             # Enhanced image - same size
             if item['enhanced_img'] and item['enhanced_img'].exists():
                 thumb_path = self._create_thumbnail(item['enhanced_img'], item['dir'])
                 if thumb_path:
                     thumb_name = f"{item['enhanced_img'].stem}_thumb.jpg"
-                    enhanced = f"![]({thumb_name})"
+                    enhanced = f"![](output/{thumb_name})"
             
             # Restored images - show up to first 2 in separate columns
             if item['restored_imgs']:
@@ -259,7 +275,7 @@ class ReportGenerator:
                     if thumb_path:
                         profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
                         thumb_name = f"{restored.stem}_thumb.jpg"
-                        img_html = f"![]({thumb_name})"
+                        img_html = f"![](output/{thumb_name})"
                         
                         if i == 0:
                             restored_1 = f"{img_html} **{profile.title()}**"
@@ -285,6 +301,10 @@ class ReportGenerator:
             Path to thumbnail file or None if creation failed
         """
         try:
+            # Skip if this is already a thumbnail
+            if '_thumb' in image_path.stem:
+                return image_path
+            
             # Check if thumbnail already exists
             thumb_name = f"{image_path.stem}_thumb.jpg"
             thumb_path = output_dir / thumb_name
