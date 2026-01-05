@@ -261,9 +261,25 @@ class ReportGenerator:
         else:
             rel_path_str = images_dir.as_posix()
         
+        # Append thumbnails subdirectory to the relative path
+        if rel_path_str:
+            thumbnails_rel_path = f"{rel_path_str}/thumbnails"
+        else:
+            thumbnails_rel_path = "thumbnails"
+        
         # Header
         lines.append("# Picture Gallery Report")
         lines.append(f"\n**Total Images:** {len(analyses)}")
+        lines.append("")
+        
+        # Add CSS styling for consistent image widths in gallery
+        lines.append("<style>")
+        lines.append("img {")
+        lines.append("  width: 150px;")
+        lines.append("  height: auto;")
+        lines.append("  display: inline-block;")
+        lines.append("}")
+        lines.append("</style>")
         lines.append("")
         
         # Gallery table with images - 6 columns: #, Name, Original, Enhanced, Restored 1, Restored 2
@@ -283,7 +299,7 @@ class ReportGenerator:
                 thumb_path = self._create_thumbnail(item['analyzed_img'], item['dir'])
                 if thumb_path:
                     thumb_name = f"{item['analyzed_img'].stem}_thumb.jpg"
-                    thumb_rel_path = f"{rel_path_str}/{thumb_name}" if rel_path_str else thumb_name
+                    thumb_rel_path = f"{thumbnails_rel_path}/{thumb_name}" if thumbnails_rel_path else f"thumbnails/{thumb_name}"
                     original = f"![]({thumb_rel_path})"
             
             # Enhanced image - same size
@@ -291,7 +307,7 @@ class ReportGenerator:
                 thumb_path = self._create_thumbnail(item['enhanced_img'], item['dir'])
                 if thumb_path:
                     thumb_name = f"{item['enhanced_img'].stem}_thumb.jpg"
-                    thumb_rel_path = f"{rel_path_str}/{thumb_name}" if rel_path_str else thumb_name
+                    thumb_rel_path = f"{thumbnails_rel_path}/{thumb_name}" if thumbnails_rel_path else f"thumbnails/{thumb_name}"
                     enhanced = f"![]({thumb_rel_path})"
             
             # Restored images - show up to first 2 in separate columns
@@ -301,7 +317,7 @@ class ReportGenerator:
                     if thumb_path:
                         profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
                         thumb_name = f"{restored.stem}_thumb.jpg"
-                        thumb_rel_path = f"{rel_path_str}/{thumb_name}" if rel_path_str else thumb_name
+                        thumb_rel_path = f"{thumbnails_rel_path}/{thumb_name}" if thumbnails_rel_path else f"thumbnails/{thumb_name}"
                         img_html = f"![]({thumb_rel_path})"
                         
                         if i == 0:
@@ -332,9 +348,13 @@ class ReportGenerator:
             if '_thumb' in image_path.stem:
                 return image_path
             
+            # Create thumbnails subdirectory
+            thumbnails_dir = output_dir / 'thumbnails'
+            thumbnails_dir.mkdir(exist_ok=True)
+            
             # Check if thumbnail already exists
             thumb_name = f"{image_path.stem}_thumb.jpg"
-            thumb_path = output_dir / thumb_name
+            thumb_path = thumbnails_dir / thumb_name
             
             if thumb_path.exists():
                 return thumb_path
