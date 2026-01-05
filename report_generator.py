@@ -272,16 +272,6 @@ class ReportGenerator:
         lines.append(f"\n**Total Images:** {len(analyses)}")
         lines.append("")
         
-        # Add CSS styling for consistent image widths in gallery
-        lines.append("<style>")
-        lines.append("img {")
-        lines.append("  width: 150px;")
-        lines.append("  height: auto;")
-        lines.append("  display: inline-block;")
-        lines.append("}")
-        lines.append("</style>")
-        lines.append("")
-        
         # Gallery table with images - 6 columns: #, Name, Original, Enhanced, Restored 1, Restored 2
         lines.append("## Image Gallery")
         lines.append("")
@@ -300,7 +290,7 @@ class ReportGenerator:
                 if thumb_path:
                     thumb_name = f"{item['analyzed_img'].stem}_thumb.jpg"
                     thumb_rel_path = f"{thumbnails_rel_path}/{thumb_name}" if thumbnails_rel_path else f"thumbnails/{thumb_name}"
-                    original = f"![]({thumb_rel_path})"
+                    original = f'<img src="{thumb_rel_path}" style="min-width: 150px;" />'
             
             # Enhanced image - same size
             if item['enhanced_img'] and item['enhanced_img'].exists():
@@ -308,7 +298,7 @@ class ReportGenerator:
                 if thumb_path:
                     thumb_name = f"{item['enhanced_img'].stem}_thumb.jpg"
                     thumb_rel_path = f"{thumbnails_rel_path}/{thumb_name}" if thumbnails_rel_path else f"thumbnails/{thumb_name}"
-                    enhanced = f"![]({thumb_rel_path})"
+                    enhanced = f'<img src="{thumb_rel_path}" style="min-width: 150px;" />'
             
             # Restored images - show up to first 2 in separate columns
             if item['restored_imgs']:
@@ -318,7 +308,7 @@ class ReportGenerator:
                         profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
                         thumb_name = f"{restored.stem}_thumb.jpg"
                         thumb_rel_path = f"{thumbnails_rel_path}/{thumb_name}" if thumbnails_rel_path else f"thumbnails/{thumb_name}"
-                        img_html = f"![]({thumb_rel_path})"
+                        img_html = f'<img src="{thumb_rel_path}" style="min-width: 150px;" />'
                         
                         if i == 0:
                             restored_1 = f"{img_html} **{profile.title()}**"
