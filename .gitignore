@@ -48,6 +48,9 @@ pictures/
 output/
 *.jpg
 *.jpeg
+
+# Session logs
+CONVERSATION_LOG.md
 *.png
 *.gif
 *.bmp

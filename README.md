@@ -45,10 +45,11 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
 - 7-step restoration pipeline: despeckle → color balance → brightness → contrast → saturation → denoise → sharpness
 
 **CLI Tool**
-- 6 commands: `analyze`, `batch`, `enhance`, `process`, `restore-slide`, `report`
+- 7 commands: `analyze`, `batch`, `enhance`, `process`, `restore-slide`, `report`, `gallery`
 - `process` command: single image - analyze → enhance → optionally restore
 - `batch` command: multiple images with optional enhancement and restoration in one pass
 - `report` command: generate comprehensive markdown report with tables and image references
+- `gallery` command: generate visual image gallery table showing original, enhanced, and restored versions
 - Extensive help and argument validation
 - Output directory organization with progress tracking
 - Error handling and success reporting
@@ -59,13 +60,15 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
 - High-quality preservation (quality=95)
 - Separates metadata (for EXIF) from enhancement data (JSON only)
 
-**Report Generation**
+**Report & Gallery Generation**
 - Markdown report generation from analysis results
 - Summary table with numbered images and key details
 - Detailed analysis for each image with full metadata tables
 - Description.txt content integration
 - Image references and restoration profile recommendations
 - Enhancement suggestions display
+- Visual image gallery table with original, enhanced, and restored versions
+- Consistent image sizing in gallery (150px width)
 
 ### 🔜 Planned Features
 - Web interface for easier use
@@ -142,10 +145,17 @@ python cli.py report output/
 
 # Generate report and save to specific location
 python cli.py report output/ -o my_report.md
+
+# Generate image gallery showing original, enhanced, and restored versions
+python cli.py gallery output/
+
+# Generate gallery and save to specific location
+python cli.py gallery output/ -o my_gallery.md
 ```
 
-**Report Generation:**
-The `report` command creates a comprehensive markdown file from analysis results. The report includes:
+### Report Generation
+
+The `report` command creates a comprehensive markdown file with:
 - **Summary Table**: Numbered images with key metadata (objects, persons, location, mood)
 - **Detailed Analysis** for each image:
   - Description.txt content (if available)
@@ -154,39 +164,18 @@ The `report` command creates a comprehensive markdown file from analysis results
   - Enhancement recommendations
   - Slide restoration profile recommendations with confidence scores
 
-# Generate markdown report from analysis results
-python cli.py report output/
+### Gallery Generation
 
-# Generate report and save to specific location
-python cli.py report output/ -o my_report.md
-```
-
-**Report Generation:**
-The `report` command creates a comprehensive markdown file from analysis results. The report includes:
-- **Summary Table**: Numbered images with key metadata (objects, persons, location, mood)
-- **Detailed Analysis** for each image:
-  - Description.txt content (if available)
-  - Image references (original, enhanced, restored)
-  - Complete metadata table (11 aspects)
-  - Enhancement recommendations
-  - Slide restoration profile recommendations with confidence scores
-
-**Example output with auto-detection:**
-When using `--restore-slide` without a profile on a slide image, the analysis provides recommendations:
-- Creates `*_restored_aged.jpg` if "aged" profile is recommended (confidence 75%)
-- Creates `*_restored_yellow_cast.jpg` if "yellow_cast" profile is recommended (confidence 60%)
-- All versions include EXIF metadata from analysis
-- Report includes links to all restored versions with profile names
-
-**Example output with auto-detection:**
-When using `--restore-slide` without a profile on a slide image, the analysis provides recommendations:
-- Creates `*_restored_aged.jpg` if "aged" profile is recommended (confidence 75%)
-- Creates `*_restored_yellow_cast.jpg` if "yellow_cast" profile is recommended (confidence 60%)
-- All versions include EXIF metadata from analysis
+The `gallery` command creates a visual markdown table showing all analyzed images:
+- **6-Column Table**: Image number, name, original, enhanced, and up to 2 restored profiles
+- **Image Display**: Thumbnails (150px width) for consistent display
+- **Profile Names**: Restoration profile names displayed with each restored image
+- **Smart Display**: Shows enhanced and restored versions only when available
+- **Flat Directory Support**: Works with images directly in the output directory
 
 ### Context-Aware Analysis with description.txt
 
-You can enhance EXIF analysis by placing a `description.txt` file in the same directory as your image. The description provides context that helps AI understand the image better, resulting in more accurate and detailed metadata.
+You can enhance EXIF analysis by placing a `description.txt` file in the output directory. The description provides context that helps AI understand the images better, resulting in more accurate and detailed metadata.
 
 **Example description.txt:**
 ```
@@ -197,24 +186,12 @@ Grandpa's 80th birthday celebration gathering.
 Weather was partly cloudy, early morning light.
 ```
 
-**Directory structure:**
-```
-pictures/
-├── vacation_2015/
-│   ├── mountain_view.jpg
-│   ├── description.txt          # Context for all images in directory
-│   ├── family_photo.jpg
-│   └── sunrise.jpg
-```
-
-When analyzing any image in a directory with `description.txt`, the analysis includes this context. This improves:
+When you have a `description.txt` file in the output directory, the analysis will use this context for all images. This improves:
 - Location and setting identification
 - Event and occasion detection
 - People and gathering context
 - Time period estimation
 - Overall scene understanding
-
-The context is automatically read and passed to the OpenAI Vision API, enhancing the accuracy of generated EXIF metadata.
 
 ### Python API
 
@@ -251,7 +228,7 @@ pictures/
 ├── SETUP_COMPLETE.md        # Setup summary
 ├── SLIDE_RESTORATION_GUIDE.md # Detailed slide restoration docs
 │
-├── cli.py                   # Command-line interface (6 commands)
+├── cli.py                   # Command-line interface (7 commands)
 ├── picture_analyzer.py      # OpenAI Vision API analysis
 ├── picture_enhancer.py      # Smart enhancement engine
 ├── slide_restoration.py     # Specialized slide restoration
@@ -260,13 +237,13 @@ pictures/
 ├── config.py                # Configuration and prompts
 │
 └── output/                  # Results directory
-    ├── analysis_report.md           # Generated markdown report
-    └── [image_name]/
-        ├── [name]_analyzed.jpg      # Original + EXIF
-        ├── [name]_analyzed.json     # Detailed analysis
-        ├── [name]_enhanced.jpg      # Enhanced version + EXIF
-        ├── [name]_restored.jpg      # Restored slide + EXIF (if requested)
-        └── description.txt          # Optional context file (user-created)
+    ├── report.md                    # Generated detailed analysis report
+    ├── gallery.md                   # Generated image gallery
+    ├── [image_name]_analyzed.jpg    # Original + EXIF
+    ├── [image_name]_analyzed.json   # Detailed analysis
+    ├── [image_name]_enhanced.jpg    # Enhanced version (if generated)
+    ├── [image_name]_restored_[profile].jpg  # Restored version (if generated)
+    └── description.txt              # Optional context file (user-created)
 ```
 
 ## Configuration

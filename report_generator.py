@@ -238,33 +238,83 @@ class ReportGenerator:
             restored_1 = ""
             restored_2 = ""
             
-            # Original image - use HTML to control size
+            # Original image - create thumbnail for consistent sizing
             if item['analyzed_img'] and item['analyzed_img'].exists():
-                img_path = item['analyzed_img'].name
-                original = f"<img src='{img_path}' width='150' />"
+                thumb_path = self._create_thumbnail(item['analyzed_img'], item['dir'])
+                if thumb_path:
+                    thumb_name = f"{item['analyzed_img'].stem}_thumb.jpg"
+                    original = f"![]({thumb_name})"
             
             # Enhanced image - same size
             if item['enhanced_img'] and item['enhanced_img'].exists():
-                img_path = item['enhanced_img'].name
-                enhanced = f"<img src='{img_path}' width='150' />"
+                thumb_path = self._create_thumbnail(item['enhanced_img'], item['dir'])
+                if thumb_path:
+                    thumb_name = f"{item['enhanced_img'].stem}_thumb.jpg"
+                    enhanced = f"![]({thumb_name})"
             
             # Restored images - show up to first 2 in separate columns
             if item['restored_imgs']:
                 for i, restored in enumerate(item['restored_imgs'][:2]):
-                    img_path = restored.name
-                    profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
-                    img_html = f"<img src='{img_path}' width='150' /> **{profile.title()}**"
-                    
-                    if i == 0:
-                        restored_1 = img_html
-                    elif i == 1:
-                        restored_2 = img_html
+                    thumb_path = self._create_thumbnail(restored, item['dir'])
+                    if thumb_path:
+                        profile = restored.stem.split('_restored_')[-1] if '_restored_' in restored.stem else 'restored'
+                        thumb_name = f"{restored.stem}_thumb.jpg"
+                        img_html = f"![]({thumb_name})"
+                        
+                        if i == 0:
+                            restored_1 = f"{img_html} **{profile.title()}**"
+                        elif i == 1:
+                            restored_2 = f"{img_html} **{profile.title()}**"
             
             lines.append(f"| {idx} | {item['name']} | {original} | {enhanced} | {restored_1} | {restored_2} |")
         
         lines.append("")
         
         return "\n".join(lines)
+
+    def _create_thumbnail(self, image_path: Path, output_dir: Path, thumb_size: int = 150) -> Optional[Path]:
+        """
+        Create a thumbnail of the image for consistent gallery display
+        
+        Args:
+            image_path: Path to original image
+            output_dir: Directory to save thumbnail
+            thumb_size: Size of thumbnail (width in pixels)
+            
+        Returns:
+            Path to thumbnail file or None if creation failed
+        """
+        try:
+            # Check if thumbnail already exists
+            thumb_name = f"{image_path.stem}_thumb.jpg"
+            thumb_path = output_dir / thumb_name
+            
+            if thumb_path.exists():
+                return thumb_path
+            
+            # Create thumbnail
+            img = Image.open(image_path)
+            
+            # Calculate height to maintain aspect ratio
+            aspect_ratio = img.height / img.width
+            thumb_height = int(thumb_size * aspect_ratio)
+            
+            # Resize
+            img.thumbnail((thumb_size, thumb_height), Image.Resampling.LANCZOS)
+            
+            # Convert to RGB if needed
+            if img.mode in ('RGBA', 'LA', 'P'):
+                rgb_img = Image.new('RGB', img.size, (255, 255, 255))
+                rgb_img.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                img = rgb_img
+            
+            # Save thumbnail
+            img.save(thumb_path, quality=85)
+            return thumb_path
+            
+        except Exception as e:
+            print(f"Warning: Could not create thumbnail for {image_path}: {e}")
+            return None
 
     def _build_markdown(self, analyses: List[Dict]) -> str:
         """Build markdown report from analyses"""
