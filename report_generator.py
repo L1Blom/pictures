@@ -7,18 +7,27 @@ from typing import Dict, List, Any, Optional
 from PIL import Image
 import base64
 
+try:
+    from config import THUMBNAILS_DIR, THUMBNAIL_SIZE, THUMBNAIL_QUALITY
+except ImportError:
+    THUMBNAILS_DIR = 'thumbnails'
+    THUMBNAIL_SIZE = 150
+    THUMBNAIL_QUALITY = 85
+
 
 class ReportGenerator:
     """Generates markdown reports from analysis results with thumbnails"""
     
-    def __init__(self, thumbnail_size: tuple = (200, 200)):
+    def __init__(self, thumbnail_size: int = None, thumbnails_dir: str = None):
         """
         Initialize report generator
         
         Args:
-            thumbnail_size: Size of thumbnails in report (width, height)
+            thumbnail_size: Size of thumbnails in pixels (width). Defaults from config.
+            thumbnails_dir: Subdirectory name for thumbnails. Defaults from config.
         """
-        self.thumbnail_size = thumbnail_size
+        self.thumbnail_size = thumbnail_size or THUMBNAIL_SIZE
+        self.thumbnails_dir = thumbnails_dir or THUMBNAILS_DIR
     
     def generate_report(self, output_dir: Path, report_path: Optional[Path] = None) -> str:
         """
@@ -263,9 +272,9 @@ class ReportGenerator:
         
         # Append thumbnails subdirectory to the relative path
         if rel_path_str:
-            thumbnails_rel_path = f"{rel_path_str}/thumbnails"
+            thumbnails_rel_path = f"{rel_path_str}/{self.thumbnails_dir}"
         else:
-            thumbnails_rel_path = "thumbnails"
+            thumbnails_rel_path = self.thumbnails_dir
         
         # Header
         lines.append("# Picture Gallery Report")
@@ -321,25 +330,28 @@ class ReportGenerator:
         
         return "\n".join(lines)
 
-    def _create_thumbnail(self, image_path: Path, output_dir: Path, thumb_size: int = 150) -> Optional[Path]:
+    def _create_thumbnail(self, image_path: Path, output_dir: Path, thumb_size: int = None) -> Optional[Path]:
         """
         Create a thumbnail of the image for consistent gallery display
         
         Args:
             image_path: Path to original image
             output_dir: Directory to save thumbnail
-            thumb_size: Size of thumbnail (width in pixels)
+            thumb_size: Size of thumbnail (width in pixels). Uses config default if not specified.
             
         Returns:
             Path to thumbnail file or None if creation failed
         """
+        if thumb_size is None:
+            thumb_size = self.thumbnail_size
+            
         try:
             # Skip if this is already a thumbnail
             if '_thumb' in image_path.stem:
                 return image_path
             
             # Create thumbnails subdirectory
-            thumbnails_dir = output_dir / 'thumbnails'
+            thumbnails_dir = output_dir / self.thumbnails_dir
             thumbnails_dir.mkdir(exist_ok=True)
             
             # Check if thumbnail already exists
@@ -365,8 +377,8 @@ class ReportGenerator:
                 rgb_img.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
                 img = rgb_img
             
-            # Save thumbnail
-            img.save(thumb_path, quality=85)
+            # Save thumbnail with configured quality
+            img.save(thumb_path, quality=THUMBNAIL_QUALITY)
             return thumb_path
             
         except Exception as e:
