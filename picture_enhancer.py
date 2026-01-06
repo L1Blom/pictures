@@ -328,69 +328,162 @@ class SmartEnhancer:
         self,
         recommendations: List[str],
         enhancement_data: Dict[str, Any]
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Parse AI recommendations and extract adjustment factors
+        
+        Supports detailed recommendations like:
+        - "BRIGHTNESS: increase by 25%"
+        - "COLOR_TEMPERATURE: warm by 500K"
+        - "UNSHARP_MASK: radius=1.5px, strength=80%, threshold=0"
+        - "SHADOWS: brighten by 15%"
+        - "VIBRANCE: increase by 25%"
+        - "CLARITY: boost by 20%"
         
         Args:
             recommendations: List of recommendation strings
             enhancement_data: Full enhancement data for context
             
         Returns:
-            Dictionary of adjustment factors
+            Dictionary of adjustments and advanced enhancement operations
         """
         adjustments = {}
+        advanced_ops = []  # Track advanced operations to apply
         
         for recommendation in recommendations:
-            rec_lower = recommendation.lower()
+            rec = recommendation.strip()
+            rec_lower = rec.lower()
             
-            # Parse brightness adjustments
-            brightness_match = re.search(r'brightness.*?([+-]?\d+)%?', rec_lower)
-            if brightness_match:
-                percent = int(brightness_match.group(1))
-                factor = 1.0 + (percent / 100.0)
-                adjustments['brightness'] = factor
-                print(f"  → Brightness: {percent:+d}% (factor: {factor:.2f})")
-            
-            # Parse contrast adjustments
-            contrast_match = re.search(r'contrast.*?([+-]?\d+)%?', rec_lower)
-            if contrast_match:
-                percent = int(contrast_match.group(1))
-                factor = 1.0 + (percent / 100.0)
-                adjustments['contrast'] = factor
-                print(f"  → Contrast: {percent:+d}% (factor: {factor:.2f})")
-            
-            # Parse saturation/color adjustments
-            if re.search(r'saturat|vibrant|emphasiz.*color|warm|cool', rec_lower):
-                # Extract percentage if present
-                saturation_match = re.search(r'(?:saturati|vibrant|color).*?([+-]?\d+)%?', rec_lower)
-                if saturation_match:
-                    percent = int(saturation_match.group(1))
+            # ===== BRIGHTNESS =====
+            if 'brightness' in rec_lower:
+                match = re.search(r'(?:increase|decrease|by).*?([+-]?\d+)\s*%', rec_lower)
+                if match:
+                    percent = int(match.group(1))
                     factor = 1.0 + (percent / 100.0)
-                else:
-                    # Default increase for color emphasis
-                    factor = 1.15
-                adjustments['saturation'] = factor
-                print(f"  → Saturation: {(factor - 1) * 100:+.0f}% (factor: {factor:.2f})")
+                    adjustments['brightness'] = factor
+                    print(f"  → Brightness: {percent:+d}% (factor: {factor:.2f})")
             
-            # Parse sharpness adjustments
-            sharpness_match = re.search(r'sharpen|enhance.*detail|enhance sharpness.*?([+-]?\d+)%?', rec_lower)
-            if sharpness_match:
-                if sharpness_match.group(1):
-                    percent = int(sharpness_match.group(1))
+            # ===== CONTRAST =====
+            elif 'contrast' in rec_lower:
+                match = re.search(r'(?:increase|boost|by).*?([+-]?\d+)\s*%', rec_lower)
+                if match:
+                    percent = int(match.group(1))
                     factor = 1.0 + (percent / 100.0)
-                else:
-                    # Default sharpening
-                    factor = 1.3
-                adjustments['sharpness'] = factor
-                print(f"  → Sharpness: {(factor - 1) * 100:+.0f}% (factor: {factor:.2f})")
+                    adjustments['contrast'] = factor
+                    print(f"  → Contrast: {percent:+d}% (factor: {factor:.2f})")
             
-            # Parse highlight reduction
-            if 'highlight' in rec_lower or 'exposure' in rec_lower:
-                adjustments['reduce_highlights'] = True
-                print(f"  → Reduce highlights: true")
+            # ===== COLOR TEMPERATURE =====
+            elif 'color_temperature' in rec_lower or 'temperature' in rec_lower:
+                match = re.search(r'([+-]?\d+)\s*k(?:elvin)?', rec_lower)
+                if match:
+                    kelvin_shift = int(match.group(1))
+                    # Convert shift to absolute kelvin (assuming 6500K baseline)
+                    target_kelvin = 6500 + kelvin_shift
+                    advanced_ops.append({
+                        'type': 'color_temperature',
+                        'kelvin': target_kelvin
+                    })
+                    print(f"  → Color Temperature: {target_kelvin}K ({kelvin_shift:+d}K)")
+            
+            # ===== UNSHARP MASK =====
+            elif 'unsharp_mask' in rec_lower or 'unsharp mask' in rec_lower:
+                radius = 1.5
+                percent = 80
+                threshold = 0
+                
+                radius_match = re.search(r'radius\s*=\s*([\d.]+)', rec_lower)
+                if radius_match:
+                    radius = float(radius_match.group(1))
+                
+                percent_match = re.search(r'strength\s*=\s*([\d.]+)', rec_lower)
+                if percent_match:
+                    percent = int(float(percent_match.group(1)))
+                elif re.search(r'(\d+)\s*%', rec_lower):
+                    percent_match = re.search(r'(\d+)\s*%', rec_lower)
+                    percent = int(percent_match.group(1))
+                
+                threshold_match = re.search(r'threshold\s*=\s*(\d+)', rec_lower)
+                if threshold_match:
+                    threshold = int(threshold_match.group(1))
+                
+                advanced_ops.append({
+                    'type': 'unsharp_mask',
+                    'radius': radius,
+                    'percent': percent,
+                    'threshold': threshold
+                })
+                print(f"  → Unsharp Mask: radius={radius}, strength={percent}%, threshold={threshold}")
+            
+            # ===== SHADOWS/HIGHLIGHTS =====
+            elif 'shadow' in rec_lower or 'highlight' in rec_lower:
+                shadow_adjust = 0
+                highlight_adjust = 0
+                
+                if 'shadow' in rec_lower:
+                    shadow_match = re.search(r'(?:brighten|darken).*?([+-]?\d+)\s*%', rec_lower)
+                    if shadow_match:
+                        shadow_adjust = int(shadow_match.group(1))
+                
+                if 'highlight' in rec_lower:
+                    highlight_match = re.search(r'(?:brighten|darken).*?([+-]?\d+)\s*%', rec_lower)
+                    if highlight_match:
+                        highlight_adjust = int(highlight_match.group(1))
+                
+                if shadow_adjust != 0 or highlight_adjust != 0:
+                    advanced_ops.append({
+                        'type': 'shadows_highlights',
+                        'shadow_adjust': shadow_adjust,
+                        'highlight_adjust': highlight_adjust
+                    })
+                    print(f"  → Shadows/Highlights: shadows {shadow_adjust:+d}%, highlights {highlight_adjust:+d}%")
+            
+            # ===== VIBRANCE =====
+            elif 'vibrance' in rec_lower:
+                match = re.search(r'(?:increase|boost|by).*?([+-]?\d+)\s*%', rec_lower)
+                if match:
+                    percent = int(match.group(1))
+                    factor = 1.0 + (percent / 100.0)
+                    advanced_ops.append({
+                        'type': 'vibrance',
+                        'factor': factor
+                    })
+                    print(f"  → Vibrance: {percent:+d}% (factor: {factor:.2f})")
+            
+            # ===== CLARITY =====
+            elif 'clarity' in rec_lower:
+                match = re.search(r'(?:boost|increase|by).*?([+-]?\d+)\s*%', rec_lower)
+                if match:
+                    percent = int(match.group(1))
+                    strength = percent / 100.0
+                    advanced_ops.append({
+                        'type': 'clarity',
+                        'strength': strength
+                    })
+                    print(f"  → Clarity: {percent:+d}%")
+            
+            # ===== SATURATION =====
+            elif 'saturation' in rec_lower or 'saturate' in rec_lower:
+                match = re.search(r'(?:increase|boost|by).*?([+-]?\d+)\s*%', rec_lower)
+                if match:
+                    percent = int(match.group(1))
+                    factor = 1.0 + (percent / 100.0)
+                    adjustments['saturation'] = factor
+                    print(f"  → Saturation: {percent:+d}% (factor: {factor:.2f})")
+            
+            # ===== SHARPNESS =====
+            elif 'sharpness' in rec_lower or 'sharpen' in rec_lower:
+                match = re.search(r'(?:increase|boost|enhance|by).*?([+-]?\d+)\s*%', rec_lower)
+                if match:
+                    percent = int(match.group(1))
+                    factor = 1.0 + (percent / 100.0)
+                    adjustments['sharpness'] = factor
+                    print(f"  → Sharpness: {percent:+d}% (factor: {factor:.2f})")
         
-        return adjustments
+        # Return both basic and advanced adjustments
+        return {
+            'basic': adjustments,
+            'advanced': advanced_ops
+        }
     
     def _apply_adjustments(
         self,
@@ -399,11 +492,11 @@ class SmartEnhancer:
         output_path: Optional[str] = None
     ) -> Optional[str]:
         """
-        Apply extracted adjustments to image
+        Apply extracted adjustments to image (both basic PIL adjustments and advanced operations)
         
         Args:
             image_path: Path to source image
-            adjustments: Dictionary of adjustments to apply
+            adjustments: Dictionary with 'basic' (PIL adjustments) and 'advanced' (operations) keys
             output_path: Final output path
             
         Returns:
@@ -411,45 +504,128 @@ class SmartEnhancer:
         """
         try:
             image = Image.open(image_path)
+            if image.mode != 'RGB' and image.mode != 'RGBA':
+                image = image.convert('RGB')
             
-            # Apply adjustments in optimal order
+            # Extract basic and advanced adjustments
+            basic_adjustments = adjustments.get('basic', {})
+            advanced_ops = adjustments.get('advanced', [])
+            
+            # Apply basic PIL adjustments in optimal order
             # 1. Brightness (affects overall exposure)
-            if 'brightness' in adjustments:
+            if 'brightness' in basic_adjustments:
                 enhancer = ImageEnhance.Brightness(image)
-                image = enhancer.enhance(adjustments['brightness'])
+                image = enhancer.enhance(basic_adjustments['brightness'])
             
             # 2. Contrast (affects perception of lighting)
-            if 'contrast' in adjustments:
+            if 'contrast' in basic_adjustments:
                 enhancer = ImageEnhance.Contrast(image)
-                image = enhancer.enhance(adjustments['contrast'])
+                image = enhancer.enhance(basic_adjustments['contrast'])
             
             # 3. Saturation (affects color vibrancy)
-            if 'saturation' in adjustments:
+            if 'saturation' in basic_adjustments:
                 enhancer = ImageEnhance.Color(image)
-                image = enhancer.enhance(adjustments['saturation'])
+                image = enhancer.enhance(basic_adjustments['saturation'])
             
             # 4. Sharpness (final detail enhancement)
-            if 'sharpness' in adjustments:
+            if 'sharpness' in basic_adjustments:
                 enhancer = ImageEnhance.Sharpness(image)
-                image = enhancer.enhance(adjustments['sharpness'])
+                image = enhancer.enhance(basic_adjustments['sharpness'])
             
-            # 5. Reduce highlights (tone mapping effect)
-            if adjustments.get('reduce_highlights'):
-                # Slight darkening of bright areas by reducing contrast slightly
-                # then re-applying brightness strategically
-                pass  # For now, contrast reduction handles this
+            # Save intermediate result after basic adjustments
+            if not advanced_ops:
+                # No advanced ops, save and return
+                if output_path:
+                    image.save(output_path, quality=95)
+                    return output_path
+                else:
+                    image.save(image_path, quality=95)
+                    return image_path
             
-            # Save the enhanced image
+            # Create temporary directory for intermediate results
+            import tempfile
+            import os
+            temp_dir = tempfile.gettempdir()
+            temp_image = os.path.join(temp_dir, 'intermediate_enhancement.jpg')
+            image.save(temp_image, quality=95)
+            current_path = temp_image
+            
+            # Apply advanced operations sequentially
+            for op in advanced_ops:
+                op_type = op.get('type')
+                
+                if op_type == 'unsharp_mask':
+                    print("    → Applying unsharp mask...")
+                    current_path = apply_unsharp_mask(
+                        current_path,
+                        radius=op.get('radius', 1.5),
+                        percent=op.get('percent', 80),
+                        threshold=op.get('threshold', 0),
+                        output_path=current_path
+                    )
+                
+                elif op_type == 'color_temperature':
+                    print("    → Adjusting color temperature...")
+                    current_path = adjust_color_temperature(
+                        current_path,
+                        kelvin=op.get('kelvin', 6500),
+                        output_path=current_path
+                    )
+                
+                elif op_type == 'shadows_highlights':
+                    print("    → Adjusting shadows and highlights...")
+                    current_path = adjust_shadows_highlights(
+                        current_path,
+                        shadow_adjust=op.get('shadow_adjust', 0),
+                        highlight_adjust=op.get('highlight_adjust', 0),
+                        output_path=current_path
+                    )
+                
+                elif op_type == 'vibrance':
+                    print("    → Adjusting vibrance...")
+                    current_path = adjust_vibrance(
+                        current_path,
+                        factor=op.get('factor', 1.0),
+                        output_path=current_path
+                    )
+                
+                elif op_type == 'clarity':
+                    print("    → Applying clarity filter...")
+                    current_path = apply_clarity_filter(
+                        current_path,
+                        strength=op.get('strength', 20) * 100,  # Convert 0-1 to 0-100
+                        output_path=current_path
+                    )
+                
+                if not current_path:
+                    print(f"    → Error applying {op_type}")
+                    # Fall back to saved intermediate image
+                    break
+            
+            # Save final result
             if output_path:
-                image.save(output_path)
-                return output_path
+                # Copy final result to output path
+                import shutil
+                shutil.copy(current_path, output_path)
+                result_path = output_path
             else:
-                # If no output specified, modify original
-                image.save(image_path)
-                return image_path
+                # Copy final result back to original image
+                import shutil
+                shutil.copy(current_path, image_path)
+                result_path = image_path
+            
+            # Clean up temporary file
+            try:
+                os.remove(temp_image)
+            except:
+                pass
+            
+            return result_path
         
         except Exception as e:
             print(f"Error applying adjustments: {e}")
+            import traceback
+            traceback.print_exc()
             return None
 
 
@@ -476,3 +652,252 @@ def auto_color_correction(image_path: str) -> Optional[str]:
     TODO: Implement color correction algorithm
     """
     pass
+
+
+# ============================================================================
+# ADVANCED ENHANCEMENT METHODS
+# ============================================================================
+
+def apply_unsharp_mask(
+    image_path: str,
+    radius: float = 1.5,
+    percent: float = 80,
+    threshold: int = 0,
+    output_path: Optional[str] = None
+) -> Optional[str]:
+    """
+    Apply unsharp mask for local contrast enhancement and sharpening
+    
+    Args:
+        image_path: Path to source image
+        radius: Radius of the unsharp mask (1.0-3.0 typical)
+        percent: Strength of the effect as percentage (50-150 typical)
+        threshold: Threshold for edge detection (0-10 typical)
+        output_path: Path to save enhanced image
+        
+    Returns:
+        Path to saved image or None if failed
+    """
+    try:
+        image = Image.open(image_path)
+        
+        # Apply unsharp mask
+        enhanced = image.filter(
+            ImageFilter.UnsharpMask(
+                radius=radius,
+                percent=percent,
+                threshold=threshold
+            )
+        )
+        
+        if output_path:
+            enhanced.save(output_path, quality=95)
+            return output_path
+        return None
+    except Exception as e:
+        print(f"Error applying unsharp mask: {e}")
+        return None
+
+
+def adjust_color_temperature(
+    image_path: str,
+    kelvin: float = 6500,
+    output_path: Optional[str] = None
+) -> Optional[str]:
+    """
+    Adjust image color temperature (warm/cool)
+    
+    Args:
+        image_path: Path to source image
+        kelvin: Target color temperature (1500=warm/candle, 6500=neutral/daylight, 10000=cool/sky)
+        output_path: Path to save enhanced image
+        
+    Returns:
+        Path to saved image or None if failed
+    """
+    try:
+        image = Image.open(image_path)
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Convert to float for calculations
+        img_array = Image.new('RGB', image.size)
+        pixels = image.load()
+        new_pixels = img_array.load()
+        
+        # Standard daylight temperature
+        standard_temp = 6500.0
+        ratio = kelvin / standard_temp
+        
+        width, height = image.size
+        for y in range(height):
+            for x in range(width):
+                r, g, b = pixels[x, y][:3]
+                
+                # Adjust red channel
+                r = int(min(255, r * ratio))
+                # Blue channel (inverse)
+                b = int(min(255, b / ratio))
+                # Green stays mostly the same
+                
+                new_pixels[x, y] = (r, g, b)
+        
+        if output_path:
+            img_array.save(output_path, quality=95)
+            return output_path
+        return None
+    except Exception as e:
+        print(f"Error adjusting color temperature: {e}")
+        return None
+
+
+def adjust_shadows_highlights(
+    image_path: str,
+    shadow_adjust: float = 0.0,  # -100 to +100
+    highlight_adjust: float = 0.0,  # -100 to +100
+    output_path: Optional[str] = None
+) -> Optional[str]:
+    """
+    Adjust shadow and highlight details separately
+    
+    Args:
+        image_path: Path to source image
+        shadow_adjust: Shadow adjustment (-100 = darken, +100 = brighten)
+        highlight_adjust: Highlight adjustment (-100 = darken, +100 = brighten)
+        output_path: Path to save enhanced image
+        
+    Returns:
+        Path to saved image or None if failed
+    """
+    try:
+        image = Image.open(image_path)
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        img_array = Image.new('RGB', image.size)
+        pixels = image.load()
+        new_pixels = img_array.load()
+        
+        width, height = image.size
+        for y in range(height):
+            for x in range(width):
+                r, g, b = pixels[x, y][:3]
+                
+                # Calculate luminance
+                luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
+                
+                # Apply shadow adjustment (dark areas)
+                if luminance < 0.5:
+                    factor = 1.0 + (shadow_adjust / 100.0)
+                    r = int(min(255, max(0, r * factor)))
+                    g = int(min(255, max(0, g * factor)))
+                    b = int(min(255, max(0, b * factor)))
+                
+                # Apply highlight adjustment (bright areas)
+                if luminance > 0.5:
+                    factor = 1.0 + (highlight_adjust / 100.0)
+                    r = int(min(255, max(0, r * factor)))
+                    g = int(min(255, max(0, g * factor)))
+                    b = int(min(255, max(0, b * factor)))
+                
+                new_pixels[x, y] = (r, g, b)
+        
+        if output_path:
+            img_array.save(output_path, quality=95)
+            return output_path
+        return None
+    except Exception as e:
+        print(f"Error adjusting shadows/highlights: {e}")
+        return None
+
+
+def apply_clarity_filter(
+    image_path: str,
+    strength: float = 20.0,  # 0-100
+    output_path: Optional[str] = None
+) -> Optional[str]:
+    """
+    Apply clarity filter for mid-tone contrast enhancement
+    
+    Args:
+        image_path: Path to source image
+        strength: Clarity strength (0-100, typically 20-40)
+        output_path: Path to save enhanced image
+        
+    Returns:
+        Path to saved image or None if failed
+    """
+    try:
+        image = Image.open(image_path)
+        
+        # Use unsharp mask with specific parameters for clarity
+        factor = 1.0 + (strength / 100.0)
+        enhanced = image.filter(
+            ImageFilter.UnsharpMask(
+                radius=2.0,
+                percent=int(factor * 100),
+                threshold=3
+            )
+        )
+        
+        if output_path:
+            enhanced.save(output_path, quality=95)
+            return output_path
+        return None
+    except Exception as e:
+        print(f"Error applying clarity filter: {e}")
+        return None
+
+
+def adjust_vibrance(
+    image_path: str,
+    factor: float = 1.0,  # 1.0 = original, <1.0 = less vibrant, >1.0 = more vibrant
+    output_path: Optional[str] = None
+) -> Optional[str]:
+    """
+    Adjust vibrance (selective saturation boost of less saturated colors)
+    
+    Args:
+        image_path: Path to source image
+        factor: Vibrance factor (0.5 = half, 1.0 = original, 1.5 = 50% more vibrant)
+        output_path: Path to save enhanced image
+        
+    Returns:
+        Path to saved image or None if failed
+    """
+    try:
+        image = Image.open(image_path)
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Convert to HSV for vibrance adjustment
+        from PIL import ImageOps
+        import colorsys
+        
+        img_array = Image.new('RGB', image.size)
+        pixels = image.load()
+        new_pixels = img_array.load()
+        
+        width, height = image.size
+        for y in range(height):
+            for x in range(width):
+                r, g, b = [c/255.0 for c in pixels[x, y][:3]]
+                h, s, v = colorsys.rgb_to_hsv(r, g, b)
+                
+                # Boost saturation selectively (less effect on already saturated colors)
+                s = s * factor
+                s = min(1.0, s)
+                
+                r, g, b = colorsys.hsv_to_rgb(h, s, v)
+                r, g, b = [int(c * 255) for c in (r, g, b)]
+                
+                new_pixels[x, y] = (r, g, b)
+        
+        if output_path:
+            img_array.save(output_path, quality=95)
+            return output_path
+        return None
+    except Exception as e:
+        print(f"Error adjusting vibrance: {e}")
+        return None
+
