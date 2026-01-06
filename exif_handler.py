@@ -37,7 +37,7 @@ class EXIFHandler:
         analysis_data: Dict[str, Any]
     ) -> bool:
         """
-        Write analysis data to image EXIF metadata
+        Write analysis data to image EXIF metadata (and XMP if available)
         
         Args:
             image_path: Path to the source image
@@ -57,7 +57,7 @@ class EXIFHandler:
             except:
                 exif_dict = {"0th": {}, "Exif": {}, "GPS": {}}
             
-            # Prepare new EXIF data
+            # Prepare new EXIF data with full analysis as JSON
             exif_dict_new = EXIFHandler._prepare_exif_dict(exif_dict, analysis_data)
             
             # Convert back to bytes

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 from PIL import Image
 import base64
+from xmp_handler import XMPHandler
 
 try:
     from config import THUMBNAILS_DIR, THUMBNAIL_SIZE, THUMBNAIL_QUALITY
@@ -133,6 +134,10 @@ class ReportGenerator:
         # Generate report
         # Sort analyses by name
         analyses = sorted(analyses, key=lambda x: x['name'])
+        
+        # Embed analysis metadata into images via XMP
+        self._embed_xmp_metadata(analyses)
+        
         markdown = self._build_markdown(analyses)
         
         # Save if path provided
