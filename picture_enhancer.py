@@ -351,7 +351,24 @@ class SmartEnhancer:
         advanced_ops = []  # Track advanced operations to apply
         
         for recommendation in recommendations:
-            rec = recommendation.strip()
+            # Handle cases where recommendation might be a dict instead of string
+            if isinstance(recommendation, dict):
+                # If it's a dict, try to convert to string or skip
+                if 'text' in recommendation:
+                    rec = recommendation['text']
+                elif 'description' in recommendation:
+                    rec = recommendation['description']
+                else:
+                    # Convert dict to string representation
+                    rec = str(recommendation)
+            elif not isinstance(recommendation, str):
+                # Skip non-string, non-dict items
+                print(f"  ⚠ Skipping invalid recommendation format: {type(recommendation)}")
+                continue
+            else:
+                rec = recommendation
+                
+            rec = rec.strip()
             rec_lower = rec.lower()
             
             # ===== BRIGHTNESS =====
