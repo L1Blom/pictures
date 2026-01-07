@@ -270,6 +270,20 @@ class SmartEnhancer:
             # Extract recommendations
             recommendations = enhancement_data.get('recommended_enhancements', [])
             
+            # Ensure recommendations is a list
+            if isinstance(recommendations, str):
+                # If it's a string, split by newlines or common delimiters
+                recommendations = [r.strip() for r in recommendations.split('\n') if r.strip()]
+            elif isinstance(recommendations, dict):
+                # If it's a single dict, wrap it in a list
+                recommendations = [recommendations]
+            elif not isinstance(recommendations, list):
+                # Convert any other iterable to list, otherwise empty list
+                try:
+                    recommendations = list(recommendations) if recommendations else []
+                except TypeError:
+                    recommendations = []
+            
             if not recommendations:
                 print("No enhancement recommendations found")
                 return None
@@ -350,17 +364,30 @@ class SmartEnhancer:
         adjustments = {}
         advanced_ops = []  # Track advanced operations to apply
         
+        if not recommendations:
+            return {'adjustments': adjustments, 'advanced_ops': advanced_ops}
+        
         for recommendation in recommendations:
             # Handle cases where recommendation might be a dict instead of string
             if isinstance(recommendation, dict):
-                # If it's a dict, try to convert to string or skip
-                if 'text' in recommendation:
+                # If it's a dict, try to extract the text from various possible keys
+                if 'action' in recommendation:
+                    rec = recommendation['action']
+                elif 'text' in recommendation:
                     rec = recommendation['text']
                 elif 'description' in recommendation:
                     rec = recommendation['description']
+                elif 'recommendation' in recommendation:
+                    rec = recommendation['recommendation']
                 else:
-                    # Convert dict to string representation
-                    rec = str(recommendation)
+                    # Try to find any string value in the dict
+                    for key, value in recommendation.items():
+                        if isinstance(value, str):
+                            rec = value
+                            break
+                    else:
+                        # If no string found, convert dict to string representation
+                        rec = str(recommendation)
             elif not isinstance(recommendation, str):
                 # Skip non-string, non-dict items
                 print(f"  ⚠ Skipping invalid recommendation format: {type(recommendation)}")
