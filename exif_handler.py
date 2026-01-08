@@ -131,6 +131,53 @@ class EXIFHandler:
             return False
     
     @staticmethod
+    def _format_metadata_description(metadata: Dict[str, Any]) -> str:
+        """
+        Format metadata into a nicely readable description for ImageDescription field.
+        This makes all metadata visible in Immich's image info display.
+        
+        Args:
+            metadata: Dictionary of metadata fields
+            
+        Returns:
+            Formatted string suitable for ImageDescription
+        """
+        lines = []
+        
+        # Map of friendly field names for display
+        field_labels = {
+            'objects': 'Objects',
+            'persons': 'Persons',
+            'weather': 'Weather',
+            'mood_atmosphere': 'Mood/Atmosphere',
+            'time_of_day': 'Time of Day',
+            'season_date': 'Season/Date',
+            'scene_type': 'Scene Type',
+            'location_setting': 'Location/Setting',
+            'activity_action': 'Activity',
+            'photography_style': 'Photography Style',
+            'composition_quality': 'Composition Quality',
+        }
+        
+        for field_key, field_label in field_labels.items():
+            if field_key in metadata:
+                value = metadata[field_key]
+                
+                # Format value nicely
+                if isinstance(value, list):
+                    value_str = ', '.join(str(v) for v in value)
+                else:
+                    value_str = str(value)
+                
+                # Truncate to reasonable length for display
+                value_str = value_str[:150]
+                lines.append(f"{field_label}: {value_str}")
+        
+        # Join with newlines and limit total length
+        description = '\n'.join(lines)
+        return description[:500]  # EXIF ImageDescription has limits
+    
+    @staticmethod
     def _prepare_exif_dict(exif_dict: Dict, analysis_data: Dict[str, Any]) -> Dict:
         """
         Prepare EXIF dictionary with metadata only (separates from enhancement data)
@@ -154,6 +201,11 @@ class EXIFHandler:
         else:
             metadata = analysis_data
         
+        # Convert metadata to nicely formatted description for ImageDescription (for Immich display)
+        if isinstance(metadata, dict):
+            description = EXIFHandler._format_metadata_description(metadata)
+            exif_dict["0th"][piexif.ImageIFD.ImageDescription] = description.encode('utf-8')
+        
         # Convert metadata only to JSON string for UserComment (backup storage)
         metadata_json = json.dumps(metadata, indent=2)
         exif_dict["Exif"][piexif.ExifIFD.UserComment] = metadata_json.encode('utf-8')
@@ -169,6 +221,10 @@ class EXIFHandler:
                 
                 # Get EXIF tag name from mapping
                 exif_tag_name = EXIF_TAG_MAPPING.get(field_name)
+                
+                # Skip ImageDescription as we already set it with formatted metadata
+                if exif_tag_name == 'ImageDescription':
+                    continue
                 
                 if exif_tag_name:
                     try:
