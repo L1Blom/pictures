@@ -259,10 +259,29 @@ class PictureAnalyzer:
         if description:
             prompt = f"{prompt}\n\n=== CONTEXT FROM DESCRIPTION.TXT ===\n{description}\n\nPlease consider this context when analyzing the image."
         
+        # Create language-specific system message
+        language_names = {
+            'en': 'English',
+            'nl': 'Dutch',
+            'de': 'German',
+            'fr': 'French',
+            'es': 'Spanish',
+            'it': 'Italian',
+            'pt': 'Portuguese',
+            'ja': 'Japanese',
+            'zh': 'Chinese',
+            'ru': 'Russian',
+        }
+        lang_name = language_names.get(METADATA_LANGUAGE, METADATA_LANGUAGE)
+        
         response = self.client.chat.completions.create(
             model=self.model,
             max_tokens=1024,
             messages=[
+                {
+                    "role": "system",
+                    "content": f"You are an image analysis assistant. IMPORTANT: For METADATA section - respond exclusively in {lang_name} ({METADATA_LANGUAGE}). For ENHANCEMENT RECOMMENDATIONS section - respond ONLY in English. Every metadata description must be in {lang_name}, while all technical enhancement parameters must stay in English."
+                },
                 {
                     "role": "user",
                     "content": [

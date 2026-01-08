@@ -16,10 +16,15 @@ OPENAI_MODEL = 'gpt-4-turbo'
 METADATA_LANGUAGE = os.getenv('METADATA_LANGUAGE', 'en')
 
 # Analysis Configuration
-ANALYSIS_PROMPT = """Analyze this image and provide detailed information in two separate sections.
-IMPORTANT: Provide all responses in {language}.
+ANALYSIS_PROMPT = """You are analyzing an image. 
 
-=== METADATA SECTION (for EXIF embedding) ===
+IMPORTANT LANGUAGE RULES:
+- METADATA SECTION: Respond ONLY in {language}. All text, descriptions, and metadata must be in {language}.
+- ENHANCEMENT SECTION: Always respond in ENGLISH. Technical parameters and recommendations must ALWAYS be in English.
+
+Analyze this image and provide detailed information in two separate sections.
+
+=== METADATA SECTION (for EXIF embedding) - RESPOND IN {language} ===
 1. **Objects**: List all visible objects and items in the image
 2. **Persons**: Identify if there are any people/persons visible and describe them briefly
 3. **Weather**: Describe the weather conditions if visible (sunny, cloudy, rainy, etc.)
@@ -32,7 +37,7 @@ IMPORTANT: Provide all responses in {language}.
 10. **Photography Style**: Identify the photography style or technique (e.g., portrait photography, landscape photography, macro photography, documentary, fine art, etc.)
 11. **Composition Quality**: Rate the composition quality (excellent, good, fair, needs work) and note key compositional elements (rule of thirds, leading lines, symmetry, depth, framing, etc.)
 
-=== ENHANCEMENT RECOMMENDATIONS SECTION (DETAILED & QUANTIFIABLE) ===
+=== ENHANCEMENT RECOMMENDATIONS SECTION (DETAILED & QUANTIFIABLE) - ALWAYS IN ENGLISH ===
 12. **Lighting Quality Assessment**: 
     - Current state: underexposed/properly exposed/overexposed
     - Specific measurements: estimated EV adjustment needed (-1.5 to +1.5)
@@ -97,6 +102,8 @@ Format your response as a structured JSON object with three top-level keys:
 - "metadata": {{objects, persons, weather, mood, time_of_day, season_date, scene_type, location_setting, activity, photography_style, composition_quality}}
 - "enhancement": {{lighting_quality, color_analysis, sharpness_clarity, contrast_level, composition_issues, recommended_enhancements, overall_priority}}
 - "slide_profiles": [] (array of profile recommendations with confidence scores, empty if not a slide)
+
+CRITICAL REMINDER: You MUST respond in {language}. Every word, label, and description must be in {language}. This is essential for image metadata.
 """
 
 # EXIF Configuration
