@@ -9,6 +9,7 @@ from typing import Dict, Any, Optional
 from openai import OpenAI
 from config import OPENAI_API_KEY, OPENAI_MODEL, ANALYSIS_PROMPT, SUPPORTED_FORMATS, OUTPUT_DIR, METADATA_LANGUAGE
 from exif_handler import EXIFHandler
+from xmp_handler import XMPHandler
 
 # Try to import HEIC support
 try:
@@ -100,6 +101,13 @@ class PictureAnalyzer:
             print(f"✓ Image saved with EXIF data: {output_path}")
         else:
             print(f"⚠ Could not embed EXIF, saved without: {output_path}")
+        
+        # Save with XMP metadata (supplementary, for better compatibility)
+        xmp_success = XMPHandler.write_analysis_metadata(Path(output_path), analysis)
+        if xmp_success:
+            print(f"✓ XMP metadata embedded: {output_path}")
+        else:
+            print(f"⚠ Could not embed XMP metadata (non-critical)")
         
         # Save JSON analysis
         if save_json:

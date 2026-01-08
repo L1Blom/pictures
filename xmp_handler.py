@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import xml.etree.ElementTree as ET
 from PIL import Image
+import piexif
 
 try:
     from xmp_toolkit import XMPMeta
@@ -28,7 +29,7 @@ class XMPHandler:
     @staticmethod
     def write_analysis_metadata_simple(image_path: Path, analysis_data: Dict[str, Any]) -> bool:
         """
-        Write analysis results to image using simple method (comment fields).
+        Write analysis results to image using piexif comment field.
         This is a lightweight alternative that doesn't require xmp_toolkit.
         
         Args:
@@ -39,28 +40,37 @@ class XMPHandler:
             True if successful, False otherwise
         """
         try:
-            image = Image.open(str(image_path))
+            import piexif
             
-            # Create metadata dictionary from analysis
             metadata = analysis_data.get('metadata', {})
+            enhancement = analysis_data.get('enhancement', {})
             
-            # Store as image info/comment
-            if image.info is None:
-                image.info = {}
+            # Prepare comment data
+            comment_data = {
+                'metadata': metadata,
+                'enhancement': {k: v for k, v in enhancement.items() if k not in ['raw_response']},
+                'timestamp': datetime.now().isoformat()
+            }
             
-            # Add metadata fields as separate comment entries
-            for key, value in metadata.items():
-                if isinstance(value, (list, dict)):
-                    image.info[f'analysis_{key}'] = json.dumps(value)
-                else:
-                    image.info[f'analysis_{key}'] = str(value)
+            # Read existing EXIF
+            try:
+                exif_dict = piexif.load(str(image_path))
+            except:
+                exif_dict = {"0th": {}, "Exif": {}, "GPS": {}}
             
-            # Add timestamp
-            image.info['analysis_timestamp'] = datetime.now().isoformat()
+            # Add analysis data as UserComment
+            comment_json = json.dumps(comment_data, indent=2)
+            if "Exif" not in exif_dict:
+                exif_dict["Exif"] = {}
+            exif_dict["Exif"][piexif.ExifIFD.UserComment] = comment_json.encode('utf-8')
             
-            # Save back (this preserves comments in most formats)
+            # Convert to bytes
+            exif_bytes = piexif.dump(exif_dict)
+            
+            # Save with EXIF
+            image = Image.open(str(image_path))
             if image.format and image.format.upper() in ['JPEG', 'JPG']:
-                image.save(str(image_path), 'jpeg', quality=95)
+                image.save(str(image_path), 'jpeg', exif=exif_bytes, quality=95)
             
             return True
         except Exception as e:
