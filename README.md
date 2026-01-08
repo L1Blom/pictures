@@ -20,7 +20,14 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
   - Activity detection
   - Photography style
   - Composition quality assessment
-- Generate and embed EXIF metadata
+- **✨ Location Detection with GPS Embedding**:
+  - Auto-detect geographic location from visual clues
+  - Confidence scoring (0-100%)
+  - Generate GPS coordinates when confidence ≥ threshold (default 80%)
+  - Embed in standard EXIF GPS IFD for Immich map display
+  - Works globally with Nominatim geocoding service
+  - Caching to avoid repeated API calls
+- Generate and embed EXIF metadata in user's language
 - Support for multiple image formats: JPG, PNG, GIF, BMP, TIFF, WebP, **HEIC/HEIF** (Apple devices)
 - Batch processing of multiple images
 
@@ -55,7 +62,15 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
 - Error handling and success reporting
 
 **Metadata & EXIF**
-- Automatic EXIF embedding with analysis data
+- Automatic EXIF embedding with analysis data in user's language
+- **Language Support**: Metadata generated in configured language (Dutch, English, French, German, Spanish, etc.)
+- **Location Detection**: Auto-detects geographic location with confidence scoring (0-100%)
+- **GPS Coordinates**: Auto-generates and embeds GPS when confidence ≥ threshold (default 80%)
+  - Uses Nominatim (OpenStreetMap) geocoding service
+  - Stores in standard EXIF GPS IFD for map display compatibility
+  - Caches results to minimize API calls
+- **ImageDescription Field**: All metadata + location formatted for Immich display
+- **UserComment Field**: Complete JSON backup of all analysis data
 - EXIF copying between processed images
 - High-quality preservation (quality=95)
 - Separates metadata (for EXIF) from enhancement data (JSON only)
@@ -107,7 +122,46 @@ pip install -r requirements.txt
 Create a `.env` file with:
 ```
 OPENAI_APIKEY=your-openai-api-key
+
+# Language for EXIF metadata and location names (default: en)
+METADATA_LANGUAGE=nl  # e.g., 'nl' for Dutch, 'en' for English, 'de' for German
+
+# GPS confidence threshold for embedding coordinates (default: 80)
+# Only embed GPS when location detection confidence >= this threshold
+GPS_CONFIDENCE_THRESHOLD=80
 ```
+
+## Configuration
+
+### Language Support
+The system automatically generates metadata and location names in your configured language:
+```bash
+export METADATA_LANGUAGE=nl  # Dutch
+export METADATA_LANGUAGE=en  # English
+export METADATA_LANGUAGE=de  # German
+export METADATA_LANGUAGE=fr  # French
+export METADATA_LANGUAGE=es  # Spanish
+```
+
+Supported in:
+- All metadata field labels and descriptions
+- Location names (country, region, city)
+- EXIF ImageDescription display
+
+### GPS Configuration
+Control GPS coordinate embedding:
+```bash
+export GPS_CONFIDENCE_THRESHOLD=80  # Only embed GPS when 80%+ confident (default)
+export GPS_CONFIDENCE_THRESHOLD=90  # Conservative: 90%+ confidence required
+export GPS_CONFIDENCE_THRESHOLD=50  # Aggressive: embed most detections
+```
+
+GPS coordinates are:
+- Generated via Nominatim (OpenStreetMap) geocoding service
+- Stored in standard EXIF GPS IFD (latitude, longitude, datum)
+- Compatible with Immich map display and standard photo tools
+- Cached locally to minimize API calls
+- Only embedded when confidence threshold is met
 
 ## Usage
 
