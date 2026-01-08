@@ -326,6 +326,9 @@ class PictureAnalyzer:
                     # Ensure slide_profiles exists (defaults to empty list)
                     if 'slide_profiles' not in analysis:
                         analysis['slide_profiles'] = []
+                    # Ensure location_detection exists (defaults to empty dict)
+                    if 'location_detection' not in analysis:
+                        analysis['location_detection'] = {}
                     return analysis
                 else:
                     # Backward compatibility: wrap old format response
@@ -334,6 +337,7 @@ class PictureAnalyzer:
                         "enhancement": {
                             "note": "Enhancement data not available for this analysis"
                         },
+                        "location_detection": {},
                         "slide_profiles": []
                     }
             else:
@@ -348,6 +352,7 @@ class PictureAnalyzer:
                         "time_of_day": "Unknown",
                         "season_date": "Unknown",
                     },
+                    "location_detection": {},
                     "enhancement": {
                         "raw_response": response,
                         "lighting_quality": "Unable to assess",
@@ -371,6 +376,7 @@ class PictureAnalyzer:
                     "time_of_day": "Unknown",
                     "season_date": "Unknown",
                 },
+                "location_detection": {},
                 "enhancement": {
                     "raw_response": response,
                     "lighting_quality": "Unable to assess",

@@ -39,6 +39,18 @@ Analyze this image and provide detailed information in two separate sections.
 10. **Photography Style**: Identify the photography style or technique (e.g., portrait photography, landscape photography, macro photography, documentary, fine art, etc.)
 11. **Composition Quality**: Rate the composition quality (excellent, good, fair, needs work) and note key compositional elements (rule of thirds, leading lines, symmetry, depth, framing, etc.)
 
+=== LOCATION DETECTION SECTION (ALWAYS IN ENGLISH - for data processing) ===
+12. **Location Detection**: Analyze ALL visible clues to determine geographic location:
+    - Visible signs, text, license plates, street markers (language, format, content)
+    - Architecture style and construction materials (indicates region/country)
+    - Vegetation and landscape type (climate indicators)
+    - Road/infrastructure style (markings, design, materials)
+    - Vehicle types and styles visible
+    - Any other geographic indicators
+    - Format your response as JSON: {{"country": "...", "region": "...", "city_or_area": "...", "location_type": "urban/rural/suburban/mixed", "confidence": 0-100, "reasoning": "..."}}
+    - confidence: 0-100 score (100=certain, 0=complete guess)
+    - Be as specific as possible while maintaining honesty about confidence
+
 === ENHANCEMENT RECOMMENDATIONS SECTION (DETAILED & QUANTIFIABLE) - ALWAYS IN ENGLISH ===
 12. **Lighting Quality Assessment**: 
     - Current state: underexposed/properly exposed/overexposed
@@ -100,12 +112,13 @@ Analyze this image and provide detailed information in two separate sections.
     Format: [{{"profile": "profile_name", "confidence": 85}}, {{"profile": "profile_name", "confidence": 60}}]
     Only include this section if the image appears to be a scanned slide or vintage photograph. If uncertain or not a slide, set to empty array: []
 
-Format your response as a structured JSON object with three top-level keys:
-- "metadata": {{objects, persons, weather, mood, time_of_day, season_date, scene_type, location_setting, activity, photography_style, composition_quality}}
+Format your response as a structured JSON object with four top-level keys:
+- "metadata": {{objects, persons, weather, mood_atmosphere, time_of_day, season_date, scene_type, location_setting, activity_action, photography_style, composition_quality}}
+- "location_detection": {{country, region, city_or_area, location_type, confidence, reasoning}}
 - "enhancement": {{lighting_quality, color_analysis, sharpness_clarity, contrast_level, composition_issues, recommended_enhancements, overall_priority}}
 - "slide_profiles": [] (array of profile recommendations with confidence scores, empty if not a slide)
 
-CRITICAL REMINDER: You MUST respond in {language}. Every word, label, and description must be in {language}. This is essential for image metadata.
+CRITICAL REMINDER: You MUST respond in {language} for METADATA fields. Location detection MUST be in ENGLISH JSON format. This is essential for image metadata.
 """
 
 # EXIF Configuration
