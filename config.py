@@ -15,6 +15,10 @@ OPENAI_MODEL = 'gpt-4-turbo'
 # Language for EXIF metadata content (e.g., 'en', 'nl', 'fr', 'de', 'es')
 METADATA_LANGUAGE = os.getenv('METADATA_LANGUAGE', 'en')
 
+# GPS Configuration
+# Minimum confidence threshold for embedding GPS coordinates in EXIF (0-100)
+GPS_CONFIDENCE_THRESHOLD = int(os.getenv('GPS_CONFIDENCE_THRESHOLD', '80'))
+
 # Analysis Configuration
 ANALYSIS_PROMPT = """You are analyzing an image. 
 

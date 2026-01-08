@@ -335,7 +335,64 @@ class EXIFHandler:
                     except Exception as e:
                         print(f"Warning: Could not set EXIF tag {exif_tag_name}: {e}")
         
+        # Add GPS data if coordinates are available
+        if isinstance(analysis_data, dict):
+            coordinates = analysis_data.get('gps_coordinates')
+            if coordinates:
+                EXIFHandler._add_gps_to_exif(exif_dict, coordinates)
+        
         return exif_dict
+    
+    @staticmethod
+    def _add_gps_to_exif(exif_dict: Dict, coordinates: Dict[str, float]) -> None:
+        """
+        Add GPS coordinates to EXIF dictionary
+        
+        Args:
+            exif_dict: EXIF dictionary to update
+            coordinates: Dictionary with latitude and longitude
+        """
+        if not coordinates or 'latitude' not in coordinates or 'longitude' not in coordinates:
+            return
+        
+        try:
+            lat = coordinates['latitude']
+            lon = coordinates['longitude']
+            
+            # Initialize GPS IFD if needed
+            if "GPS" not in exif_dict:
+                exif_dict["GPS"] = {}
+            
+            # Convert latitude/longitude to GPS format (degrees, minutes, seconds)
+            def dms_from_decimal(decimal):
+                """Convert decimal degrees to DMS format for GPS"""
+                abs_value = abs(decimal)
+                degrees = int(abs_value)
+                minutes_decimal = (abs_value - degrees) * 60
+                minutes = int(minutes_decimal)
+                seconds_decimal = (minutes_decimal - minutes) * 60
+                seconds = int(seconds_decimal * 100)  # Store as integer with 2 decimal precision
+                
+                return ((degrees, 1), (minutes, 1), (seconds, 100))
+            
+            # Set latitude
+            lat_dms = dms_from_decimal(lat)
+            exif_dict["GPS"][piexif.GPSIFD.GPSLatitude] = lat_dms
+            exif_dict["GPS"][piexif.GPSIFD.GPSLatitudeRef] = b'N' if lat >= 0 else b'S'
+            
+            # Set longitude
+            lon_dms = dms_from_decimal(lon)
+            exif_dict["GPS"][piexif.GPSIFD.GPSLongitude] = lon_dms
+            exif_dict["GPS"][piexif.GPSIFD.GPSLongitudeRef] = b'E' if lon >= 0 else b'W'
+            
+            # Set GPS version
+            exif_dict["GPS"][piexif.GPSIFD.GPSVersionID] = b'\x02\x02\x00\x00'
+            
+            # Set map datum (standard WGS84)
+            exif_dict["GPS"][piexif.GPSIFD.GPSMapDatum] = b'WGS-84'
+            
+        except Exception as e:
+            print(f"Warning: Could not add GPS data to EXIF: {e}")
     
     @staticmethod
     def _parse_exif_dict(exif_dict: Dict) -> Dict[str, Any]:

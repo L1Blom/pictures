@@ -1,0 +1,38 @@
+{
+  "Treptower Park, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.4884439,
+      "longitude": 13.4703145,
+      "display_name": "Treptower Park, Treptow-K\u00f6penick, Berlin, Deutschland"
+    },
+    "query": "Treptower Park, Berlijn, Duitsland",
+    "confidence": 85
+  },
+  "Treptower Park, Berlin, Germany": {
+    "coordinates": {
+      "latitude": 52.4884439,
+      "longitude": 13.4703145,
+      "display_name": "Treptower Park, Treptow-K\u00f6penick, Berlin, Deutschland"
+    },
+    "query": "Treptower Park, Berlin, Germany",
+    "confidence": 85
+  },
+  "Moskou, Moskou, Rusland": {
+    "coordinates": {
+      "latitude": 55.7505412,
+      "longitude": 37.6174782,
+      "display_name": "\u041c\u043e\u0441\u043a\u0432\u0430, \u0426\u0435\u043d\u0442\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u0444\u0435\u0434\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u043e\u043a\u0440\u0443\u0433, \u0420\u043e\u0441\u0441\u0438\u044f"
+    },
+    "query": "Moskou, Moskou, Rusland",
+    "confidence": 80
+  },
+  "Moscow, Moscow, Russia": {
+    "coordinates": {
+      "latitude": 55.7505412,
+      "longitude": 37.6174782,
+      "display_name": "\u041c\u043e\u0441\u043a\u0432\u0430, \u0426\u0435\u043d\u0442\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u0444\u0435\u0434\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u043e\u043a\u0440\u0443\u0433, \u0420\u043e\u0441\u0441\u0438\u044f"
+    },
+    "query": "Moscow, Moscow, Russia",
+    "confidence": 85
+  }
+}

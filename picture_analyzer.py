@@ -7,9 +7,10 @@ import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 from openai import OpenAI
-from config import OPENAI_API_KEY, OPENAI_MODEL, ANALYSIS_PROMPT, SUPPORTED_FORMATS, OUTPUT_DIR, METADATA_LANGUAGE
+from config import OPENAI_API_KEY, OPENAI_MODEL, ANALYSIS_PROMPT, SUPPORTED_FORMATS, OUTPUT_DIR, METADATA_LANGUAGE, GPS_CONFIDENCE_THRESHOLD
 from exif_handler import EXIFHandler
 from xmp_handler import XMPHandler
+from geolocation import GeoLocator
 
 # Try to import HEIC support
 try:
@@ -57,6 +58,17 @@ class PictureAnalyzer:
         
         # Parse response
         analysis_result = self._parse_response(response)
+        
+        # Geocode location if confidence is high enough
+        if analysis_result.get('location_detection'):
+            coordinates = GeoLocator.geocode_location(
+                analysis_result['location_detection'],
+                GPS_CONFIDENCE_THRESHOLD
+            )
+            if coordinates:
+                analysis_result['gps_coordinates'] = coordinates
+                display_name = coordinates.get('display_name', 'Unknown')
+                print(f"  ✓ GPS coordinates: {GeoLocator.format_gps_string(coordinates)} ({display_name})")
         
         return analysis_result
     
