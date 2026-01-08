@@ -296,6 +296,9 @@ class PictureAnalyzer:
                 
                 # If response has metadata and enhancement sections, return as-is
                 if isinstance(analysis, dict) and ('metadata' in analysis or 'enhancement' in analysis):
+                    # Ensure slide_profiles exists (defaults to empty list)
+                    if 'slide_profiles' not in analysis:
+                        analysis['slide_profiles'] = []
                     return analysis
                 else:
                     # Backward compatibility: wrap old format response
@@ -303,7 +306,8 @@ class PictureAnalyzer:
                         "metadata": analysis,
                         "enhancement": {
                             "note": "Enhancement data not available for this analysis"
-                        }
+                        },
+                        "slide_profiles": []
                     }
             else:
                 # If no JSON found, create structured response from text
@@ -325,7 +329,8 @@ class PictureAnalyzer:
                         "contrast_level": "Unable to assess",
                         "composition_issues": "Unable to assess",
                         "recommended_enhancements": []
-                    }
+                    },
+                    "slide_profiles": []
                 }
                 return analysis
         except json.JSONDecodeError:
@@ -347,7 +352,8 @@ class PictureAnalyzer:
                     "contrast_level": "Unable to assess",
                     "composition_issues": "Unable to assess",
                     "recommended_enhancements": []
-                }
+                },
+                "slide_profiles": []
             }
             return analysis
     
