@@ -6,11 +6,14 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
+import xml.etree.ElementTree as ET
+from PIL import Image
 
 try:
     from xmp_toolkit import XMPMeta
+    HAS_XMP_TOOLKIT = True
 except ImportError:
-    XMPMeta = None
+    HAS_XMP_TOOLKIT = False
 
 
 class XMPHandler:
@@ -19,6 +22,50 @@ class XMPHandler:
     # XMP namespaces
     NS_CUSTOM = "http://example.com/picture-analysis/1.0/"
     NS_DC = "http://purl.org/dc/elements/1.1/"
+    NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    NS_X = "adobe:ns:meta/"
+    
+    @staticmethod
+    def write_analysis_metadata_simple(image_path: Path, analysis_data: Dict[str, Any]) -> bool:
+        """
+        Write analysis results to image using simple method (comment fields).
+        This is a lightweight alternative that doesn't require xmp_toolkit.
+        
+        Args:
+            image_path: Path to the image file
+            analysis_data: Analysis results dictionary
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            image = Image.open(str(image_path))
+            
+            # Create metadata dictionary from analysis
+            metadata = analysis_data.get('metadata', {})
+            
+            # Store as image info/comment
+            if image.info is None:
+                image.info = {}
+            
+            # Add metadata fields as separate comment entries
+            for key, value in metadata.items():
+                if isinstance(value, (list, dict)):
+                    image.info[f'analysis_{key}'] = json.dumps(value)
+                else:
+                    image.info[f'analysis_{key}'] = str(value)
+            
+            # Add timestamp
+            image.info['analysis_timestamp'] = datetime.now().isoformat()
+            
+            # Save back (this preserves comments in most formats)
+            if image.format and image.format.upper() in ['JPEG', 'JPG']:
+                image.save(str(image_path), 'jpeg', quality=95)
+            
+            return True
+        except Exception as e:
+            print(f"Warning: Could not embed metadata in {image_path} (simple method): {e}")
+            return False
     
     @staticmethod
     def write_analysis_metadata(image_path: Path, analysis_data: Dict[str, Any]) -> bool:
@@ -32,9 +79,9 @@ class XMPHandler:
         Returns:
             True if successful, False otherwise
         """
-        if XMPMeta is None:
-            print("Warning: XMP toolkit not available, skipping metadata embedding")
-            return False
+        # Use simple method if xmp_toolkit not available
+        if not HAS_XMP_TOOLKIT:
+            return XMPHandler.write_analysis_metadata_simple(image_path, analysis_data)
         
         try:
             # Create XMP metadata object
