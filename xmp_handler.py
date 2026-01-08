@@ -44,6 +44,7 @@ class XMPHandler:
             
             metadata = analysis_data.get('metadata', {})
             enhancement = analysis_data.get('enhancement', {})
+            location_detection = analysis_data.get('location_detection', {})
             
             # Prepare comment data
             comment_data = {
@@ -51,6 +52,10 @@ class XMPHandler:
                 'enhancement': {k: v for k, v in enhancement.items() if k not in ['raw_response']},
                 'timestamp': datetime.now().isoformat()
             }
+            
+            # Add location if available
+            if location_detection:
+                comment_data['location_detection'] = location_detection
             
             # Read existing EXIF
             try:

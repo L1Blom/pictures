@@ -131,18 +131,41 @@ class EXIFHandler:
             return False
     
     @staticmethod
-    def _format_metadata_description(metadata: Dict[str, Any]) -> str:
+    def _format_metadata_description(metadata: Dict[str, Any], location_detection: Dict[str, Any] = None) -> str:
         """
         Format metadata into a nicely readable description for ImageDescription field.
         This makes all metadata visible in Immich's image info display.
         
         Args:
             metadata: Dictionary of metadata fields
+            location_detection: Dictionary of location detection data (optional)
             
         Returns:
             Formatted string suitable for ImageDescription
         """
         lines = []
+        
+        # Add location detection first if available
+        if location_detection:
+            loc_lines = []
+            
+            country = location_detection.get('country', '')
+            city = location_detection.get('city_or_area', '')
+            region = location_detection.get('region', '')
+            confidence = location_detection.get('confidence', '')
+            
+            # Build location string
+            location_parts = [p for p in [country, region, city] if p and p.lower() not in ['uncertain', 'unknown']]
+            if location_parts:
+                location_str = ', '.join(location_parts)
+                conf_str = f" (Confidence: {confidence}%)" if confidence else ""
+                loc_lines.append(f"LOCATION: {location_str}{conf_str}")
+            elif confidence:
+                loc_lines.append(f"Location uncertain (Confidence: {confidence}%)")
+            
+            if loc_lines:
+                lines.extend(loc_lines)
+                lines.append("")  # blank line separator
         
         # Map of friendly field names for display
         field_labels = {
@@ -150,15 +173,18 @@ class EXIFHandler:
             'persons': 'Persons',
             'weather': 'Weather',
             'mood_atmosphere': 'Mood/Atmosphere',
+            'mood': 'Mood/Atmosphere',
             'time_of_day': 'Time of Day',
             'season_date': 'Season/Date',
             'scene_type': 'Scene Type',
-            'location_setting': 'Location/Setting',
+            'location_setting': 'Setting',
             'activity_action': 'Activity',
+            'activity': 'Activity',
             'photography_style': 'Photography Style',
             'composition_quality': 'Composition Quality',
         }
         
+        # Add all predefined fields
         for field_key, field_label in field_labels.items():
             if field_key in metadata:
                 value = metadata[field_key]
@@ -170,12 +196,30 @@ class EXIFHandler:
                     value_str = str(value)
                 
                 # Truncate to reasonable length for display
-                value_str = value_str[:150]
+                value_str = value_str[:120]
+                lines.append(f"{field_label}: {value_str}")
+        
+        # Add any additional fields not in the predefined list
+        for field_key, value in metadata.items():
+            if field_key not in field_labels:
+                # Convert field name to label (replace underscores with spaces, title case)
+                field_label = field_key.replace('_', ' ').title()
+                
+                # Format value nicely
+                if isinstance(value, list):
+                    value_str = ', '.join(str(v)[:50] for v in value[:5])  # Limit list items
+                    if len(value) > 5:
+                        value_str += f", ... (+{len(value)-5} more)"
+                elif isinstance(value, dict):
+                    value_str = str(value)[:80]
+                else:
+                    value_str = str(value)[:120]
+                
                 lines.append(f"{field_label}: {value_str}")
         
         # Join with newlines and limit total length
         description = '\n'.join(lines)
-        return description[:500]  # EXIF ImageDescription has limits
+        return description[:1000]  # Increased limit for more comprehensive data
     
     @staticmethod
     def _prepare_exif_dict(exif_dict: Dict, analysis_data: Dict[str, Any]) -> Dict:
@@ -201,14 +245,22 @@ class EXIFHandler:
         else:
             metadata = analysis_data
         
+        # Extract location_detection if available
+        location_detection = None
+        if isinstance(analysis_data, dict):
+            location_detection = analysis_data.get('location_detection', {})
+        
         # Convert metadata to nicely formatted description for ImageDescription (for Immich display)
         if isinstance(metadata, dict):
-            description = EXIFHandler._format_metadata_description(metadata)
+            description = EXIFHandler._format_metadata_description(metadata, location_detection)
             exif_dict["0th"][piexif.ImageIFD.ImageDescription] = description.encode('utf-8')
         
-        # Convert metadata only to JSON string for UserComment (backup storage)
-        metadata_json = json.dumps(metadata, indent=2)
-        exif_dict["Exif"][piexif.ExifIFD.UserComment] = metadata_json.encode('utf-8')
+        # Convert metadata and location to JSON string for UserComment (backup storage)
+        backup_data = {'metadata': metadata}
+        if location_detection:
+            backup_data['location_detection'] = location_detection
+        backup_json = json.dumps(backup_data, indent=2)
+        exif_dict["Exif"][piexif.ExifIFD.UserComment] = backup_json.encode('utf-8')
         
         # Map metadata fields to corresponding EXIF tags for Immich compatibility
         if isinstance(metadata, dict):
