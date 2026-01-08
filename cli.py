@@ -314,7 +314,11 @@ def cmd_batch(args):
                     slide_profiles = analysis.get('slide_profiles', [])
                     if slide_profiles:
                         # Use all recommended profiles with confidence >= 50%
-                        profiles_to_process = [p['profile'] for p in slide_profiles if p.get('confidence', 0) >= 50]
+                        try:
+                            profiles_to_process = [p['profile'] for p in slide_profiles if isinstance(p, dict) and 'profile' in p and p.get('confidence', 0) >= 50]
+                        except (KeyError, TypeError) as e:
+                            print(f"  Warning: Could not parse slide profiles: {e}")
+                            profiles_to_process = []
                         if profiles_to_process:
                             print(f"  → Suggested profiles: {', '.join(profiles_to_process)}")
                     
@@ -458,7 +462,11 @@ def cmd_process(args):
             slide_profiles = analysis.get('slide_profiles', [])
             if slide_profiles:
                 # Use all recommended profiles with confidence >= 50%
-                profiles_to_process = [p['profile'] for p in slide_profiles if p.get('confidence', 0) >= 50]
+                try:
+                    profiles_to_process = [p['profile'] for p in slide_profiles if isinstance(p, dict) and 'profile' in p and p.get('confidence', 0) >= 50]
+                except (KeyError, TypeError) as e:
+                    print(f"  Warning: Could not parse slide profiles: {e}")
+                    profiles_to_process = []
                 if profiles_to_process:
                     print(f"  → Suggested profiles: {', '.join(profiles_to_process)}")
             
