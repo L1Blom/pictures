@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 from openai import OpenAI
-from config import OPENAI_API_KEY, OPENAI_MODEL, ANALYSIS_PROMPT, SUPPORTED_FORMATS, OUTPUT_DIR
+from config import OPENAI_API_KEY, OPENAI_MODEL, ANALYSIS_PROMPT, SUPPORTED_FORMATS, OUTPUT_DIR, METADATA_LANGUAGE
 from exif_handler import EXIFHandler
 
 # Try to import HEIC support
@@ -254,8 +254,8 @@ class PictureAnalyzer:
     
     def _call_openai_vision(self, image_data: str, description: Optional[str] = None) -> str:
         """Call OpenAI Vision API with the image"""
-        # Prepare the prompt with optional context
-        prompt = ANALYSIS_PROMPT
+        # Prepare the prompt with language and optional context
+        prompt = ANALYSIS_PROMPT.format(language=METADATA_LANGUAGE)
         if description:
             prompt = f"{prompt}\n\n=== CONTEXT FROM DESCRIPTION.TXT ===\n{description}\n\nPlease consider this context when analyzing the image."
         

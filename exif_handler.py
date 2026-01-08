@@ -7,6 +7,7 @@ from typing import Dict, Any
 import io
 from PIL import Image
 from PIL.Image import Image as PILImage
+from config import EXIF_TAG_MAPPING
 
 
 class EXIFHandler:
@@ -153,20 +154,39 @@ class EXIFHandler:
         else:
             metadata = analysis_data
         
-        # Convert metadata only to JSON string
+        # Convert metadata only to JSON string for UserComment (backup storage)
         metadata_json = json.dumps(metadata, indent=2)
-        
-        # Add metadata to UserComment (0x927C)
         exif_dict["Exif"][piexif.ExifIFD.UserComment] = metadata_json.encode('utf-8')
         
-        # Add description from metadata
-        if isinstance(metadata, dict) and "objects" in metadata:
-            objects = metadata.get('objects', [])
-            if isinstance(objects, list):
-                description = f"Objects: {', '.join(objects[:5])}"
-            else:
-                description = f"Objects: {str(objects)[:100]}"
-            exif_dict["0th"][piexif.ImageIFD.ImageDescription] = description.encode('utf-8')
+        # Map metadata fields to corresponding EXIF tags for Immich compatibility
+        if isinstance(metadata, dict):
+            for field_name, field_value in metadata.items():
+                # Convert field value to string representation
+                if isinstance(field_value, (list, dict)):
+                    field_str = ', '.join(str(x) for x in (field_value if isinstance(field_value, list) else [field_value]))
+                else:
+                    field_str = str(field_value)
+                
+                # Get EXIF tag name from mapping
+                exif_tag_name = EXIF_TAG_MAPPING.get(field_name)
+                
+                if exif_tag_name:
+                    try:
+                        # Map tag name to piexif constant
+                        if exif_tag_name in dir(piexif.ImageIFD):
+                            tag_id = getattr(piexif.ImageIFD, exif_tag_name)
+                            exif_dict["0th"][tag_id] = field_str[:100].encode('utf-8')  # Limit length
+                        elif exif_tag_name in dir(piexif.ExifIFD):
+                            tag_id = getattr(piexif.ExifIFD, exif_tag_name)
+                            exif_dict["Exif"][tag_id] = field_str[:100].encode('utf-8')
+                        elif exif_tag_name == 'GPSInfo':
+                            # GPSInfo requires special handling
+                            if "GPS" not in exif_dict:
+                                exif_dict["GPS"] = {}
+                            # Store location as string for now
+                            exif_dict["GPS"][piexif.GPSIFD.GPSMapDatum] = b'WGS-84'
+                    except Exception as e:
+                        print(f"Warning: Could not set EXIF tag {exif_tag_name}: {e}")
         
         return exif_dict
     

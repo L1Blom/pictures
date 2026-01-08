@@ -11,8 +11,13 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_APIKEY')
 OPENAI_MODEL = 'gpt-4-turbo'
 
+# Language Configuration
+# Language for EXIF metadata content (e.g., 'en', 'nl', 'fr', 'de', 'es')
+METADATA_LANGUAGE = os.getenv('METADATA_LANGUAGE', 'en')
+
 # Analysis Configuration
-ANALYSIS_PROMPT = """Analyze this image and provide detailed information in two separate sections:
+ANALYSIS_PROMPT = """Analyze this image and provide detailed information in two separate sections.
+IMPORTANT: Provide all responses in {language}.
 
 === METADATA SECTION (for EXIF embedding) ===
 1. **Objects**: List all visible objects and items in the image
