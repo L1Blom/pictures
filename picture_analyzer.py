@@ -276,7 +276,7 @@ class PictureAnalyzer:
         
         response = self.client.chat.completions.create(
             model=self.model,
-            max_tokens=1024,
+            max_tokens=4096,
             messages=[
                 {
                     "role": "system",

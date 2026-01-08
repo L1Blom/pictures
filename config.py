@@ -22,6 +22,8 @@ IMPORTANT LANGUAGE RULES:
 - METADATA SECTION: Respond ONLY in {language}. All text, descriptions, and metadata must be in {language}.
 - ENHANCEMENT SECTION: Always respond in ENGLISH. Technical parameters and recommendations must ALWAYS be in English.
 
+Provide DETAILED and COMPREHENSIVE analysis with thorough descriptions for all metadata fields. Be specific and descriptive.
+
 Analyze this image and provide detailed information in two separate sections.
 
 === METADATA SECTION (for EXIF embedding) - RESPOND IN {language} ===
