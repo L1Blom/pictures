@@ -39,7 +39,7 @@ Analyze this image and provide detailed information in two separate sections.
 10. **Photography Style**: Identify the photography style or technique (e.g., portrait photography, landscape photography, macro photography, documentary, fine art, etc.)
 11. **Composition Quality**: Rate the composition quality (excellent, good, fair, needs work) and note key compositional elements (rule of thirds, leading lines, symmetry, depth, framing, etc.)
 
-=== LOCATION DETECTION SECTION (ALWAYS IN ENGLISH - for data processing) ===
+=== LOCATION DETECTION SECTION (IN {language}) ===
 12. **Location Detection**: Analyze ALL visible clues to determine geographic location:
     - Visible signs, text, license plates, street markers (language, format, content)
     - Architecture style and construction materials (indicates region/country)
@@ -50,6 +50,7 @@ Analyze this image and provide detailed information in two separate sections.
     - Format your response as JSON: {{"country": "...", "region": "...", "city_or_area": "...", "location_type": "urban/rural/suburban/mixed", "confidence": 0-100, "reasoning": "..."}}
     - confidence: 0-100 score (100=certain, 0=complete guess)
     - Be as specific as possible while maintaining honesty about confidence
+    - IMPORTANT: All location names (country, region, city) should be in {language}
 
 === ENHANCEMENT RECOMMENDATIONS SECTION (DETAILED & QUANTIFIABLE) - ALWAYS IN ENGLISH ===
 12. **Lighting Quality Assessment**: 

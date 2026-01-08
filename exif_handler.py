@@ -7,7 +7,7 @@ from typing import Dict, Any
 import io
 from PIL import Image
 from PIL.Image import Image as PILImage
-from config import EXIF_TAG_MAPPING
+from config import EXIF_TAG_MAPPING, METADATA_LANGUAGE
 
 
 class EXIFHandler:
@@ -145,6 +145,45 @@ class EXIFHandler:
         """
         lines = []
         
+        # Language-specific translations
+        translations = {
+            'nl': {
+                'LOCATION': 'LOCATIE',
+                'Confidence': 'Betrouwbaarheid',
+                'Location uncertain': 'Locatie onzeker',
+                'Objects': 'Objecten',
+                'Persons': 'Personen',
+                'Weather': 'Weer',
+                'Mood/Atmosphere': 'Sfeer/Atmosfeer',
+                'Time of Day': 'Tijd van de dag',
+                'Season/Date': 'Seizoen/Datum',
+                'Scene Type': 'Type scène',
+                'Setting': 'Omgeving',
+                'Activity': 'Activiteit',
+                'Photography Style': 'Fotografische stijl',
+                'Composition Quality': 'Samenstelling kwaliteit',
+            },
+            'en': {
+                'LOCATION': 'LOCATION',
+                'Confidence': 'Confidence',
+                'Location uncertain': 'Location uncertain',
+                'Objects': 'Objects',
+                'Persons': 'Persons',
+                'Weather': 'Weather',
+                'Mood/Atmosphere': 'Mood/Atmosphere',
+                'Time of Day': 'Time of Day',
+                'Season/Date': 'Season/Date',
+                'Scene Type': 'Scene Type',
+                'Setting': 'Setting',
+                'Activity': 'Activity',
+                'Photography Style': 'Photography Style',
+                'Composition Quality': 'Composition Quality',
+            }
+        }
+        
+        # Get translations for current language (default to English if not found)
+        lang_trans = translations.get(METADATA_LANGUAGE, translations['en'])
+        
         # Add location detection first if available
         if location_detection:
             loc_lines = []
@@ -158,10 +197,10 @@ class EXIFHandler:
             location_parts = [p for p in [country, region, city] if p and p.lower() not in ['uncertain', 'unknown']]
             if location_parts:
                 location_str = ', '.join(location_parts)
-                conf_str = f" (Confidence: {confidence}%)" if confidence else ""
-                loc_lines.append(f"LOCATION: {location_str}{conf_str}")
+                conf_str = f" ({lang_trans['Confidence']}: {confidence}%)" if confidence else ""
+                loc_lines.append(f"{lang_trans['LOCATION']}: {location_str}{conf_str}")
             elif confidence:
-                loc_lines.append(f"Location uncertain (Confidence: {confidence}%)")
+                loc_lines.append(f"{lang_trans['Location uncertain']} ({lang_trans['Confidence']}: {confidence}%)")
             
             if loc_lines:
                 lines.extend(loc_lines)
@@ -169,19 +208,19 @@ class EXIFHandler:
         
         # Map of friendly field names for display
         field_labels = {
-            'objects': 'Objects',
-            'persons': 'Persons',
-            'weather': 'Weather',
-            'mood_atmosphere': 'Mood/Atmosphere',
-            'mood': 'Mood/Atmosphere',
-            'time_of_day': 'Time of Day',
-            'season_date': 'Season/Date',
-            'scene_type': 'Scene Type',
-            'location_setting': 'Setting',
-            'activity_action': 'Activity',
-            'activity': 'Activity',
-            'photography_style': 'Photography Style',
-            'composition_quality': 'Composition Quality',
+            'objects': lang_trans.get('Objects', 'Objects'),
+            'persons': lang_trans.get('Persons', 'Persons'),
+            'weather': lang_trans.get('Weather', 'Weather'),
+            'mood_atmosphere': lang_trans.get('Mood/Atmosphere', 'Mood/Atmosphere'),
+            'mood': lang_trans.get('Mood/Atmosphere', 'Mood/Atmosphere'),
+            'time_of_day': lang_trans.get('Time of Day', 'Time of Day'),
+            'season_date': lang_trans.get('Season/Date', 'Season/Date'),
+            'scene_type': lang_trans.get('Scene Type', 'Scene Type'),
+            'location_setting': lang_trans.get('Setting', 'Setting'),
+            'activity_action': lang_trans.get('Activity', 'Activity'),
+            'activity': lang_trans.get('Activity', 'Activity'),
+            'photography_style': lang_trans.get('Photography Style', 'Photography Style'),
+            'composition_quality': lang_trans.get('Composition Quality', 'Composition Quality'),
         }
         
         # Add all predefined fields
