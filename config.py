@@ -90,12 +90,12 @@ IMPORTANT: Provide all responses in {language}.
 === SLIDE RESTORATION PROFILES (if this appears to be a scanned slide/dia positive) ===
 19. **Suggested Profiles**: List the most suitable slide restoration profiles with confidence scores (0-100%).
     Available profiles: faded (very faded with lost color/contrast), color_cast (generic color casts), red_cast (red/magenta aging), yellow_cast (yellow/warm aging), aged (moderate aging), well_preserved (minimal aging).
-    Format: [{"profile": "profile_name", "confidence": 85}, {"profile": "profile_name", "confidence": 60}]
+    Format: [{{"profile": "profile_name", "confidence": 85}}, {{"profile": "profile_name", "confidence": 60}}]
     Only include this section if the image appears to be a scanned slide or vintage photograph. If uncertain or not a slide, set to empty array: []
 
 Format your response as a structured JSON object with three top-level keys:
-- "metadata": {objects, persons, weather, mood, time_of_day, season_date, scene_type, location_setting, activity, photography_style, composition_quality}
-- "enhancement": {lighting_quality, color_analysis, sharpness_clarity, contrast_level, composition_issues, recommended_enhancements, overall_priority}
+- "metadata": {{objects, persons, weather, mood, time_of_day, season_date, scene_type, location_setting, activity, photography_style, composition_quality}}
+- "enhancement": {{lighting_quality, color_analysis, sharpness_clarity, contrast_level, composition_issues, recommended_enhancements, overall_priority}}
 - "slide_profiles": [] (array of profile recommendations with confidence scores, empty if not a slide)
 """
 
