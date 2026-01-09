@@ -5,10 +5,10 @@ This module provides:
 - Smart enhancement based on AI analysis recommendations
 - Color correction
 - Brightness/contrast adjustment
-- Sharpness enhancement
 - Saturation adjustment
-- Noise reduction
 - And more...
+
+For advanced filters (unsharp mask, color temperature, etc.), see enhancement_filters module.
 """
 from PIL import Image, ImageEnhance, ImageFilter
 from typing import Optional, Tuple, List, Dict, Any
@@ -16,10 +16,61 @@ import os
 import json
 import re
 from pathlib import Path
+from enhancement_filters import (
+    apply_unsharp_mask,
+    adjust_color_temperature,
+    adjust_shadows_highlights,
+    apply_clarity_filter,
+    adjust_vibrance
+)
 
 
 class PictureEnhancer:
     """Handles picture enhancement operations"""
+    
+    # Map of property types to PIL ImageEnhance classes
+    _ENHANCER_MAP = {
+        'brightness': ImageEnhance.Brightness,
+        'contrast': ImageEnhance.Contrast,
+        'saturation': ImageEnhance.Color,
+        'sharpness': ImageEnhance.Sharpness,
+    }
+    
+    @staticmethod
+    def adjust_property(
+        image_path: str,
+        property_type: str,
+        factor: float = 1.0,
+        output_path: Optional[str] = None
+    ) -> Optional[str]:
+        """
+        Generic method to adjust image properties
+        
+        Args:
+            image_path: Path to source image
+            property_type: Type of property ('brightness', 'contrast', 'saturation', 'sharpness')
+            factor: Adjustment factor (1.0 = original, <1.0 = decrease, >1.0 = increase)
+            output_path: Path to save enhanced image
+            
+        Returns:
+            Path to saved image or None if failed
+        """
+        try:
+            if property_type not in PictureEnhancer._ENHANCER_MAP:
+                raise ValueError(f"Unknown property type: {property_type}. Must be one of: {list(PictureEnhancer._ENHANCER_MAP.keys())}")
+            
+            image = Image.open(image_path)
+            enhancer_class = PictureEnhancer._ENHANCER_MAP[property_type]
+            enhancer = enhancer_class(image)
+            enhanced = enhancer.enhance(factor)
+            
+            if output_path:
+                enhanced.save(output_path, quality=95)
+                return output_path
+            return None
+        except Exception as e:
+            print(f"Error adjusting {property_type}: {e}")
+            return None
     
     @staticmethod
     def adjust_brightness(
@@ -38,18 +89,7 @@ class PictureEnhancer:
         Returns:
             Path to saved image or None if failed
         """
-        try:
-            image = Image.open(image_path)
-            enhancer = ImageEnhance.Brightness(image)
-            enhanced = enhancer.enhance(factor)
-            
-            if output_path:
-                enhanced.save(output_path)
-                return output_path
-            return None
-        except Exception as e:
-            print(f"Error adjusting brightness: {e}")
-            return None
+        return PictureEnhancer.adjust_property(image_path, 'brightness', factor, output_path)
     
     @staticmethod
     def adjust_contrast(
@@ -68,18 +108,7 @@ class PictureEnhancer:
         Returns:
             Path to saved image or None if failed
         """
-        try:
-            image = Image.open(image_path)
-            enhancer = ImageEnhance.Contrast(image)
-            enhanced = enhancer.enhance(factor)
-            
-            if output_path:
-                enhanced.save(output_path)
-                return output_path
-            return None
-        except Exception as e:
-            print(f"Error adjusting contrast: {e}")
-            return None
+        return PictureEnhancer.adjust_property(image_path, 'contrast', factor, output_path)
     
     @staticmethod
     def adjust_saturation(
@@ -98,18 +127,7 @@ class PictureEnhancer:
         Returns:
             Path to saved image or None if failed
         """
-        try:
-            image = Image.open(image_path)
-            enhancer = ImageEnhance.Color(image)
-            enhanced = enhancer.enhance(factor)
-            
-            if output_path:
-                enhanced.save(output_path)
-                return output_path
-            return None
-        except Exception as e:
-            print(f"Error adjusting saturation: {e}")
-            return None
+        return PictureEnhancer.adjust_property(image_path, 'saturation', factor, output_path)
     
     @staticmethod
     def adjust_sharpness(
@@ -128,18 +146,7 @@ class PictureEnhancer:
         Returns:
             Path to saved image or None if failed
         """
-        try:
-            image = Image.open(image_path)
-            enhancer = ImageEnhance.Sharpness(image)
-            enhanced = enhancer.enhance(factor)
-            
-            if output_path:
-                enhanced.save(output_path)
-                return output_path
-            return None
-        except Exception as e:
-            print(f"Error adjusting sharpness: {e}")
-            return None
+        return PictureEnhancer.adjust_property(image_path, 'sharpness', factor, output_path)
     
     @staticmethod
     def resize_image(
@@ -678,275 +685,6 @@ class SmartEnhancer:
             return None
 
 
-# Future enhancement placeholders
-def upscale_image(image_path: str, scale: int = 2) -> Optional[str]:
-    """
-    Upscale image using AI (requires external service)
-    TODO: Implement with upscaling service (e.g., Real-ESRGAN)
-    """
-    pass
-
-
-def remove_noise(image_path: str) -> Optional[str]:
-    """
-    Remove noise from image
-    TODO: Implement noise reduction algorithm
-    """
-    pass
-
-
-def auto_color_correction(image_path: str) -> Optional[str]:
-    """
-    Automatically correct image colors
-    TODO: Implement color correction algorithm
-    """
-    pass
-
-
-# ============================================================================
-# ADVANCED ENHANCEMENT METHODS
-# ============================================================================
-
-def apply_unsharp_mask(
-    image_path: str,
-    radius: float = 1.5,
-    percent: float = 80,
-    threshold: int = 0,
-    output_path: Optional[str] = None
-) -> Optional[str]:
-    """
-    Apply unsharp mask for local contrast enhancement and sharpening
-    
-    Args:
-        image_path: Path to source image
-        radius: Radius of the unsharp mask (1.0-3.0 typical)
-        percent: Strength of the effect as percentage (50-150 typical)
-        threshold: Threshold for edge detection (0-10 typical)
-        output_path: Path to save enhanced image
-        
-    Returns:
-        Path to saved image or None if failed
-    """
-    try:
-        image = Image.open(image_path)
-        
-        # Apply unsharp mask
-        enhanced = image.filter(
-            ImageFilter.UnsharpMask(
-                radius=radius,
-                percent=percent,
-                threshold=threshold
-            )
-        )
-        
-        if output_path:
-            enhanced.save(output_path, quality=95)
-            return output_path
-        return None
-    except Exception as e:
-        print(f"Error applying unsharp mask: {e}")
-        return None
-
-
-def adjust_color_temperature(
-    image_path: str,
-    kelvin: float = 6500,
-    output_path: Optional[str] = None
-) -> Optional[str]:
-    """
-    Adjust image color temperature (warm/cool)
-    
-    Args:
-        image_path: Path to source image
-        kelvin: Target color temperature (1500=warm/candle, 6500=neutral/daylight, 10000=cool/sky)
-        output_path: Path to save enhanced image
-        
-    Returns:
-        Path to saved image or None if failed
-    """
-    try:
-        image = Image.open(image_path)
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-        
-        # Convert to float for calculations
-        img_array = Image.new('RGB', image.size)
-        pixels = image.load()
-        new_pixels = img_array.load()
-        
-        # Standard daylight temperature
-        standard_temp = 6500.0
-        ratio = kelvin / standard_temp
-        
-        width, height = image.size
-        for y in range(height):
-            for x in range(width):
-                r, g, b = pixels[x, y][:3]
-                
-                # Adjust red channel
-                r = int(min(255, r * ratio))
-                # Blue channel (inverse)
-                b = int(min(255, b / ratio))
-                # Green stays mostly the same
-                
-                new_pixels[x, y] = (r, g, b)
-        
-        if output_path:
-            img_array.save(output_path, quality=95)
-            return output_path
-        return None
-    except Exception as e:
-        print(f"Error adjusting color temperature: {e}")
-        return None
-
-
-def adjust_shadows_highlights(
-    image_path: str,
-    shadow_adjust: float = 0.0,  # -100 to +100
-    highlight_adjust: float = 0.0,  # -100 to +100
-    output_path: Optional[str] = None
-) -> Optional[str]:
-    """
-    Adjust shadow and highlight details separately
-    
-    Args:
-        image_path: Path to source image
-        shadow_adjust: Shadow adjustment (-100 = darken, +100 = brighten)
-        highlight_adjust: Highlight adjustment (-100 = darken, +100 = brighten)
-        output_path: Path to save enhanced image
-        
-    Returns:
-        Path to saved image or None if failed
-    """
-    try:
-        image = Image.open(image_path)
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-        
-        img_array = Image.new('RGB', image.size)
-        pixels = image.load()
-        new_pixels = img_array.load()
-        
-        width, height = image.size
-        for y in range(height):
-            for x in range(width):
-                r, g, b = pixels[x, y][:3]
-                
-                # Calculate luminance
-                luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
-                
-                # Apply shadow adjustment (dark areas)
-                if luminance < 0.5:
-                    factor = 1.0 + (shadow_adjust / 100.0)
-                    r = int(min(255, max(0, r * factor)))
-                    g = int(min(255, max(0, g * factor)))
-                    b = int(min(255, max(0, b * factor)))
-                
-                # Apply highlight adjustment (bright areas)
-                if luminance > 0.5:
-                    factor = 1.0 + (highlight_adjust / 100.0)
-                    r = int(min(255, max(0, r * factor)))
-                    g = int(min(255, max(0, g * factor)))
-                    b = int(min(255, max(0, b * factor)))
-                
-                new_pixels[x, y] = (r, g, b)
-        
-        if output_path:
-            img_array.save(output_path, quality=95)
-            return output_path
-        return None
-    except Exception as e:
-        print(f"Error adjusting shadows/highlights: {e}")
-        return None
-
-
-def apply_clarity_filter(
-    image_path: str,
-    strength: float = 20.0,  # 0-100
-    output_path: Optional[str] = None
-) -> Optional[str]:
-    """
-    Apply clarity filter for mid-tone contrast enhancement
-    
-    Args:
-        image_path: Path to source image
-        strength: Clarity strength (0-100, typically 20-40)
-        output_path: Path to save enhanced image
-        
-    Returns:
-        Path to saved image or None if failed
-    """
-    try:
-        image = Image.open(image_path)
-        
-        # Use unsharp mask with specific parameters for clarity
-        factor = 1.0 + (strength / 100.0)
-        enhanced = image.filter(
-            ImageFilter.UnsharpMask(
-                radius=2.0,
-                percent=int(factor * 100),
-                threshold=3
-            )
-        )
-        
-        if output_path:
-            enhanced.save(output_path, quality=95)
-            return output_path
-        return None
-    except Exception as e:
-        print(f"Error applying clarity filter: {e}")
-        return None
-
-
-def adjust_vibrance(
-    image_path: str,
-    factor: float = 1.0,  # 1.0 = original, <1.0 = less vibrant, >1.0 = more vibrant
-    output_path: Optional[str] = None
-) -> Optional[str]:
-    """
-    Adjust vibrance (selective saturation boost of less saturated colors)
-    
-    Args:
-        image_path: Path to source image
-        factor: Vibrance factor (0.5 = half, 1.0 = original, 1.5 = 50% more vibrant)
-        output_path: Path to save enhanced image
-        
-    Returns:
-        Path to saved image or None if failed
-    """
-    try:
-        image = Image.open(image_path)
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-        
-        # Convert to HSV for vibrance adjustment
-        from PIL import ImageOps
-        import colorsys
-        
-        img_array = Image.new('RGB', image.size)
-        pixels = image.load()
-        new_pixels = img_array.load()
-        
-        width, height = image.size
-        for y in range(height):
-            for x in range(width):
-                r, g, b = [c/255.0 for c in pixels[x, y][:3]]
-                h, s, v = colorsys.rgb_to_hsv(r, g, b)
-                
-                # Boost saturation selectively (less effect on already saturated colors)
-                s = s * factor
-                s = min(1.0, s)
-                
-                r, g, b = colorsys.hsv_to_rgb(h, s, v)
-                r, g, b = [int(c * 255) for c in (r, g, b)]
-                
-                new_pixels[x, y] = (r, g, b)
-        
-        if output_path:
-            img_array.save(output_path, quality=95)
-            return output_path
-        return None
-    except Exception as e:
-        print(f"Error adjusting vibrance: {e}")
-        return None
+# Advanced filters are now in enhancement_filters module
+# They are already imported at the top of this file
 

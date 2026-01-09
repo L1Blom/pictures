@@ -7,7 +7,8 @@ from typing import Dict, Any
 import io
 from PIL import Image
 from PIL.Image import Image as PILImage
-from config import EXIF_TAG_MAPPING, METADATA_LANGUAGE
+from config import METADATA_LANGUAGE
+from metadata_config import EXIF_TAG_MAPPING
 
 
 class EXIFHandler:

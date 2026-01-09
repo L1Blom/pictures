@@ -46,6 +46,10 @@ venv.bak/
 # Pictures and output
 pictures/
 output/
+output*/
+output_*/
+test_*/
+tmp/
 *.jpg
 *.jpeg
 

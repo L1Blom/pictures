@@ -135,9 +135,6 @@ class ReportGenerator:
         # Sort analyses by name
         analyses = sorted(analyses, key=lambda x: x['name'])
         
-        # Embed analysis metadata into images via XMP
-        self._embed_xmp_metadata(analyses)
-        
         markdown = self._build_markdown(analyses)
         
         # Save if path provided

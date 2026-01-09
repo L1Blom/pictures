@@ -7,9 +7,9 @@ import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 from openai import OpenAI
-from config import OPENAI_API_KEY, OPENAI_MODEL, ANALYSIS_PROMPT, SUPPORTED_FORMATS, OUTPUT_DIR, METADATA_LANGUAGE, GPS_CONFIDENCE_THRESHOLD
-from exif_handler import EXIFHandler
-from xmp_handler import XMPHandler
+from config import OPENAI_API_KEY, OPENAI_MODEL, SUPPORTED_FORMATS, OUTPUT_DIR, METADATA_LANGUAGE, GPS_CONFIDENCE_THRESHOLD
+from prompts import ANALYSIS_PROMPT
+from metadata_manager import MetadataManager
 from geolocation import GeoLocator
 
 # Try to import HEIC support
@@ -24,11 +24,17 @@ except ImportError:
 class PictureAnalyzer:
     """Analyzes pictures using OpenAI Vision API"""
     
-    def __init__(self):
-        """Initialize the analyzer with OpenAI client"""
+    def __init__(self, metadata_manager: Optional[MetadataManager] = None):
+        """
+        Initialize the analyzer with OpenAI client
+        
+        Args:
+            metadata_manager: Optional MetadataManager instance for dependency injection.
+                            If None, creates a new instance with default handlers.
+        """
         self.client = OpenAI(api_key=OPENAI_API_KEY)
         self.model = OPENAI_MODEL
-        self.exif_handler = EXIFHandler()
+        self.metadata_manager = metadata_manager or MetadataManager()
         
         # Create output directory if it doesn't exist
         os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -61,14 +67,14 @@ class PictureAnalyzer:
         
         # Geocode location if confidence is high enough
         if analysis_result.get('location_detection'):
-            coordinates = GeoLocator.geocode_location(
+            coordinates = self.metadata_manager.geocode_location(
                 analysis_result['location_detection'],
                 GPS_CONFIDENCE_THRESHOLD
             )
             if coordinates:
                 analysis_result['gps_coordinates'] = coordinates
                 display_name = coordinates.get('display_name', 'Unknown')
-                print(f"  ✓ GPS coordinates: {GeoLocator.format_gps_string(coordinates)} ({display_name})")
+                print(f"  ✓ GPS coordinates: {self.metadata_manager.format_gps_string(coordinates)} ({display_name})")
         
         return analysis_result
     
@@ -106,20 +112,8 @@ class PictureAnalyzer:
         # Convert HEIC to JPG first if needed
         converted_image_path = self._convert_heic_to_jpg(image_path)
         
-        # Save with EXIF data
-        success = self.exif_handler.write_exif(converted_image_path, output_path, analysis)
-        
-        if success:
-            print(f"✓ Image saved with EXIF data: {output_path}")
-        else:
-            print(f"⚠ Could not embed EXIF, saved without: {output_path}")
-        
-        # Save with XMP metadata (supplementary, for better compatibility)
-        xmp_success = XMPHandler.write_analysis_metadata(Path(output_path), analysis)
-        if xmp_success:
-            print(f"✓ XMP metadata embedded: {output_path}")
-        else:
-            print(f"⚠ Could not embed XMP metadata (non-critical)")
+        # Embed all metadata (EXIF, XMP, GPS)
+        self.metadata_manager.embed_metadata(converted_image_path, output_path, analysis)
         
         # Save JSON analysis
         if save_json:
