@@ -53,11 +53,9 @@ class EXIFHandler:
             # Open the image
             image = Image.open(image_path)
             
-            # Try to read existing EXIF data
-            try:
-                exif_dict = piexif.load(image_path)
-            except:
-                exif_dict = {"0th": {}, "Exif": {}, "GPS": {}}
+            # Try to read existing EXIF data, but start fresh to avoid corruption
+            # We'll only use analysis data, not original EXIF which may be malformed
+            exif_dict = {"0th": {}, "Exif": {}, "GPS": {}}
             
             # Prepare new EXIF data with full analysis as JSON
             exif_dict_new = EXIFHandler._prepare_exif_dict(exif_dict, analysis_data)
@@ -444,7 +442,8 @@ class EXIFHandler:
             306: "DateTime",         # Should be ASCII
         }
         
-        for ifd_name in ["0th", "Exif", "GPS"]:
+        # Handle all possible IFD types in the exif_dict
+        for ifd_name in ["0th", "1st", "Exif", "GPS", "Interop"]:
             if ifd_name not in exif_dict:
                 continue
             
