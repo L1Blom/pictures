@@ -34,5 +34,140 @@
     },
     "query": "Moscow, Moscow, Russia",
     "confidence": 85
+  },
+  "Rotterdam, Zuid-Holland, Netherlands": {
+    "coordinates": {
+      "latitude": 51.9244424,
+      "longitude": 4.47775,
+      "display_name": "Rotterdam, Zuid-Holland, Nederland"
+    },
+    "query": "Rotterdam, Zuid-Holland, Netherlands",
+    "confidence": 85
+  },
+  "Volgograd, Moskou, Russia": {
+    "coordinates": {
+      "latitude": 55.8635122,
+      "longitude": 37.4295365,
+      "display_name": "\u0428\u043a\u043e\u043b\u0430 \u2116 883 \u043a\u043e\u0440\u043f\u0443\u0441 \u00ab\u0412\u043e\u043b\u0433\u043e\u0433\u0440\u0430\u0434\u00bb, \u0443\u043b\u0438\u0446\u0430 \u0412\u0438\u043b\u0438\u0441\u0430 \u041b\u0430\u0446\u0438\u0441\u0430, \u0410\u043b\u0451\u0448\u043a\u0438\u043d\u043e, \u0440\u0430\u0439\u043e\u043d \u0421\u0435\u0432\u0435\u0440\u043d\u043e\u0435 \u0422\u0443\u0448\u0438\u043d\u043e, \u041c\u043e\u0441\u043a\u0432\u0430, \u0426\u0435\u043d\u0442\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u0444\u0435\u0434\u0435\u0440\u0430\u043b\u044c\u043d\u044b\u0439 \u043e\u043a\u0440\u0443\u0433, 125480, \u0420\u043e\u0441\u0441\u0438\u044f"
+    },
+    "query": "Volgograd, Moskou, Russia",
+    "confidence": 85
+  },
+  "Treptow, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.417893,
+      "longitude": 13.6001848,
+      "display_name": "Treptow-K\u00f6penick, Berlin, Deutschland"
+    },
+    "query": "Treptow, Berlijn, Duitsland",
+    "confidence": 80
+  },
+  "Berlin-Mitte, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5332165,
+      "longitude": 13.3597957,
+      "display_name": "Berlin-Mitte, Berlin, Deutschland"
+    },
+    "query": "Berlin-Mitte, Berlijn, Duitsland",
+    "confidence": 90
+  },
+  "Berlin, Berlin, Germany": {
+    "coordinates": {
+      "latitude": 52.503379,
+      "longitude": 13.3386522,
+      "display_name": "Berlin, Tauentzienstra\u00dfe, City West, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10789, Deutschland"
+    },
+    "query": "Berlin, Berlin, Germany",
+    "confidence": 90
+  },
+  "Berlijn, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5096672,
+      "longitude": 13.327792,
+      "display_name": "Universit\u00e4t der K\u00fcnste Berlin, Kurf\u00fcrstendamm, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10719, Deutschland"
+    },
+    "query": "Berlijn, Berlijn, Duitsland",
+    "confidence": 90
+  },
+  "Centraal Berlijn, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5249451,
+      "longitude": 13.3696614,
+      "display_name": "Berlin Hauptbahnhof, 1, Europaplatz, Europacity, Moabit, Mitte, Berlin, 10557, Deutschland"
+    },
+    "query": "Centraal Berlijn, Berlijn, Duitsland",
+    "confidence": 85
+  },
+  "Charlottenburg, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5050484,
+      "longitude": 13.3045162,
+      "display_name": "Charlottenburg, Stuttgarter Platz, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10627, Deutschland"
+    },
+    "query": "Charlottenburg, Berlijn, Duitsland",
+    "confidence": 95
+  },
+  "Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5173885,
+      "longitude": 13.3951309,
+      "display_name": "Berlin, Deutschland"
+    },
+    "query": "Berlijn, Duitsland",
+    "confidence": 85
+  },
+  "Mitte, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5178855,
+      "longitude": 13.4040601,
+      "display_name": "Mitte, Berlin, Deutschland"
+    },
+    "query": "Mitte, Berlijn, Duitsland",
+    "confidence": 90
+  },
+  "M\u00fcnchen, Beieren, Duitsland": {
+    "coordinates": {
+      "latitude": 48.1371079,
+      "longitude": 11.5753822,
+      "display_name": "M\u00fcnchen, Bayern, Deutschland"
+    },
+    "query": "M\u00fcnchen, Beieren, Duitsland",
+    "confidence": 85
+  },
+  "Mitte, Berlijn, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5178855,
+      "longitude": 13.4040601,
+      "display_name": "Mitte, Berlin, Deutschland"
+    },
+    "query": "Mitte, Berlijn, Berlijn, Duitsland",
+    "confidence": 100
+  },
+  "Tiergarten, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5097776,
+      "longitude": 13.3572597,
+      "display_name": "Tiergarten, Mitte, Berlin, Deutschland"
+    },
+    "query": "Tiergarten, Berlijn, Duitsland",
+    "confidence": 85
+  },
+  "Pl\u00f6tzensee, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5442537,
+      "longitude": 13.3299692,
+      "display_name": "Pl\u00f6tzensee, Wedding, Mitte, Berlin, 13351, Deutschland"
+    },
+    "query": "Pl\u00f6tzensee, Berlijn, Duitsland",
+    "confidence": 90
+  },
+  "Checkpoint Charlie, Berlijn, Duitsland": {
+    "coordinates": {
+      "latitude": 52.5074321,
+      "longitude": 13.3903814,
+      "display_name": "Checkpoint Charlie, 43-45, Friedrichstra\u00dfe, Zeitungsviertel, Kreuzberg, Friedrichshain-Kreuzberg, Berlin, 10969, Deutschland"
+    },
+    "query": "Checkpoint Charlie, Berlijn, Duitsland",
+    "confidence": 85
   }
 }

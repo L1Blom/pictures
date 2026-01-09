@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "objects": "Berlijnse Muur met graffiti, prikkeldraad, verkeerslichten, bomen, gebouwen op achtergrond, bewolking in de lucht",
+    "persons": "Er zijn geen mensen zichtbaar in de afbeelding.",
+    "weather": "De lucht is overwegend wolkig.",
+    "mood_atmosphere": "De sfeer is somber en historisch geladen.",
+    "time_of_day": "Dag, waarschijnlijk middag gezien de verlichting en de schaduw.",
+    "season_date": "Het seizoen lijkt herfst of lente te zijn gezien de bewolkte lucht en de gedeeltelijk blote bomen.",
+    "scene_type": "Historisch, architectuur, stadslandschap",
+    "location_setting": "Buiten, stedelijk, specifiek een historisch en politiek betekenisvolle locatie.",
+    "activity_action": "Er is geen zichtbare activiteit behalve het bestaan van de Berlijnse Muur met graffiti.",
+    "photography_style": "Documentaire, geschiedenis",
+    "composition_quality": "Goed, met een sterke horizontale lijn gecre\u00eberd door de muur, gecomplementeerd door de lijn van het prikkeldraad en de bomen."
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "Centraal Berlijn",
+    "location_type": "urban",
+    "confidence": 80,
+    "reasoning": "De Berlijnse Muur, specifieke architectuur en Duitse teksten op graffiti geven een sterke aanwijzing van de locatie in Berlijn, Duitsland."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "underexposed",
+      "estimated_EV_adjustment": "+1.0",
+      "shadow_detail": "crushed",
+      "specific_recommendation": "increase brightness by 20-25%"
+    },
+    "color_analysis": {
+      "dominant_colors": "blue, gray",
+      "color_temperature": "cool (6000K)",
+      "detected_color_casts": "slight cool",
+      "saturation_level": "desaturated (recommend +30%)",
+      "specific_correction": "shift color temperature to 5500K warmer, boost saturation by 30%"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "soft",
+      "specific_areas_with_blur": "graffiti details slightly soft",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "apply unsharp mask (radius=1.0, amount=50%)",
+      "specific_recommendation": "increase sharpness by 20%"
+    },
+    "contrast_level": {
+      "current_contrast_level": "low",
+      "recommended_adjustment": "increase contrast by 15%",
+      "shadow_midtone_highlight_adjustments": "brighten shadows by 10%"
+    },
+    "composition_issues": {
+      "visible_defects": "some film age marks and scratches",
+      "vignetting": "none",
+      "chromatic_aberration": "none",
+      "straightness": "perfectly level",
+      "specific_fixes_needed": "remove visible age marks and minor scratches"
+    },
+    "recommended_enhancements": [
+      {
+        "action": "BRIGHTNESS",
+        "specific_parameter": "increase by 25%"
+      },
+      {
+        "action": "CONTRAST",
+        "specific_parameter": "boost by 20%"
+      },
+      {
+        "action": "SATURATION",
+        "specific_parameter": "increase by 30%"
+      },
+      {
+        "action": "COLOR_TEMPERATURE",
+        "specific_parameter": "warm by 500K"
+      },
+      {
+        "action": "SHARPNESS",
+        "specific_parameter": "increase by 20%"
+      },
+      {
+        "action": "NOISE_REDUCTION",
+        "specific_parameter": "apply minimal filter"
+      },
+      {
+        "action": "UNSHARP_MASK",
+        "specific_parameter": "radius=1.0px, strength=50%, threshold=1"
+      },
+      {
+        "action": "SHADOWS",
+        "specific_parameter": "brighten by 10%"
+      },
+      {
+        "action": "HIGHLIGHTS",
+        "specific_parameter": "reduce by 5%"
+      },
+      {
+        "action": "CLARITY",
+        "specific_parameter": "boost by 15%"
+      },
+      {
+        "action": "VIBRANCE",
+        "specific_parameter": "increase by 25%"
+      }
+    ],
+    "overall_priority": "First, increase overall brightness and color temperature adjustment as the image is cool and underexposed."
+  },
+  "slide_profiles": [],
+  "gps_coordinates": {
+    "latitude": 52.5249451,
+    "longitude": 13.3696614,
+    "display_name": "Berlin Hauptbahnhof, 1, Europaplatz, Europacity, Moabit, Mitte, Berlin, 10557, Deutschland"
+  }
+}

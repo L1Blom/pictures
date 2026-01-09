@@ -341,6 +341,15 @@ class PictureAnalyzer:
                     # Ensure location_detection exists (defaults to empty dict)
                     if 'location_detection' not in analysis:
                         analysis['location_detection'] = {}
+                    # Ensure enhancement is a dict
+                    if 'enhancement' not in analysis or not isinstance(analysis['enhancement'], dict):
+                        analysis['enhancement'] = {
+                            'raw_response': str(analysis.get('enhancement', '')),
+                            'recommended_enhancements': []
+                        }
+                    # Ensure metadata is a dict
+                    if 'metadata' not in analysis or not isinstance(analysis['metadata'], dict):
+                        analysis['metadata'] = {}
                     return analysis
                 else:
                     # Backward compatibility: wrap old format response

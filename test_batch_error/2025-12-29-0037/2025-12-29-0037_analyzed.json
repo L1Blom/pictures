@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "objects": "Graffiti op een betonnen muur met verschillende lagen tekst en tekeningen, inclusief rood, wit en groene inkt",
+    "persons": "Er zijn geen personen zichtbaar in de afbeelding",
+    "weather": "Het weer is niet direct zichtbaar; er zijn geen hemel of natuurlijke lichtelementen aanwezig",
+    "mood_atmosphere": "De atmosfeer voelt rebels en chaotisch door de vele overlappende graffiti en intense kleurgebruik",
+    "time_of_day": "Tijd van de dag is niet vast te stellen door afwezigheid van natuurlijk licht",
+    "season_date": "Het seizoen of datum kan niet bepaald worden door gebrek aan natuurlijke omgevingselementen",
+    "scene_type": "Straatkunst, urban scene",
+    "location_setting": "Buiten, op een betonnen muur in een stedelijke omgeving",
+    "activity_action": "Hoofdactiviteit is graffiti die vari\u00ebrend van politieke statements tot artistieke expressies die door verschillende personen zijn aangebracht",
+    "photography_style": "Documentaire, straatfotografie",
+    "composition_quality": "Goed, het gebruik van verschillende lettertypen, kleuren en stijlen voegt een dynamische en complexe laag toe aan de afbeelding"
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "In de buurt van de Berlijnse Muur",
+    "location_type": "urban",
+    "confidence": 85,
+    "reasoning": "De aanwezigheid van Duitse woorden en de typische graffiti-stijl die geassocieerd wordt met Berlijnse Muur machtigt de indicatie"
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "properly exposed",
+      "specific_measurements": "brightness adjustment recommended +0.1",
+      "shadow_detail": "normal"
+    },
+    "color_analysis": {
+      "dominant_colors": "Red, white, black",
+      "color_temperature": "5500 K - neutral",
+      "detected_color_casts": "none",
+      "saturation": "normal"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "no significant blur noted",
+      "noise": "minimal",
+      "clarity_recommendation": "apply unsharp mask (radius=0.5, amount=50%)"
+    },
+    "contrast_level": {
+      "current_contrast_level": "normal",
+      "recommended_adjustment": "increase contrast by 10%"
+    },
+    "composition_issues": {
+      "visible_defects": "none detected",
+      "vignetting": "none",
+      "chromatic_aberration": "none",
+      "straightness": "perfectly level"
+    },
+    "recommended_enhancements": [
+      {
+        "action": "CONTRAST: boost by 10%"
+      },
+      {
+        "action": "CLARITY: boost local by 20%"
+      },
+      {
+        "action": "COLOR_TEMPERATURE: keep neutral"
+      }
+    ],
+    "overall_priority": "Boosting contrast could enhance differentiation between the colorful graffiti"
+  },
+  "slide_profiles": [],
+  "gps_coordinates": {
+    "latitude": 52.5173885,
+    "longitude": 13.3951309,
+    "display_name": "Berlin, Deutschland"
+  }
+}

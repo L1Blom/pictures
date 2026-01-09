@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "objects": "Een muur bedekt met graffiti, verscheidene bomen en struiken, een pad, duidelijk een Duitse vlag in de verte op een gebouw.",
+    "persons": "Er zijn geen personen zichtbaar in de afbeelding.",
+    "weather": "Licht bewolkt",
+    "mood_atmosphere": "Een sfeer van verlatenheid en verandering, mogelijk historisch of symbolisch van aard.",
+    "time_of_day": "Middag",
+    "season_date": "Herfst, gezien de bladeren en algemene natuurlijke tinten.",
+    "scene_type": "Landschap",
+    "location_setting": "Buitenshuis, lijkt op een stedelijke omgeving gezien de graffiti en georganiseerde structuur. Historische context vermoedelijk in Europa.",
+    "activity_action": "Geen specifieke activiteit waarneembaar.",
+    "photography_style": "Documentairefotografie",
+    "composition_quality": "Goed, met een sterke leidende lijn gevormd door het pad en een interessante visuele textuur door de graffiti."
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "Berlijn",
+    "location_type": "urban",
+    "confidence": 85,
+    "reasoning": "De Duitse vlag en de specifieke stijl van graffiti suggereren de Berlijnse Muur, bekend om zijn historische en culturele significantie."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "properly exposed",
+      "specific_measurements": "estimated EV adjustment needed 0.0",
+      "shadow_detail": "normal",
+      "specific_recommendation": "increase brightness by 10%"
+    },
+    "color_analysis": {
+      "dominant_colors": "Red, grey, and natural green",
+      "color_temperature": "6500K",
+      "detected_color_casts": "slight warm",
+      "saturation_level": "normal",
+      "specific_correction": "shift color temperature 200K cooler"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "soft",
+      "specific_areas_with_blur": "none",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "apply unsharp mask (radius=1.0, amount=80%)",
+      "specific_recommendation": "increase sharpness by 20%"
+    },
+    "contrast_level": {
+      "current_contrast_level": "low",
+      "recommended_adjustment": "increase contrast by 15%",
+      "shadow_midtone_highlight_adjustments": "brighten shadows by 10%",
+      "local_contrast_enhancement": "boost clarity by 20%"
+    },
+    "composition_issues": {
+      "visible_defects": "none",
+      "vignetting": "none",
+      "chromatic_aberration": "none",
+      "straightness": "perfectly level",
+      "specific_fixes_needed": "none"
+    },
+    "recommended_enhancements": [
+      "BRIGHTNESS: increase by 10%",
+      "CONTRAST: boost by 15%",
+      "SHARPNESS: increase by 20%",
+      "COLOR_TEMPERATURE: cool by 200K",
+      "SHADOWS: brighten by 10%",
+      "CLARITY: boost by 20%"
+    ],
+    "overall_priority": "Increasing the contrast is the most critical to enhance definition and detail, which will improve the overall image significantly."
+  },
+  "slide_profiles": [],
+  "gps_coordinates": {
+    "latitude": 52.5096672,
+    "longitude": 13.327792,
+    "display_name": "Universit\u00e4t der K\u00fcnste Berlin, Kurf\u00fcrstendamm, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10719, Deutschland"
+  }
+}

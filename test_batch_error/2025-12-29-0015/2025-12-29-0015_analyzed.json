@@ -1,0 +1,75 @@
+{
+  "metadata": {
+    "objects": "Televisietoren, takken en bladeren van bomen rond de onderkant van de afbeelding",
+    "persons": "Er zijn geen personen zichtbaar in de afbeelding",
+    "weather": "Zonnig",
+    "mood_atmosphere": "De afbeelding komt rustig en helder over, met een focus op technologische prestatie",
+    "time_of_day": "Dag, mogelijk in de late ochtend of vroege middag door de scherpe schaduwen en heldere licht",
+    "season_date": "Het lijkt zomer of late lente, gezien het lichte en groene gebladerte",
+    "scene_type": "Architectuur",
+    "location_setting": "Buiten, lijkt op een stedelijke omgeving gezien de hoogte van de structuur en de helderheid van de omgeving",
+    "activity_action": "Geen specifieke activiteit, de focus ligt op de architectuur",
+    "photography_style": "Architectuurfotografie",
+    "composition_quality": "Goed, met gebruik van symmetrie en de regel van derden door de plaatsing van de toren"
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "Berlijn",
+    "location_type": "urban",
+    "confidence": 90,
+    "reasoning": "De afgebeelde structuur is de Fernsehturm in Berlijn, een zeer herkenbaar architectonisch kenmerk van de stad."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "properly exposed",
+      "specific_measurements": "no adjustment needed",
+      "shadow_detail": "normal",
+      "specific_recommendation": "none"
+    },
+    "color_analysis": {
+      "dominant_colors": "Blue maybe dominant in the sky and gray on the structure",
+      "color_temperature": "6500K",
+      "detected_color_casts": "none",
+      "saturation_level": "normal",
+      "specific_correction": "none"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "lower right corner is a bit softer due to distance blurring",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "apply unsharp mask (radius=1.0, amount=50%)",
+      "specific_recommendation": "increase sharpness by 15%"
+    },
+    "contrast_level": {
+      "current_contrast_level": "normal",
+      "recommended_adjustment": "none",
+      "shadow_midtone_highlight_adjustments": "none",
+      "local_contrast_enhancement": "none"
+    },
+    "composition_issues": {
+      "visible_defects": "none",
+      "vignetting": "none",
+      "chromatic_aberration": "none",
+      "straightness": "perfectly level",
+      "specific_fixes_needed": "none"
+    },
+    "recommended_enhancements": [
+      {
+        "action": "SHARPNESS",
+        "parameters": "increase by 15%"
+      }
+    ],
+    "overall_priority": {
+      "most_critical_issue": "sharpness",
+      "estimated_improvement": "10%",
+      "preservation_notes": "Keep the color balance and exposure as is to maintain the image's natural look"
+    }
+  },
+  "slide_profiles": [],
+  "gps_coordinates": {
+    "latitude": 52.5096672,
+    "longitude": 13.327792,
+    "display_name": "Universit\u00e4t der K\u00fcnste Berlin, Kurf\u00fcrstendamm, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10719, Deutschland"
+  }
+}

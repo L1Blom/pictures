@@ -264,6 +264,11 @@ class SmartEnhancer:
             Path to saved image or None if failed
         """
         try:
+            # Validate enhancement_data is a dict
+            if not isinstance(enhancement_data, dict):
+                print(f"No valid enhancement data provided (got {type(enhancement_data).__name__})")
+                return None
+            
             # Start with the original image
             current_image_path = image_path
             

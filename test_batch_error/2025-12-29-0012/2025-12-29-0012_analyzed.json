@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "objects": "Op de voorgrond een gedeelte van een gebouw met de tekst 'SPRE...NHAUS', een antenne bovenop het gebouw. Een grote toren, bekend als de televisietoren, domineert de afbeelding met een kenmerkende bolvormige structuur en een lange antennemast op de top. Er zijn ook enkele wolken zichtbaar in een overwegend blauwe lucht en een paar straatlampen aan de randen van de foto.",
+    "persons": "Er zijn geen personen zichtbaar in deze afbeelding.",
+    "weather": "Het weer lijkt zonnig met helder blauwe lucht en enkele kleine wolken.",
+    "mood_atmosphere": "De sfeer van de foto is rustig en vredig door de heldere hemel en het statige beeld van de toren.",
+    "time_of_day": "De schaduwen en het licht suggereren dat het vroeg in de middag is.",
+    "season_date": "Het lijkt lente of zomer, gezien de helderheid van de lucht en het gebrek aan bladeren aan de bomen.",
+    "scene_type": "architectuur, stadslandschap",
+    "location_setting": "De foto is buiten gemaakt, in een stedelijke omgeving, kenmerkend door de grote gebouwen en de toren.",
+    "activity_action": "Er is geen specifieke activiteit of actie zichtbaar; de afbeelding documenteert een landschap en architectuur.",
+    "photography_style": "architectuurfotografie, documentair",
+    "composition_quality": "Goede compositie. Belangrijke elementen zoals de televisietoren en het gebouw zijn goed binnen het frame geplaatst. Er zijn sterke leidende lijnen die de ogen naar de toren leiden, die centraal geplaatst is, en dit draagt bij aan een evenwichtige samenstelling."
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "Berlijn",
+    "location_type": "urban",
+    "confidence": 90,
+    "reasoning": "De televisietoren bekend als Fernsehturm bevindt zich in Berlijn. De bouwstijl en kenmerken zoals de bolvormige structuur op een lange pilaar zijn zeer karakteristiek en duidelijk herkenbaar."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "underexposed",
+      "specific_measurements": "-0.5 EV adjustment needed",
+      "shadow_detail": "crushed",
+      "specific_recommendation": "increase brightness by 20%, enhance shadow details"
+    },
+    "color_analysis": {
+      "dominant_colors": "blue, brown, grey",
+      "color_temperature": "cool (6500K)",
+      "detected_color_cast": "none",
+      "saturation_level": "desaturated (recommend +30%)",
+      "specific_correction": "Boost saturation in the blue of the sky and the overall image by 30%"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "lower part of the image around the building",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "apply unsharp mask (radius=1.0, amount=50%)",
+      "specific_recommendation": "increase sharpness by 20%"
+    },
+    "contrast_level": {
+      "current_contrast_level": "low",
+      "recommended_adjustment": "increase contrast by 15%",
+      "shadow_midtone_highlight_adjustments": "brighten shadows by 10%, boost midtones by 5%",
+      "local_contrast_enhancement": "apply clarity boost by 10%"
+    },
+    "composition_issues": {
+      "visible_defects": "none",
+      "vignetting": "slight",
+      "chromatic_aberration": "none",
+      "straightness": "slightly tilted",
+      "specific_fixes_needed": "correct 1-degree tilt"
+    },
+    "recommended_enhancements": [
+      "BRIGHTNESS: increase by 20%",
+      "CONTRAST: boost by 15%",
+      "SATURATION: increase by 30%",
+      "COLOR_TEMPERATURE: adjust to be slightly warmer (6000K)",
+      "SHARPNESS: increase by 20%",
+      "SHADOWS: brighten by 10%",
+      "MIDTONES: boost by 5%",
+      "CLARITY: boost by 10%",
+      "STRAIGHTEN: correct 1-degree tilt"
+    ],
+    "overall_priority": "Increasing brightness and adjusting shadows are most critical. Estimated overall improvement with all enhancements: 30%. Preservation: Maintain overall cool tone to preserve mood."
+  },
+  "slide_profiles": [],
+  "gps_coordinates": {
+    "latitude": 52.5096672,
+    "longitude": 13.327792,
+    "display_name": "Universit\u00e4t der K\u00fcnste Berlin, Kurf\u00fcrstendamm, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10719, Deutschland"
+  }
+}

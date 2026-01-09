@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "objects": "Grote machines, veiligheidsrails, verschillende verlichtingsunits, verdiepingen met uitzicht op de centrale machinekamer, lichte bewegingsonscherpte van een persoon",
+    "persons": "Een persoon zichtbaar, maar bewogen en daardoor onscherp, geschatte leeftijd of andere details zijn niet zichtbaar",
+    "weather": "De afbeelding toont een interieursc\u00e8ne, dus er zijn geen directe weersomstandigheden waarneembaar",
+    "mood_atmosphere": "Industrieel, functioneel, ietwat mysterieus vanwege de bewegingsonscherpte en verlichting",
+    "time_of_day": "Niet specifiek vast te stellen vanwege het binnenkader maar verlichting suggereert avond of nacht",
+    "season_date": "Niet vast te stellen vanwege het binnenperspectief",
+    "scene_type": "Industrieel, mogelijk technische of energiefaciliteit",
+    "location_setting": "Binnen, industrieel complex, waarschijnlijk een energiecentrale of technische ruimte",
+    "activity_action": "Onbekende activiteit vanwege onscherpe beweging van de persoon",
+    "photography_style": "Documentair, industri\u00eble fotografie",
+    "composition_quality": "Fair, interessante industri\u00eble elementen maar gehinderd door bewegingsonscherpte"
+  },
+  "location_detection": {
+    "country": "onbekend",
+    "region": "onbekend",
+    "city_or_area": "onbekend",
+    "location_type": "industrial",
+    "confidence": 50,
+    "reasoning": "Geen direct herkenbare geografische indicatoren, stijl suggereert een industrieel westerse opzet mogelijk in Europa of Noord-Amerika"
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "properly exposed",
+      "specific_measurements": "estimated EV adjustment needed 0, minor tweaks",
+      "shadow_detail": "crushed",
+      "specific_recommendation": "apply moderate lightening work on shadows (increase brightness by 20%)"
+    },
+    "color_analysis": {
+      "dominant_colors": "blues, grays",
+      "color_temperature": "cool (4000-4500K)",
+      "detected_color_casts": "slight cool",
+      "saturation_level": "normal",
+      "specific_correction": "shift color temperature 200K warmer"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "person in motion - high severity",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "boost local contrast by 20%",
+      "specific_recommendation": "apply unsharp mask (radius=1.0, amount=50%)"
+    },
+    "contrast_level": {
+      "current_contrast_level": "low",
+      "recommended_adjustment": "increase contrast by 15%",
+      "shadow_midtone_highlight_adjustments": "brighten shadows by 15%"
+    },
+    "composition_issues": {
+      "visible_defects": "none detected",
+      "vignetting": "none",
+      "chromatic_aberration": "none",
+      "straightness": "slightly tilted",
+      "specific_fixes_needed": "correct 2-degree tilt"
+    },
+    "recommended_enhancements": [
+      "CONTRAST: boost by 15%",
+      "SHARPNESS: apply unsharp mask (radius=1.0, amount=50%)",
+      "COLOR_TEMPERATURE: warm by 200K",
+      "BRIGHTNESS: increase by 20% on shadows"
+    ],
+    "overall_priority": "Increase contrast and clarity to enhance visibility and overall sharpness"
+  },
+  "slide_profiles": []
+}

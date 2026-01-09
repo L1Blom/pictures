@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "objects": "water, bootrand, golven, wolken, lucht, industriele gebouwen, kranen, bruggen",
+    "persons": "Geen personen zichtbaar",
+    "weather": "Licht bewolkt",
+    "mood_atmosphere": "Rustig, industrieel",
+    "time_of_day": "Middag",
+    "season_date": "Kan lente of herfst zijn, niet specifiek",
+    "scene_type": "Landschapsfotografie",
+    "location_setting": "Buiten, uitzicht op een industri\u00eble haven",
+    "activity_action": "Mogelijk een vaartocht of uitzicht vanaf een schip",
+    "photography_style": "Documentaire, landschap",
+    "composition_quality": "Goed, inclusief elementen zoals leading lines (de kust en golven) en een diepte gecre\u00eberd door de gelaagdheid van water, land en lucht"
+  },
+  "location_detection": {
+    "country": "Unknown",
+    "region": "Unknown",
+    "city_or_area": "Unknown",
+    "location_type": "urban",
+    "confidence": 25,
+    "reasoning": "The presence of industrial facilities and large-scale bridges suggests an urban setting, possibly near a significant body of water or port area; however, specific identifiers like text or unique landmarks are not visible."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "properly exposed",
+      "specific_measurements": "No adjustment needed",
+      "shadow_detail": "normal",
+      "specific_recommendation": "No change necessary"
+    },
+    "color_analysis": {
+      "dominant_colors": "blue, grey",
+      "color_temperature": "Slightly cool (~6500K)",
+      "detected_color_casts": "slight cool",
+      "saturation_level": "normal"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "Distance industrial structures slightly blurred",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "apply unsharp mask (radius=1.5, amount=80%)"
+    },
+    "contrast_level": {
+      "current_contrast_level": "low",
+      "recommended_adjustment": "increase contrast by 25%"
+    },
+    "composition_issues": {
+      "vignetting": "none",
+      "chromatic_aberration": "none",
+      "straightness": "perfectly level",
+      "recommended_fixes": []
+    },
+    "recommended_enhancements": [
+      {
+        "action": "CONTRAST",
+        "parameter": "increase by 25%"
+      },
+      {
+        "action": "SHARPNESS",
+        "parameter": "increase by 30%"
+      },
+      {
+        "action": "UNSHARP_MASK",
+        "parameter": "radius=1.5px, strength=80%, threshold=0"
+      },
+      {
+        "action": "COLOR_TEMPERATURE",
+        "parameter": "cool by 500K"
+      }
+    ],
+    "overall_priority": {
+      "critical_issue": "contrast level",
+      "estimated_improvement": 20,
+      "preservation_notes": "Maintain natural lighting balance to avoid over-manipulation"
+    }
+  },
+  "slide_profiles": []
+}

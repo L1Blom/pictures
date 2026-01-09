@@ -1,0 +1,78 @@
+{
+  "metadata": {
+    "Objects": "Muur met graffiti, gebouwen op de achtergrond, lichtmasten, hekken, vegetatie aan de onderkant van het beeld.",
+    "Persons": "Er zijn geen personen zichtbaar op de afbeelding.",
+    "Weather": "Het lijkt een bewolkte dag te zijn, gezien de overcast hemel.",
+    "Mood_Atmosphere": "De sfeer lijkt somber en historisch beladen, mede door de graffiti en de oude architectuur op de achtergrond.",
+    "Time_of_Day": "Het lijkt middag, aangezien er voldoende licht is maar de zon niet direct zichtbaar is.",
+    "Season_Date": "Moeilijk te bepalen, mogelijk herfst gezien de lichte bewolking en de algehele sfeer.",
+    "Scene_Type": "Stadslandschap, enigszins documentair door de historische context van de muur.",
+    "Location_Setting": "Buiten in een stedelijke omgeving",
+    "Activity_Action": "Geen actieve handeling zichtbaar, de aandacht gaat naar de graffiti en de muur.",
+    "Photography_Style": "Documentairefotografie",
+    "Composition_Quality": "Goed, met sterke leidende lijnen gevormd door de muur en evenwichtige plaatsing van lichtmasten en gebouwen."
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "Berlijn",
+    "location_type": "urban",
+    "confidence": 90,
+    "reasoning": "De aanwezigheid van Duitse tekst op de muur en de architectuurstijl van de gebouwen suggereren Berlijn, een historisch belangrijke locatie gezien de context van de Berlijnse Muur."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "Current_state": "underexposed",
+      "Specific_measurements": "estimated EV adjustment needed +0.5",
+      "Shadow_detail": "crushed",
+      "Specific_recommendation": "increase brightness by 20%, lift shadows by 25%"
+    },
+    "color_analysis": {
+      "Dominant_colors": "blues and greys",
+      "Color_temperature": "cool (7500K)",
+      "Detected_color_casts": "slight cool",
+      "Saturation_level": "desaturated",
+      "Specific_correction": "shift color temperature 500K warmer, increase saturation by 30%"
+    },
+    "sharpness_clarity": {
+      "Overall_sharpness": "slightly soft",
+      "Specific_areas_with_blur": "vegetation at bottom",
+      "Noise_assessment": "minimal",
+      "Clarity_recommendation": "apply unsharp mask (radius=1.5, amount=80%)"
+    },
+    "contrast_level": {
+      "Current_contrast_level": "low",
+      "Recommended_adjustment": "increase contrast by 20%",
+      "Shadow_midtone_highlight_adjustments": "brighten shadows by 12%, boost highlights by 8%",
+      "Local_contrast_enhancement": "clarity boost by 20%"
+    },
+    "composition_issues": {
+      "Visible_defects": "none",
+      "Vignetting": "none",
+      "Chromatic_aberration": "slight",
+      "Straightness": "slightly tilted",
+      "Specific_fixes_needed": "correct 2-degree tilt"
+    },
+    "recommended_enhancements": [
+      "BRIGHTNESS: increase by 20%",
+      "CONTRAST: boost by 20%",
+      "COLOR_TEMPERATURE: warm by 500K",
+      "SATURATION: increase by 30%",
+      "SHARPNESS: increase clarity by 20%",
+      "SHADOWS: brighten by 25%",
+      "HIGHLIGHTS: reduce by 10%",
+      "CLARITY: boost by 20%"
+    ],
+    "overall_priority": {
+      "Most_critical_issue": "Brightness and shadows",
+      "Estimated_improvement_percentage": 80,
+      "Preservation_notes": "Maintain historic elements and mood by not altering graffiti visibility"
+    }
+  },
+  "slide_profiles": [],
+  "gps_coordinates": {
+    "latitude": 52.5096672,
+    "longitude": 13.327792,
+    "display_name": "Universit\u00e4t der K\u00fcnste Berlin, Kurf\u00fcrstendamm, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10719, Deutschland"
+  }
+}

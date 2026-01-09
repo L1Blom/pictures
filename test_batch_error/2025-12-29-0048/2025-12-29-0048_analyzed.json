@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "objects": "Groot monument met centraal standbeeld, omgeven door kolommen met gouden emblemen, rode bloemen, trappen, straatlantaarn",
+    "persons": "Drie personen in militaire kledij staan centraal op het monument",
+    "weather": "Deels bewolkt",
+    "mood_atmosphere": "Ernstig en gedenkwaardig, plechtige sfeer",
+    "time_of_day": "Middag",
+    "season_date": "Kan niet precies bepaald worden door gebrek aan seizoensgebonden kenmerken",
+    "scene_type": "Architectuur, gedenkteken",
+    "location_setting": "Buiten, stedelijke omgeving met een historisch monument",
+    "activity_action": "Gedenken, drie militairen bewaken het monument",
+    "photography_style": "Documentaire, architectuurfotografie",
+    "composition_quality": "Goed, met elementen van symmetrie en een centrale compositie naar het standbeeld"
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "Tiergarten",
+    "location_type": "urban",
+    "confidence": 85,
+    "reasoning": "Het monument lijkt sterk op het Sovjet-Ehrenmal in Tiergarten, Berlijn, herkenbaar aan de architectuurstijl en historische kenmerken."
+  },
+  "enhancement": {
+    "lighting_quality": "properly exposed",
+    "color_analysis": {
+      "dominant_colors": "grays, greens, browns",
+      "color_temperature": "neutral (6500K)",
+      "detected_color_casts": "none",
+      "saturation_level": "normal"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "background foliage",
+      "noise_assessment": "minimal"
+    },
+    "contrast_level": "normal",
+    "composition_issues": {
+      "vignetting": "none",
+      "chromatic_aberration": "slight",
+      "straightness": "slightly tilted"
+    },
+    "recommended_enhancements": [
+      "SHARPNESS: increase by 20%",
+      "CHROMATIC_ABERRATION: correct slight green/magenta fringing",
+      "STRAIGHTEN_IMAGE: correct 2-degree tilt",
+      "CLARITY: boost by 10%"
+    ],
+    "overall_priority": "Enhancing sharpness for better definition of the statue and architectural details."
+  },
+  "slide_profiles": [],
+  "gps_coordinates": {
+    "latitude": 52.5097776,
+    "longitude": 13.3572597,
+    "display_name": "Tiergarten, Mitte, Berlin, Deutschland"
+  }
+}

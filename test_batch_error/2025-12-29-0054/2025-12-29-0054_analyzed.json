@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "objects": "Stadionzitjes, hek, grasveld, atletiekbaan, tribunes, verlichtingstorens, scorebord, podium",
+    "persons": "Er zijn geen personen zichtbaar in de afbeelding",
+    "weather": "Het weer lijkt bewolkt door de zachte, diffuse lichtkwaliteit en de afwezigheid van harde schaduwen",
+    "mood_atmosphere": "De atmosfeer is rustig en verlaten, met een element van nostalgie door het ogenschijnlijk oudere karakter van het stadion",
+    "time_of_day": "Het lijkt late ochtend of middag, gebaseerd op de hoeveelheid natuurlijk licht",
+    "season_date": "Het seizoen is niet direct herkenbaar, maar de groene grasmat suggereert lente of zomer",
+    "scene_type": "Architectuur, landschap",
+    "location_setting": "Buiten, stedelijk, groot sportstadion",
+    "activity_action": "Geen actie, het stadion is verlaten en rustig",
+    "photography_style": "Documentaire, landschapsfotografie",
+    "composition_quality": "Goed, met een sterk gevoel van diepte en balans tussen voorgrond en achtergrond"
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "Berlijn",
+    "location_type": "urban",
+    "confidence": 90,
+    "reasoning": "Het stadion is herkenbaar als het Olympiastadion in Berlijn door de kenmerkende architectuur en de verlichtingstorens."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "slightly underexposed",
+      "specific_measurements": "estimated EV adjustment needed +0.5",
+      "shadow_detail": "crushed",
+      "specific_recommendation": "increase brightness by 15-20%, lift shadows by 10-15%"
+    },
+    "color_analysis": {
+      "dominant_colors": "Greens and grays",
+      "color_temperature": "5500K",
+      "detected_color_casts": "slight cool",
+      "saturation_level": "normal",
+      "specific_correction": "warm color temperature by 200K"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "edges of the image are slightly blurred",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "apply unsharp mask (radius=1.0, amount=50%)",
+      "specific_recommendation": "increase sharpness by 20%"
+    },
+    "contrast_level": {
+      "current_contrast_level": "low",
+      "recommended_adjustment": "increase contrast by 20%",
+      "shadow_midtone_highlight_adjustments": "brighten shadows by 10%, boost midtones by 15%"
+    },
+    "composition_issues": {
+      "visible_defects": "none",
+      "vignetting": "slight",
+      "chromatic_aberration": "none",
+      "straightness": "perfectly level",
+      "specific_fixes_needed": "reduce vignetting by 10%"
+    },
+    "recommended_enhancements": [
+      "BRIGHTNESS: increase by 15%",
+      "SHADOWS: lift by 10-15%",
+      "CONTRAST: boost by 20%",
+      "SATURATION: increase by 10%",
+      "COLOR_TEMPERATURE: warm by 200K",
+      "SHARPNESS: increase by 20%",
+      "VIGNETTING: reduce by 10%"
+    ],
+    "overall_priority": "First increase brightness and lift shadows for better exposure, then adjust contrast and sharpness."
+  },
+  "slide_profiles": [],
+  "gps_coordinates": {
+    "latitude": 52.5096672,
+    "longitude": 13.327792,
+    "display_name": "Universit\u00e4t der K\u00fcnste Berlin, Kurf\u00fcrstendamm, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10719, Deutschland"
+  }
+}

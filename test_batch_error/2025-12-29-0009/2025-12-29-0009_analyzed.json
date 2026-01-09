@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "objects": "Gebouwen, wegen, voertuigen, bomen, monumenten",
+    "persons": "Er zijn geen personen zichtbaar in deze afbeelding.",
+    "weather": "Mogelijk mistig of vervuild gezien de waas rondom de stad",
+    "mood_atmosphere": "De afbeelding geeft een stedelijk ochtendgevoel met een lichte, serene mist.",
+    "time_of_day": "Ochtend, op basis van het zachte licht en de rustige sfeer",
+    "season_date": "Moeilijk te identificeren zonder duidelijke seizoensgebonden aanwijzingen",
+    "scene_type": "Landschap, luchtzicht van een stad",
+    "location_setting": "Buitenshuis, stedelijk",
+    "activity_action": "Geen specifieke actie, alleen een observatie van de stadsarchitectuur en structuur",
+    "photography_style": "Luchtfotografie, documentaire",
+    "composition_quality": "Goed, met een brede, panoramische blik op de stad maar enigszins wazige details door de mist"
+  },
+  "location_detection": {
+    "country": "Duitsland",
+    "region": "Berlijn",
+    "city_or_area": "Centrum van Berlijn",
+    "location_type": "urban",
+    "confidence": 75,
+    "reasoning": "De architectuur en het stratenpatroon zijn duidelijk identificeerbaar als Europese, specifiek Duitse kenmerken vanwege de typische bouwstijlen en historische monumenten."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "Current state": "overexposed",
+      "Specific measurements": "reduce brightness by 15-20%",
+      "Shadow detail": "crushed",
+      "Specific recommendation": "increase clarity in shadows"
+    },
+    "color_analysis": {
+      "Dominant colors": "soft blues and greens",
+      "Color temperature assessment": "neutral (5500K)",
+      "Detected color casts": "slight cool",
+      "Saturation level": "desaturated (recommend +40-50%)",
+      "Specific correction": "boost saturation slightly to enhance visibility of distant features"
+    },
+    "sharpness_clarity": {
+      "Overall sharpness": "soft",
+      "Specific areas with blur": "distant buildings and trees",
+      "Noise assessment": "minimal",
+      "Clarity recommendation": "apply a slight clarity boost to aid architectural definition",
+      "Specific recommendation": "apply unsharp mask (radius=1.0, amount=50%)"
+    },
+    "contrast_level": {
+      "Current contrast level": "low",
+      "Recommended adjustment": "increase contrast by 20%",
+      "Shadow/midtone/highlight adjustments": "brighten shadows by 15%, boost highlights by 10%",
+      "Local contrast enhancement": "apply unsharp mask with radius=1.5, strength=70%"
+    },
+    "composition_issues": {
+      "Any visible defects": "mild haze",
+      "Vignetting": "slight",
+      "Chromatic aberration": "none",
+      "Straightness": "perfectly level",
+      "Specific fixes needed": "reduce vignetting by 10%"
+    },
+    "recommended_enhancements": [
+      {
+        "ACTION": "CONTRAST: boost by 20%"
+      },
+      {
+        "ACTION": "BRIGHTNESS: decrease by 15-20%"
+      },
+      {
+        "ACTION": "SATURATION: increase by 40-50%"
+      },
+      {
+        "ACTION": "CLARITY: boost by 20%"
+      },
+      {
+        "ACTION": "UNSHARP_MASK: radius=1.5px, strength=80%, threshold=0"
+      },
+      {
+        "ACTION": "VIGNETTING: correct by 10%"
+      },
+      {
+        "ACTION": "SHADOWS: brighten by 15%"
+      },
+      {
+        "ACTION": "HIGHLIGHTS: reduce by 10%"
+      }
+    ],
+    "overall_priority": "Fixing the contrast and reducing the brightness should be addressed first as it affects overall visibility and detail perception."
+  },
+  "slide_profiles": []
+}
