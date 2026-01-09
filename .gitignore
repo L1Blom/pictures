@@ -64,11 +64,14 @@ logs/
 # Cache
 .cache/
 *.cache
+.geocoding_cache.json
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
+test_*/
+output-*/
 
 # Temporary files
 tmp/
