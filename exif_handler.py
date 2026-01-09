@@ -62,6 +62,9 @@ class EXIFHandler:
             # Prepare new EXIF data with full analysis as JSON
             exif_dict_new = EXIFHandler._prepare_exif_dict(exif_dict, analysis_data)
             
+            # Sanitize EXIF data to fix type mismatches
+            exif_dict_new = EXIFHandler._sanitize_exif_dict(exif_dict_new)
+            
             # Convert back to bytes
             exif_bytes = piexif.dump(exif_dict_new)
             
@@ -111,6 +114,9 @@ class EXIFHandler:
             
             # Open target image
             image = Image.open(target_image_path)
+            
+            # Sanitize EXIF data to fix any type mismatches
+            exif_dict = EXIFHandler._sanitize_exif_dict(exif_dict)
             
             # Convert back to bytes and save
             exif_bytes = piexif.dump(exif_dict)
@@ -414,6 +420,56 @@ class EXIFHandler:
             print(f"Warning: Error parsing EXIF: {e}")
         
         return result
+    
+    @staticmethod
+    def _sanitize_exif_dict(exif_dict: Dict) -> Dict:
+        """
+        Sanitize EXIF dictionary to fix type mismatches
+        
+        Fixes issues where EXIF values have incorrect types that piexif.dump() cannot handle.
+        Common issue: Integer values for tags that expect rationals or specific formats.
+        
+        Args:
+            exif_dict: EXIF dictionary potentially with malformed values
+            
+        Returns:
+            Cleaned EXIF dictionary
+        """
+        # List of tags that commonly have type issues and should be removed if invalid
+        problematic_tags = {
+            282: "XResolution",      # Should be rational (tuple)
+            283: "YResolution",      # Should be rational (tuple)
+            296: "ResolutionUnit",   # Should be short (int)
+            305: "Software",         # Should be ASCII
+            306: "DateTime",         # Should be ASCII
+        }
+        
+        for ifd_name in ["0th", "Exif", "GPS"]:
+            if ifd_name not in exif_dict:
+                continue
+            
+            ifd_dict = exif_dict[ifd_name]
+            tags_to_remove = []
+            
+            for tag_id, value in ifd_dict.items():
+                try:
+                    # Check if value is of wrong type
+                    if isinstance(value, int) and tag_id in [282, 283]:
+                        # XResolution and YResolution should be tuples (rational)
+                        # Remove invalid integer values
+                        tags_to_remove.append(tag_id)
+                    elif isinstance(value, int) and tag_id == 296:
+                        # ResolutionUnit is OK as int, but ensure it's 1-3
+                        if value not in [1, 2, 3]:
+                            tags_to_remove.append(tag_id)
+                except Exception:
+                    pass
+            
+            # Remove problematic tags
+            for tag_id in tags_to_remove:
+                del ifd_dict[tag_id]
+        
+        return exif_dict
     
     @staticmethod
     def _decode_value(value: Any) -> Any:
