@@ -113,12 +113,12 @@ class SlideRestoration:
             elif 'cyan' in color_temp or 'cool' in color_temp:
                 assessment['characteristics'].append('cool_cast')
                 assessment['notes'].append('Detected cool/cyan color cast typical of aged slides')
-        
-        # Check for fading indicators
-        saturation = str(color_info.get('saturation_level', '')).lower()
-        if 'dull' in saturation or 'low' in saturation:
-            assessment['characteristics'].append('faded_colors')
-            assessment['notes'].append('Colors appear faded, consistent with age degradation')
+            
+            # Check for fading indicators
+            saturation = str(color_info.get('saturation_level', '')).lower()
+            if 'dull' in saturation or 'low' in saturation:
+                assessment['characteristics'].append('faded_colors')
+                assessment['notes'].append('Colors appear faded, consistent with age degradation')
         
         # Check for contrast loss
         contrast_info = enhancement.get('contrast_level', {})

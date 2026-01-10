@@ -239,8 +239,7 @@ class EXIFHandler:
                 else:
                     value_str = str(value)
                 
-                # Truncate to reasonable length for display
-                value_str = value_str[:120]
+                # Don't truncate individual fields - preserve full content
                 lines.append(f"{field_label}: {value_str}")
         
         # Add any additional fields not in the predefined list
@@ -251,19 +250,19 @@ class EXIFHandler:
                 
                 # Format value nicely
                 if isinstance(value, list):
-                    value_str = ', '.join(str(v)[:50] for v in value[:5])  # Limit list items
+                    value_str = ', '.join(str(v) for v in value[:5])  # Limit list items
                     if len(value) > 5:
                         value_str += f", ... (+{len(value)-5} more)"
                 elif isinstance(value, dict):
-                    value_str = str(value)[:80]
+                    value_str = str(value)
                 else:
-                    value_str = str(value)[:120]
+                    value_str = str(value)
                 
                 lines.append(f"{field_label}: {value_str}")
         
         # Join with newlines and limit total length
         description = '\n'.join(lines)
-        return description[:1000]  # Increased limit for more comprehensive data
+        return description[:4000]  # Increased limit for more comprehensive data (EXIF supports up to 4000+ chars)
     
     @staticmethod
     def _prepare_exif_dict(exif_dict: Dict, analysis_data: Dict[str, Any]) -> Dict:

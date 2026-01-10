@@ -44,6 +44,10 @@ venv.bak/
 .DS_Store
 
 # Pictures and output
+# Naming convention for test directories:
+#   - test_* for test input directories
+#   - output-* or output_* for test output directories
+#   - All subdirectories under pictures/ are ignored
 pictures/
 output/
 output*/
