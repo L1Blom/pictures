@@ -262,7 +262,14 @@ class EXIFHandler:
         
         # Join with newlines and limit total length
         description = '\n'.join(lines)
-        return description[:16000]  # Increased limit for comprehensive metadata (EXIF supports up to 16000+ chars)
+        # Truncate at 16000 chars, trying to break at a line boundary
+        if len(description) > 16000:
+            description = description[:16000]
+            # Try to back up to the last newline to avoid cutting words
+            last_newline = description.rfind('\n')
+            if last_newline > 15800:  # If newline is close enough, use it
+                description = description[:last_newline] + "\n[... truncated]"
+        return description
     
     @staticmethod
     def _prepare_exif_dict(exif_dict: Dict, analysis_data: Dict[str, Any]) -> Dict:
@@ -302,7 +309,15 @@ class EXIFHandler:
         backup_data = {'metadata': metadata}
         if location_detection:
             backup_data['location_detection'] = location_detection
+        
+        # Remove raw_response from metadata if present (it's not needed in EXIF)
+        if isinstance(metadata, dict):
+            clean_metadata = {k: v for k, v in metadata.items() if k != 'raw_response'}
+            backup_data['metadata'] = clean_metadata
+        
         backup_json = json.dumps(backup_data, indent=2)
+        # Note: UserComment in EXIF will display as raw content - this is intentional for data preservation
+        # The formatted description for display is in ImageDescription field above
         exif_dict["Exif"][piexif.ExifIFD.UserComment] = backup_json.encode('utf-8')
         
         # Map metadata fields to corresponding EXIF tags for Immich compatibility
