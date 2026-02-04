@@ -316,9 +316,11 @@ class EXIFHandler:
             backup_data['metadata'] = clean_metadata
         
         backup_json = json.dumps(backup_data, indent=2)
-        # Note: UserComment in EXIF will display as raw content - this is intentional for data preservation
-        # The formatted description for display is in ImageDescription field above
-        exif_dict["Exif"][piexif.ExifIFD.UserComment] = backup_json.encode('utf-8')
+        # Note: UserComment in EXIF requires character code prefix (first 8 bytes)
+        # ASCII = b'ASCII\x00\x00\x00', Unicode = b'UNICODE\x00'
+        # For UTF-8 JSON with international characters, use undefined (b'\x00\x00\x00\x00\x00\x00\x00\x00')
+        char_code_prefix = b'\x00' * 8  # Undefined/Binary - allows UTF-8
+        exif_dict["Exif"][piexif.ExifIFD.UserComment] = char_code_prefix + backup_json.encode('utf-8')
         
         # Note: We don't map individual metadata fields to separate EXIF tags because:
         # 1. EXIF tags have specific data type requirements and constraints
