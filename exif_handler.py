@@ -320,39 +320,11 @@ class EXIFHandler:
         # The formatted description for display is in ImageDescription field above
         exif_dict["Exif"][piexif.ExifIFD.UserComment] = backup_json.encode('utf-8')
         
-        # Map metadata fields to corresponding EXIF tags for Immich compatibility
-        if isinstance(metadata, dict):
-            for field_name, field_value in metadata.items():
-                # Convert field value to string representation
-                if isinstance(field_value, (list, dict)):
-                    field_str = ', '.join(str(x) for x in (field_value if isinstance(field_value, list) else [field_value]))
-                else:
-                    field_str = str(field_value)
-                
-                # Get EXIF tag name from mapping
-                exif_tag_name = EXIF_TAG_MAPPING.get(field_name)
-                
-                # Skip ImageDescription as we already set it with formatted metadata
-                if exif_tag_name == 'ImageDescription':
-                    continue
-                
-                if exif_tag_name:
-                    try:
-                        # Map tag name to piexif constant
-                        if exif_tag_name in dir(piexif.ImageIFD):
-                            tag_id = getattr(piexif.ImageIFD, exif_tag_name)
-                            exif_dict["0th"][tag_id] = field_str[:1000].encode('utf-8')  # Increased limit for detailed metadata
-                        elif exif_tag_name in dir(piexif.ExifIFD):
-                            tag_id = getattr(piexif.ExifIFD, exif_tag_name)
-                            exif_dict["Exif"][tag_id] = field_str[:1000].encode('utf-8')
-                        elif exif_tag_name == 'GPSInfo':
-                            # GPSInfo requires special handling
-                            if "GPS" not in exif_dict:
-                                exif_dict["GPS"] = {}
-                            # Store location as string for now
-                            exif_dict["GPS"][piexif.GPSIFD.GPSMapDatum] = b'WGS-84'
-                    except Exception as e:
-                        print(f"Warning: Could not set EXIF tag {exif_tag_name}: {e}")
+        # Note: We don't map individual metadata fields to separate EXIF tags because:
+        # 1. EXIF tags have specific data type requirements and constraints
+        # 2. Arbitrary string data can corrupt EXIF structure and cause validation errors
+        # 3. All metadata is properly preserved in ImageDescription (display) and UserComment (backup)
+        # If Immich or other tools need specific EXIF fields, they will read from ImageDescription
         
         # Add GPS data if coordinates are available
         if isinstance(analysis_data, dict):
