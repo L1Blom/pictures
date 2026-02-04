@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "objects": "Twee groepen jongeren, een boot, water.",
+    "persons": "Vier jongeren zijn zichtbaar, die lachen en op een boot zitten. E\u00e9n jongen heeft een oranje regenjas aan. De anderen dragen sportieve kleding.",
+    "weather": "Bewolkt, mogelijk regenachtig.",
+    "mood_atmosphere": "Een vrolijke, enthousiaste sfeer, ondanks de regen.",
+    "time_of_day": "Middel van de dag, waarschijnlijk in de namiddag door de verzadigde kleuren.",
+    "season_date": "Lente of vroege zomer, gezien de lichte kleding.",
+    "scene_type": "Candid, actief, met een focus op jongeren.",
+    "location_setting": "Buitenscene, waarschijnlijk op of nabij een rivier of meer.",
+    "activity_action": "De jongeren zijn aan het genieten van een activiteit op een boot, mogelijk zeilen of vissen.",
+    "photography_style": "Documentaire fotografie, met een focus op het vastleggen van een spontaan moment.",
+    "composition_quality": "Goede compositie, maar met mogelijkheden voor verbetering; gebruik van de regel van derden is aanwezig."
+  },
+  "location_detection": {
+    "country": "Nederland",
+    "region": "Noord-Holland",
+    "city_or_area": "Amsterdam",
+    "location_type": "rural",
+    "confidence": 75,
+    "reasoning": "De stijl van de kleding en het type boot lijken op typische Nederlandse watersport en jeugdactiviteiten. Het landschap en de weersomstandigheden ondersteunen dit ook."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "underexposed",
+      "estimated_EV_adjustment_needed": "+1.0",
+      "shadow_detail": "normal",
+      "specific_recommendation": "increase brightness by 20-30%"
+    },
+    "color_analysis": {
+      "dominant_colors": "Grijstinten, oranje, zwart, blauw",
+      "color_temperature_assessment": "cool (7000K)",
+      "detected_color_casts": "slight cool",
+      "saturation_level": "normal",
+      "specific_correction": "shift color temperature 200K warmer"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "none",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "boost local contrast by 15%",
+      "specific_recommendation": "increase sharpness by 25%"
+    },
+    "contrast_level": {
+      "current_contrast_level": "normal",
+      "recommended_adjustment": "increase contrast by 20%",
+      "shadow_midtone_highlight_adjustments": "brighten shadows by 10%"
+    },
+    "composition_issues": {
+      "visible_defects": "geen",
+      "vignetting": "none",
+      "chromatic_aberration": "none",
+      "straightness": "perfectly level",
+      "specific_fixes_needed": "none"
+    },
+    "recommended_enhancements": [
+      "BRIGHTNESS: increase by 25%",
+      "CONTRAST: boost by 20%",
+      "SATURATION: increase by 15%",
+      "COLOR_TEMPERATURE: warm by 200K",
+      "SHARPNESS: increase by 25%",
+      "CLARITY: boost by 15%"
+    ],
+    "overall_priority": {
+      "most_critical_issue": "Brightness adjustment",
+      "estimated_improvement_percentage": 30,
+      "preservation_notes": "Maintain the candid nature and expressions of the subjects."
+    }
+  },
+  "slide_profiles": []
+}

@@ -324,7 +324,8 @@ class EXIFHandler:
         # Use minified JSON (no whitespace/newlines) to avoid EXIF compatibility issues
         # The formatted version is already in ImageDescription for display
         backup_json_minified = json.dumps(backup_data, separators=(',', ':'))
-        exif_dict["Exif"][piexif.ExifIFD.UserComment] = char_code_prefix + backup_json_minified.encode('utf-8')
+        user_comment_bytes = char_code_prefix + backup_json_minified.encode('utf-8')
+        exif_dict["Exif"][piexif.ExifIFD.UserComment] = user_comment_bytes
         
         # Note: We don't map individual metadata fields to separate EXIF tags because:
         # 1. EXIF tags have specific data type requirements and constraints

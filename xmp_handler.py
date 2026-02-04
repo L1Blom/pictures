@@ -64,10 +64,12 @@ class XMPHandler:
                 exif_dict = {"0th": {}, "Exif": {}, "GPS": {}}
             
             # Add analysis data as UserComment
-            comment_json = json.dumps(comment_data, indent=2)
+            comment_json = json.dumps(comment_data, separators=(',', ':'))  # Minified JSON
             if "Exif" not in exif_dict:
                 exif_dict["Exif"] = {}
-            exif_dict["Exif"][piexif.ExifIFD.UserComment] = comment_json.encode('utf-8')
+            # Add proper EXIF character code prefix for UTF-8
+            char_code_prefix = b'\x00' * 8
+            exif_dict["Exif"][piexif.ExifIFD.UserComment] = char_code_prefix + comment_json.encode('utf-8')
             
             # Convert to bytes
             exif_bytes = piexif.dump(exif_dict)
