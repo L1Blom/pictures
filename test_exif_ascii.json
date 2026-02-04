@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "objects": "Vier jongeren aan boord van een boot, druppels water op hun gezichten en kleding, een deel van de boot zichtbaar op de voorgrond.",
+    "persons": "Er zijn vier personen zichtbaar. Drie jongens en een meisje, allen met natte haren. Ze dragen sportieve kleding zoals jacks. Ze lijken blij en met elkaar te communiceren.",
+    "weather": "De weersomstandigheden lijken nat, mogelijk regenachtig of winderig, gezien de natte haren van de personen en de overcast lucht.",
+    "mood_atmosphere": "De sfeer lijkt speels en vrolijk, ondanks het weer. De mensen lijken plezier te hebben samen.",
+    "time_of_day": "Op basis van het licht lijkt het op een bewolkte dag, mogelijk in de middag.",
+    "season_date": "Aangezien de personen in sportieve kleding zijn en het weer winderig is, lijkt het een seizoen te zijn zoals de lente of de vroege zomer.",
+    "scene_type": "Actief candid moment op een boot.",
+    "location_setting": "Buitenscene, mogelijk aan boord van een zeilboot of motorboot.",
+    "activity_action": "De jongeren zijn waarschijnlijk bezig met navigeren of genieten van een boottocht.",
+    "photography_style": "Candid fotografie met een focus op menselijke interactie.",
+    "composition_quality": "De compositie is goed, maar er is wat ruimte voor verbetering. Hoofdlijnen zijn zichtbaar, maar de kijkhoek kan meer gevarieerd worden."
+  },
+  "location_detection": {
+    "country": "Nederland",
+    "region": "Noord-Holland",
+    "city_or_area": "Amsterdam",
+    "location_type": "urban",
+    "confidence": 65,
+    "reasoning": "De aanwezigheid van jonge mensen en de typische stijl van sportieve jacks suggereert een stedelijke omgeving als Amsterdam, waar boottochten populair zijn."
+  },
+  "enhancement": {
+    "lighting_quality": {
+      "current_state": "underexposed",
+      "specific_measurements": "+1.0",
+      "shadow_detail": "normal",
+      "specific_recommendation": "increase brightness by 20%"
+    },
+    "color_analysis": {
+      "dominant_colors": "Muted blues and greys",
+      "color_temperature": "cool (approx. 6000K)",
+      "detected_color_casts": "none",
+      "saturation_level": "normal",
+      "specific_correction": "n/a"
+    },
+    "sharpness_clarity": {
+      "overall_sharpness": "slightly soft",
+      "specific_areas_with_blur": "faces of the individuals",
+      "noise_assessment": "minimal",
+      "clarity_recommendation": "boost local contrast by 15%",
+      "specific_recommendation": "increase sharpness by 20%"
+    },
+    "contrast_level": {
+      "current_contrast_level": "normal",
+      "recommended_adjustment": "increase contrast by 15%",
+      "shadow_midtones_highlight_adjustments": "brighten shadows by 10%",
+      "local_contrast_enhancement": "increase clarity by 15%"
+    },
+    "composition_issues": {
+      "visible_defects": "none",
+      "vignetting": "none",
+      "chromatic_aberration": "none",
+      "straightness": "slightly tilted",
+      "specific_fixes_needed": "correct 1-degree tilt"
+    },
+    "recommended_enhancements": [
+      "BRIGHTNESS: increase by 20%",
+      "SHARPNESS: increase by 20%",
+      "CONTRAST: boost by 15%",
+      "CLARITY: boost by 15%",
+      "SHADOWS: brighten by 10%"
+    ],
+    "overall_priority": {
+      "most_critical_issue": "Improve brightness",
+      "estimated_improvement_percentage": 35,
+      "preservation_notes": "Maintain the candid and playful atmosphere."
+    }
+  },
+  "slide_profiles": []
+}

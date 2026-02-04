@@ -316,16 +316,18 @@ class EXIFHandler:
             backup_data['metadata'] = clean_metadata
         
         backup_json = json.dumps(backup_data, indent=2)
-        # Note: UserComment in EXIF requires 8-byte character code prefix (first 8 bytes)
-        # ASCII = b'ASCII\x00\x00\x00', Unicode = b'UNICODE\x00'
+        # Note: UserComment in EXIF requires character code prefix
+        # ASCII = b'ASCII\x00\x00\x00' - Most compatible for JSON data
         # For UTF-8 JSON with international characters, use undefined (b'\x00\x00\x00\x00\x00\x00\x00\x00')
-        char_code_prefix = b'\x00' * 8  # Undefined/Binary - allows UTF-8
+        char_code_prefix = b'ASCII\x00\x00\x00'  # ASCII-compatible prefix for standard EXIF readers
         
         # Use minified JSON (no whitespace/newlines) to avoid EXIF compatibility issues
         # The formatted version is already in ImageDescription for display
         backup_json_minified = json.dumps(backup_data, separators=(',', ':'))
-        user_comment_bytes = char_code_prefix + backup_json_minified.encode('utf-8')
-        exif_dict["Exif"][piexif.ExifIFD.UserComment] = user_comment_bytes
+        # Use ASCII character code prefix for UserComment (standard for EXIF compatibility)
+        # ASCII prefix = b'ASCII\x00\x00\x00' tells EXIF readers this is ASCII-compatible text
+        char_code_prefix = b'ASCII\x00\x00\x00'
+        exif_dict["Exif"][piexif.ExifIFD.UserComment] = char_code_prefix + backup_json_minified.encode('utf-8')
         
         # Note: We don't map individual metadata fields to separate EXIF tags because:
         # 1. EXIF tags have specific data type requirements and constraints

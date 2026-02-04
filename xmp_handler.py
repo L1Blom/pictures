@@ -67,8 +67,8 @@ class XMPHandler:
             comment_json = json.dumps(comment_data, separators=(',', ':'))  # Minified JSON
             if "Exif" not in exif_dict:
                 exif_dict["Exif"] = {}
-            # Add proper EXIF character code prefix for UTF-8
-            char_code_prefix = b'\x00' * 8
+            # Use ASCII character code prefix for UserComment (standard for EXIF compatibility)
+            char_code_prefix = b'ASCII\x00\x00\x00'
             exif_dict["Exif"][piexif.ExifIFD.UserComment] = char_code_prefix + comment_json.encode('utf-8')
             
             # Convert to bytes
