@@ -9,7 +9,7 @@ load_dotenv()
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv('OPENAI_APIKEY')
-OPENAI_MODEL = 'gpt-4-turbo'
+OPENAI_MODEL = 'gpt-4o-mini'
 
 # Language Configuration
 # Language for EXIF metadata content (e.g., 'en', 'nl', 'fr', 'de', 'es')

@@ -262,7 +262,7 @@ class EXIFHandler:
         
         # Join with newlines and limit total length
         description = '\n'.join(lines)
-        return description[:4000]  # Increased limit for more comprehensive data (EXIF supports up to 4000+ chars)
+        return description[:16000]  # Increased limit for comprehensive metadata (EXIF supports up to 16000+ chars)
     
     @staticmethod
     def _prepare_exif_dict(exif_dict: Dict, analysis_data: Dict[str, Any]) -> Dict:
@@ -326,10 +326,10 @@ class EXIFHandler:
                         # Map tag name to piexif constant
                         if exif_tag_name in dir(piexif.ImageIFD):
                             tag_id = getattr(piexif.ImageIFD, exif_tag_name)
-                            exif_dict["0th"][tag_id] = field_str[:100].encode('utf-8')  # Limit length
+                            exif_dict["0th"][tag_id] = field_str[:1000].encode('utf-8')  # Increased limit for detailed metadata
                         elif exif_tag_name in dir(piexif.ExifIFD):
                             tag_id = getattr(piexif.ExifIFD, exif_tag_name)
-                            exif_dict["Exif"][tag_id] = field_str[:100].encode('utf-8')
+                            exif_dict["Exif"][tag_id] = field_str[:1000].encode('utf-8')
                         elif exif_tag_name == 'GPSInfo':
                             # GPSInfo requires special handling
                             if "GPS" not in exif_dict:
