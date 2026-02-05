@@ -98,8 +98,8 @@ Analyze this image and provide detailed information in two separate sections.
     - Estimated improvement percentage if all recommendations applied
     - Preservation notes: aspects that should NOT be changed to maintain character
 
-=== SLIDE RESTORATION PROFILES (ALWAYS ANALYZE FOR SLIDES/DIAS) ===
-19. **Suggested Profiles** (MANDATORY - Always provide even if uncertain): Analyze if this appears to be a scanned slide, dia positive, or vintage photograph, and suggest the most suitable restoration profiles with confidence scores (0-100%).
+=== SLIDE RESTORATION PROFILES (MANDATORY - ALWAYS ANALYZE) ===
+19. **Suggested Profiles** (MANDATORY FOR EVERY IMAGE): Analyze if this appears to be a scanned slide, dia positive, or vintage photograph, and suggest the most suitable restoration profiles with confidence scores (0-100%).
     Available profiles: 
     - faded: Very faded slides with lost color/contrast and washed-out appearance
     - color_cast: Generic color casts (any unusual color tint not covered by other profiles)
@@ -108,14 +108,16 @@ Analyze this image and provide detailed information in two separate sections.
     - aged: Moderate aging with slight color cast and contrast loss
     - well_preserved: Minimal aging, good color and contrast retention
     
-    Format: Always return an array with 1-3 suggestions, even if empty: [{{"profile": "profile_name", "confidence": 85}}, {{"profile": "profile_name", "confidence": 60}}]
+    Format: ALWAYS return an array with 1-3 suggestions: [{{"profile": "profile_name", "confidence": 85}}, {{"profile": "profile_name", "confidence": 60}}]
     
-    Detection hints:
-    - If filename contains "dia", "slide", "transparency", "positive" → likely a slide
-    - If image shows typical slide artifacts (grain, slight color shifts, dust) → analyze accordingly
-    - If modern photo with good color → well_preserved
-    - Always provide your best analysis even if uncertain (confidence can be 0-100%)
-    - Return empty array [] ONLY if image is clearly not a slide/photo (text document, screenshot, etc.)
+    CRITICAL DETECTION RULES:
+    1. If filename contains "dia", "slide", "transparency", "positive" → DEFINITELY analyze as slide/dia and provide profiles
+    2. If image appears to be from before 2000 or shows age indicators → apply restoration analysis
+    3. If image has any color cast, fading, grain, or dust → do NOT return empty, match closest profile
+    4. ALWAYS provide at least one profile recommendation unless image is clearly digital-only (screenshot, render, etc.)
+    5. If uncertain, default to "aged" or "well_preserved" with appropriate confidence (never return empty array for real photographs)
+    
+    IMPORTANT: Even scanned slides with minimal issues should get "well_preserved" profile. NEVER return [] for actual photographs.
 
 Format your response as a structured JSON object with FOUR mandatory top-level keys:
 - "metadata": {{"objects": "...", "persons": "...", "weather": "...", "mood_atmosphere": "...", "time_of_day": "...", "season_date": "...", "scene_type": "...", "location_setting": "...", "activity_action": "...", "photography_style": "...", "composition_quality": "..."}}
