@@ -98,25 +98,26 @@ class SlideRestoration:
         color_info = enhancement.get('color_analysis', {})
         if isinstance(color_info, dict):
             color_temp = str(color_info.get('color_temperature', '')).lower()
-            if 'magenta' in color_temp or 'red' in color_temp:
+            detected_cast = str(color_info.get('detected_color_casts', '')).lower()
+            
+            # Check for red/magenta cast
+            if any(word in color_temp + detected_cast for word in ['magenta', 'red', 'reddish', 'red_cast', 'warm_red']):
                 assessment['characteristics'].append('red_magenta_cast')
                 assessment['notes'].append('Detected red/magenta color cast typical of aged slides')
                 assessment['recommended_profile'] = 'red_cast'
-            elif 'warm' in color_temp and 'yellow' in color_temp:
+            # Check for yellow/warm cast
+            elif any(word in color_temp + detected_cast for word in ['yellow', 'warm', 'sepia', 'golden', 'brown', 'yellow_cast']):
                 assessment['characteristics'].append('yellow_cast')
                 assessment['notes'].append('Detected yellow/warm color cast')
                 assessment['recommended_profile'] = 'yellow_cast'
-            elif 'warm' in color_temp:
-                assessment['characteristics'].append('warm_cast')
-                assessment['notes'].append('Detected warm color cast')
-                assessment['recommended_profile'] = 'yellow_cast'
-            elif 'cyan' in color_temp or 'cool' in color_temp:
+            # Check for cool/cyan cast
+            elif any(word in color_temp + detected_cast for word in ['cyan', 'cool', 'blue', 'cool_cast', 'blue_cast']):
                 assessment['characteristics'].append('cool_cast')
                 assessment['notes'].append('Detected cool/cyan color cast typical of aged slides')
             
             # Check for fading indicators
             saturation = str(color_info.get('saturation_level', '')).lower()
-            if 'dull' in saturation or 'low' in saturation:
+            if any(word in saturation for word in ['dull', 'low', 'muted', 'desaturated', 'faded', 'washed']):
                 assessment['characteristics'].append('faded_colors')
                 assessment['notes'].append('Colors appear faded, consistent with age degradation')
         
@@ -260,6 +261,7 @@ class SlideRestoration:
             return None
     
     @staticmethod
+    @staticmethod
     def auto_restore_slide(
         image_path: str,
         analysis_data: Dict[str, Any],
@@ -267,6 +269,8 @@ class SlideRestoration:
     ) -> Optional[str]:
         """
         Automatically restore slide based on detected condition
+        
+        Prioritizes AI-provided slide_profiles if available, falls back to heuristic detection
         
         Args:
             image_path: Path to scanned slide
@@ -276,23 +280,43 @@ class SlideRestoration:
         Returns:
             Path to restored image
         """
-        # Analyze slide condition
-        condition = SlideRestoration.analyze_slide_condition(analysis_data)
+        # First, check if the AI analysis already provided slide profile recommendations
+        ai_profiles = analysis_data.get('slide_profiles', [])
+        if ai_profiles and isinstance(ai_profiles, list) and len(ai_profiles) > 0:
+            # Use the AI's top recommendation
+            best_profile = ai_profiles[0]
+            if isinstance(best_profile, dict):
+                profile_name = best_profile.get('profile', 'aged')
+                confidence = best_profile.get('confidence', 0)
+            else:
+                profile_name = best_profile
+                confidence = 0
+            
+            print(f"\nUsing AI-provided slide profile:")
+            print(f"  Profile: {profile_name}")
+            print(f"  Confidence: {confidence:.0f}%")
+            if len(ai_profiles) > 1:
+                print(f"  Alternative profiles: {[p.get('profile') if isinstance(p, dict) else p for p in ai_profiles[1:]]}")
+        else:
+            # Fall back to heuristic detection
+            print(f"\nNo AI slide profile provided, using heuristic analysis:")
+            condition = SlideRestoration.analyze_slide_condition(analysis_data)
+            
+            print(f"  Condition: {condition['condition']}")
+            print(f"  Confidence: {condition['confidence']:.0%}")
+            if condition['characteristics']:
+                print(f"  Characteristics: {', '.join(condition['characteristics'])}")
+            for note in condition['notes']:
+                print(f"  - {note}")
+            
+            profile_name = condition['recommended_profile']
         
-        print(f"\nSlide Condition Assessment:")
-        print(f"  Condition: {condition['condition']}")
-        print(f"  Confidence: {condition['confidence']:.0%}")
-        if condition['characteristics']:
-            print(f"  Characteristics: {', '.join(condition['characteristics'])}")
-        for note in condition['notes']:
-            print(f"  - {note}")
+        print(f"\nApplying restoration profile: {profile_name}")
         
-        print(f"\nApplying restoration profile: {condition['recommended_profile']}")
-        
-        # Apply restoration with recommended profile
+        # Apply restoration with determined profile
         return SlideRestoration.restore_slide(
             image_path,
-            profile=condition['recommended_profile'],
+            profile=profile_name,
             output_path=output_path,
             denoise=True,
             despeckle=True
