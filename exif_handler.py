@@ -136,7 +136,7 @@ class EXIFHandler:
             return False
     
     @staticmethod
-    def _format_metadata_description(metadata: Dict[str, Any], location_detection: Dict[str, Any] = None) -> str:
+    def _format_metadata_description(metadata: Dict[str, Any], location_detection: Dict[str, Any] = None, source_description: str = None) -> str:
         """
         Format metadata into a nicely readable description for ImageDescription field.
         This makes all metadata visible in Immich's image info display.
@@ -144,6 +144,7 @@ class EXIFHandler:
         Args:
             metadata: Dictionary of metadata fields
             location_detection: Dictionary of location detection data (optional)
+            source_description: Original description.txt content (optional)
             
         Returns:
             Formatted string suitable for ImageDescription
@@ -260,6 +261,12 @@ class EXIFHandler:
                 
                 lines.append(f"{field_label}: {value_str}")
         
+        # SAFEGUARD: Add source_description at the end if available
+        if source_description:
+            lines.append("")  # blank line separator
+            lines.append("SOURCE DESCRIPTION (from description.txt):")
+            lines.append(source_description)
+        
         # Join with newlines and limit total length
         description = '\n'.join(lines)
         # Truncate at 16000 chars, trying to break at a line boundary
@@ -302,13 +309,19 @@ class EXIFHandler:
         
         # Convert metadata to nicely formatted description for ImageDescription (for Immich display)
         if isinstance(metadata, dict):
-            description = EXIFHandler._format_metadata_description(metadata, location_detection)
+            # Include source_description if available
+            source_description = analysis_data.get('source_description') if isinstance(analysis_data, dict) else None
+            description = EXIFHandler._format_metadata_description(metadata, location_detection, source_description)
             exif_dict["0th"][piexif.ImageIFD.ImageDescription] = description.encode('utf-8')
         
         # Convert metadata and location to JSON string for UserComment (backup storage)
         backup_data = {'metadata': metadata}
         if location_detection:
             backup_data['location_detection'] = location_detection
+        
+        # SAFEGUARD: Include source_description (description.txt content) in backup
+        if isinstance(analysis_data, dict) and 'source_description' in analysis_data:
+            backup_data['source_description'] = analysis_data['source_description']
         
         # Remove raw_response from metadata if present (it's not needed in EXIF)
         if isinstance(metadata, dict):

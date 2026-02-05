@@ -191,12 +191,15 @@ class ReportGenerator:
                 if '_thumb' not in file.stem:
                     restored_imgs.append(file)
             
+            has_description = (output_dir / "description.txt").exists()
+            
             analyses.append({
                 'name': base_name,
                 'analyzed_img': analyzed_img,
                 'enhanced_img': enhanced_img,
                 'restored_imgs': sorted(restored_imgs),
-                'dir': output_dir
+                'dir': output_dir,
+                'has_description': has_description
             })
         
         # Then, look for nested structure
@@ -221,12 +224,15 @@ class ReportGenerator:
                     if '_thumb' not in file.stem:
                         restored_imgs.append(file)
                 
+                has_description = (img_dir / "description.txt").exists()
+                
                 analyses.append({
                     'name': img_dir.name,
                     'analyzed_img': analyzed_img,
                     'enhanced_img': enhanced_img,
                     'restored_imgs': sorted(restored_imgs),
-                    'dir': img_dir
+                    'dir': img_dir,
+                    'has_description': has_description
                 })
         
         # Sort by name
@@ -283,17 +289,28 @@ class ReportGenerator:
         lines.append(f"\n**Total Images:** {len(analyses)}")
         lines.append("")
         
-        # Gallery table with images - 6 columns: #, Name, Original, Enhanced, Restored 1, Restored 2
+        # Check if there's a description.txt file
+        desc_file = Path(output_dir) / "description.txt"
+        if desc_file.exists():
+            with open(desc_file, 'r') as f:
+                desc_content = f.read().strip()
+                lines.append("## 📝 Directory Description")
+                lines.append("")
+                lines.append(f"> {desc_content}")
+                lines.append("")
+        
+        # Gallery table with images - 7 columns: #, Name, Description indicator, Original, Enhanced, Restored 1, Restored 2
         lines.append("## Image Gallery")
         lines.append("")
-        lines.append("| # | Image Name | Original | Enhanced | Restored 1 | Restored 2 |")
-        lines.append("|---|------------|----------|----------|-----------|-----------|")
+        lines.append("| # | Image Name | 📝 | Original | Enhanced | Restored 1 | Restored 2 |")
+        lines.append("|---|------------|-----|----------|----------|-----------|-----------|")
         
         for idx, item in enumerate(analyses, 1):
             original = ""
             enhanced = ""
             restored_1 = ""
             restored_2 = ""
+            desc_indicator = "📝" if item.get('has_description') else ""
             
             # Original image - create thumbnail for consistent sizing
             if item['analyzed_img'] and item['analyzed_img'].exists():
@@ -326,7 +343,7 @@ class ReportGenerator:
                         elif i == 1:
                             restored_2 = f"{img_html} **{profile.title()}**"
             
-            lines.append(f"| {idx} | {item['name']} | {original} | {enhanced} | {restored_1} | {restored_2} |")
+            lines.append(f"| {idx} | {item['name']} | {desc_indicator} | {original} | {enhanced} | {restored_1} | {restored_2} |")
         
         lines.append("")
         

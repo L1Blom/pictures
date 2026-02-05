@@ -65,6 +65,11 @@ class PictureAnalyzer:
         # Parse response
         analysis_result = self._parse_response(response)
         
+        # SAFEGUARD: Store description.txt content in analysis_result
+        # This ensures it's preserved in EXIF and accessible later
+        if description:
+            analysis_result['source_description'] = description
+        
         # Geocode location if confidence is high enough
         if analysis_result.get('location_detection'):
             coordinates = self.metadata_manager.geocode_location(

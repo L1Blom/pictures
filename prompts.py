@@ -72,9 +72,11 @@ Analyze this image and provide detailed information in two separate sections.
     - Straightness: perfectly level/slightly tilted/noticeably tilted
     - Specific fixes needed: e.g., "remove 2-3 dust spots", "correct 2-degree tilt"
 
-17. **Recommended Enhancements** (prioritized list with specific parameters):
-    - Format each as: "ACTION: specific parameter (value)" 
-    - Examples: 
+17. **Recommended Enhancements** (prioritized list with specific parameters - REQUIRED FORMAT):
+    - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
+    - Each line must start with: "ACTION: description with percentage or parameter"
+    - If NO enhancement needed, respond: "NO_ENHANCEMENTS: maintain current quality"
+    - Examples of CORRECT format: 
       * "BRIGHTNESS: increase by 25%"
       * "CONTRAST: boost by 20%"
       * "SATURATION: increase by 15%"
@@ -86,7 +88,10 @@ Analyze this image and provide detailed information in two separate sections.
       * "HIGHLIGHTS: reduce by 10%"
       * "VIBRANCE: increase by 25%"
       * "CLARITY: boost by 20%"
+    - DO NOT use phrases like "maintain", "normalize", "none needed", "as is"
+    - DO NOT forget the percentage, value, or parameter for each action
     - List in order of priority/impact
+    - ALWAYS include at least 3-5 specific enhancement recommendations (even if small)
 
 18. **Overall Enhancement Priority**:
     - Which issue is most critical to fix first

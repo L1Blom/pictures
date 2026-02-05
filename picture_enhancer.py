@@ -375,6 +375,7 @@ class SmartEnhancer:
         """
         adjustments = {}
         advanced_ops = []  # Track advanced operations to apply
+        skipped_count = 0
         
         if not recommendations:
             return {'adjustments': adjustments, 'advanced_ops': advanced_ops}
@@ -403,12 +404,27 @@ class SmartEnhancer:
             elif not isinstance(recommendation, str):
                 # Skip non-string, non-dict items
                 print(f"  ⚠ Skipping invalid recommendation format: {type(recommendation)}")
+                skipped_count += 1
                 continue
             else:
                 rec = recommendation
                 
             rec = rec.strip()
+            
+            # Skip empty recommendations or those with no parameters
+            if not rec or rec.lower() in ['no enhancements needed', 'no_enhancements: maintain current quality', 'none needed', 'maintain', 'normalize']:
+                continue
+            
+            # Check if recommendation has no numeric values (likely unparseable)
+            if not re.search(r'\d+', rec):
+                print(f"  ⚠ Skipping non-numeric recommendation: {rec}")
+                skipped_count += 1
+                continue
+            
             rec_lower = rec.lower()
+            
+            # Track if this recommendation was successfully parsed
+            parsed = False
             
             # ===== BRIGHTNESS =====
             if 'brightness' in rec_lower:
