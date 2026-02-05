@@ -98,16 +98,30 @@ Analyze this image and provide detailed information in two separate sections.
     - Estimated improvement percentage if all recommendations applied
     - Preservation notes: aspects that should NOT be changed to maintain character
 
-=== SLIDE RESTORATION PROFILES (if this appears to be a scanned slide/dia positive) ===
-19. **Suggested Profiles**: List the most suitable slide restoration profiles with confidence scores (0-100%).
-    Available profiles: faded (very faded with lost color/contrast), color_cast (generic color casts), red_cast (red/magenta aging), yellow_cast (yellow/warm aging), aged (moderate aging), well_preserved (minimal aging).
-    Format: [{{"profile": "profile_name", "confidence": 85}}, {{"profile": "profile_name", "confidence": 60}}]
-    Only include this section if the image appears to be a scanned slide or vintage photograph. If uncertain or not a slide, set to empty array: []
+=== SLIDE RESTORATION PROFILES (ALWAYS ANALYZE FOR SLIDES/DIAS) ===
+19. **Suggested Profiles** (MANDATORY - Always provide even if uncertain): Analyze if this appears to be a scanned slide, dia positive, or vintage photograph, and suggest the most suitable restoration profiles with confidence scores (0-100%).
+    Available profiles: 
+    - faded: Very faded slides with lost color/contrast and washed-out appearance
+    - color_cast: Generic color casts (any unusual color tint not covered by other profiles)
+    - red_cast: Red/magenta aging (typical of old Kodachrome slides, reddish tint)
+    - yellow_cast: Yellow/warm aging (golden/sepia tone, typical of older films)
+    - aged: Moderate aging with slight color cast and contrast loss
+    - well_preserved: Minimal aging, good color and contrast retention
+    
+    Format: Always return an array with 1-3 suggestions, even if empty: [{{"profile": "profile_name", "confidence": 85}}, {{"profile": "profile_name", "confidence": 60}}]
+    
+    Detection hints:
+    - If filename contains "dia", "slide", "transparency", "positive" → likely a slide
+    - If image shows typical slide artifacts (grain, slight color shifts, dust) → analyze accordingly
+    - If modern photo with good color → well_preserved
+    - Always provide your best analysis even if uncertain (confidence can be 0-100%)
+    - Return empty array [] ONLY if image is clearly not a slide/photo (text document, screenshot, etc.)
 
-Format your response as a structured JSON object with four top-level keys:
-- "metadata": {{objects, persons, weather, mood_atmosphere, time_of_day, season_date, scene_type, location_setting, activity_action, photography_style, composition_quality}}
-- "location_detection": {{country, region, city_or_area, location_type, confidence, reasoning}}
-- "enhancement": {{lighting_quality, color_analysis, sharpness_clarity, contrast_level, composition_issues, recommended_enhancements, overall_priority}}
+Format your response as a structured JSON object with FOUR mandatory top-level keys:
+- "metadata": {objects, persons, weather, mood_atmosphere, time_of_day, season_date, scene_type, location_setting, activity_action, photography_style, composition_quality}
+- "location_detection": {country, region, city_or_area, location_type, confidence, reasoning}
+- "enhancement": {lighting_quality, color_analysis, sharpness_clarity, contrast_level, composition_issues, recommended_enhancements, overall_priority}
+- "slide_profiles": [{profile_name, confidence}, ...] - ALWAYS include this, even if empty []
 - "slide_profiles": [] (array of profile recommendations with confidence scores, empty if not a slide)
 
 CRITICAL REMINDER: You MUST respond in {language} for METADATA fields. Location detection MUST be in ENGLISH JSON format. This is essential for image metadata.
