@@ -108,14 +108,19 @@ Analyze this image and provide detailed information in two separate sections.
     - aged: Moderate aging with slight color cast and contrast loss
     - well_preserved: Minimal aging, good color and contrast retention
     
-    Format: ALWAYS return an array with 1-3 suggestions: [{{"profile": "profile_name", "confidence": 85}}, {{"profile": "profile_name", "confidence": 60}}]
+    Format: ALWAYS return an array with 2-3 suggestions, ALWAYS INCLUDING well_preserved as baseline: [{{"profile": "detected_profile", "confidence": 75}}, {{"profile": "well_preserved", "confidence": 60}}]
+    Examples:
+    - For a faded slide: [{{"profile": "faded", "confidence": 85}}, {{"profile": "well_preserved", "confidence": 50}}]
+    - For a red-cast slide: [{{"profile": "red_cast", "confidence": 80}}, {{"profile": "aged", "confidence": 60}}, {{"profile": "well_preserved", "confidence": 40}}]
+    - For a well-preserved slide: [{{"profile": "well_preserved", "confidence": 90}}, {{"profile": "aged", "confidence": 45}}]
     
     CRITICAL DETECTION RULES:
     1. If filename contains "dia", "slide", "transparency", "positive" → DEFINITELY analyze as slide/dia and provide profiles
     2. If image appears to be from before 2000 or shows age indicators → apply restoration analysis
     3. If image has any color cast, fading, grain, or dust → do NOT return empty, match closest profile
-    4. ALWAYS provide at least one profile recommendation unless image is clearly digital-only (screenshot, render, etc.)
-    5. If uncertain, default to "aged" or "well_preserved" with appropriate confidence (never return empty array for real photographs)
+    4. ALWAYS provide at least 2-3 profile recommendations including well_preserved as baseline
+    5. well_preserved should ALWAYS be included (even if confidence is lower) as it's a safe baseline option
+    6. If uncertain, default to "aged" or "well_preserved" with appropriate confidence (never return empty array for real photographs)
     
     IMPORTANT: Even scanned slides with minimal issues should get "well_preserved" profile. NEVER return [] for actual photographs.
 
