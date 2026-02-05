@@ -118,10 +118,10 @@ Analyze this image and provide detailed information in two separate sections.
     - Return empty array [] ONLY if image is clearly not a slide/photo (text document, screenshot, etc.)
 
 Format your response as a structured JSON object with FOUR mandatory top-level keys:
-- "metadata": {"objects": "...", "persons": "...", "weather": "...", "mood_atmosphere": "...", "time_of_day": "...", "season_date": "...", "scene_type": "...", "location_setting": "...", "activity_action": "...", "photography_style": "...", "composition_quality": "..."}
-- "location_detection": {"country": "...", "region": "...", "city_or_area": "...", "location_type": "...", "confidence": 0-100, "reasoning": "..."}
-- "enhancement": {"lighting_quality": "...", "color_analysis": "...", "sharpness_clarity": "...", "contrast_level": "...", "composition_issues": "...", "recommended_enhancements": [...], "overall_priority": "..."}
-- "slide_profiles": [{"profile": "profile_name", "confidence": 0-100}, ...] - ALWAYS include this, even if empty []
+- "metadata": {{"objects": "...", "persons": "...", "weather": "...", "mood_atmosphere": "...", "time_of_day": "...", "season_date": "...", "scene_type": "...", "location_setting": "...", "activity_action": "...", "photography_style": "...", "composition_quality": "..."}}
+- "location_detection": {{"country": "...", "region": "...", "city_or_area": "...", "location_type": "...", "confidence": 0-100, "reasoning": "..."}}
+- "enhancement": {{"lighting_quality": "...", "color_analysis": "...", "sharpness_clarity": "...", "contrast_level": "...", "composition_issues": "...", "recommended_enhancements": [...], "overall_priority": "..."}}
+- "slide_profiles": [{{"profile": "profile_name", "confidence": 0-100}}, ...] - ALWAYS include this, even if empty []
 
 CRITICAL REMINDER: You MUST respond in {language} for METADATA fields. Location detection MUST be in ENGLISH JSON format. This is essential for image metadata.
 """
