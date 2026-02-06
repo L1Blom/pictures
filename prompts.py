@@ -50,7 +50,9 @@ Analyze this image and provide detailed information in two separate sections.
     - Color temperature assessment: warm (K), neutral (K), cool (K) - estimate Kelvin temperature
     - Detected color casts: none/slight warm/strong warm/slight cool/strong cool
     - Saturation level: desaturated (recommend +40-50%)/normal/oversaturated (recommend -20-30%)
+    - **CRITICAL**: If warm/orange/yellow cast detected → MUST include COLOR_TEMPERATURE correction in recommendations
     - Specific correction: e.g., "shift color temperature 500K cooler", "reduce red channel by 10%", "boost cyan in shadows"
+    - For strong orange/yellow casts (typical of 1970s-1980s film): recommend 500-1000K cooler shift or reduce red/yellow channels by 15-25%
 
 14. **Sharpness, Clarity & Noise**:
     - Overall sharpness: soft/slightly soft/sharp/oversharpened
@@ -76,11 +78,12 @@ Analyze this image and provide detailed information in two separate sections.
     - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
     - Each line must start with: "ACTION: description with percentage or parameter"
     - If NO enhancement needed, respond: "NO_ENHANCEMENTS: maintain current quality"
+    - **CRITICAL**: For any detected warm/orange/yellow color cast → ALWAYS include COLOR_TEMPERATURE correction as HIGH PRIORITY
     - Examples of CORRECT format: 
       * "BRIGHTNESS: increase by 25%"
       * "CONTRAST: boost by 20%"
       * "SATURATION: increase by 15%"
-      * "COLOR_TEMPERATURE: warm by 500K"
+      * "COLOR_TEMPERATURE: warm by 500K" (or "COLOR_TEMPERATURE: cool by 800K" for removing orange)
       * "SHARPNESS: increase by 30%"
       * "NOISE_REDUCTION: apply moderate filter"
       * "UNSHARP_MASK: radius=1.5px, strength=80%, threshold=0"
@@ -88,9 +91,11 @@ Analyze this image and provide detailed information in two separate sections.
       * "HIGHLIGHTS: reduce by 10%"
       * "VIBRANCE: increase by 25%"
       * "CLARITY: boost by 20%"
+      * "RED_CHANNEL: reduce by 20%" (for strong orange cast)
+      * "YELLOW_CAST_REMOVAL: shift to neutral" (alternative for extreme cases)
     - DO NOT use phrases like "maintain", "normalize", "none needed", "as is"
     - DO NOT forget the percentage, value, or parameter for each action
-    - List in order of priority/impact
+    - List in order of priority/impact (color temperature correction should be high priority for color casts)
     - ALWAYS include at least 3-5 specific enhancement recommendations (even if small)
 
 18. **Overall Enhancement Priority**:
@@ -112,15 +117,18 @@ Analyze this image and provide detailed information in two separate sections.
     Examples:
     - For a faded slide: [{{"profile": "faded", "confidence": 85}}, {{"profile": "well_preserved", "confidence": 50}}]
     - For a red-cast slide: [{{"profile": "red_cast", "confidence": 80}}, {{"profile": "aged", "confidence": 60}}, {{"profile": "well_preserved", "confidence": 40}}]
+    - For a yellow/orange vintage photo (1970s-80s film): [{{"profile": "yellow_cast", "confidence": 85}}, {{"profile": "color_cast", "confidence": 65}}, {{"profile": "well_preserved", "confidence": 35}}]
     - For a well-preserved slide: [{{"profile": "well_preserved", "confidence": 90}}, {{"profile": "aged", "confidence": 45}}]
     
     CRITICAL DETECTION RULES:
     1. If filename contains "dia", "slide", "transparency", "positive" → DEFINITELY analyze as slide/dia and provide profiles
-    2. If image appears to be from before 2000 or shows age indicators → apply restoration analysis
-    3. If image has any color cast, fading, grain, or dust → do NOT return empty, match closest profile
-    4. ALWAYS provide at least 2-3 profile recommendations including well_preserved as baseline
-    5. well_preserved should ALWAYS be included (even if confidence is lower) as it's a safe baseline option
-    6. If uncertain, default to "aged" or "well_preserved" with appropriate confidence (never return empty array for real photographs)
+    2. If image appears to be from before 2000 (especially 1970s-1980s) → expect strong color casts (orange/yellow/red typical of old film)
+    3. If image has strong orange/yellow tint → use yellow_cast profile (high priority for 1970s-80s photos)
+    4. If image has red/magenta tint → use red_cast profile
+    5. If image has any color cast, fading, grain, or dust → do NOT return empty, match closest profile
+    6. ALWAYS provide at least 2-3 profile recommendations including well_preserved as baseline
+    7. well_preserved should ALWAYS be included (even if confidence is lower) as it's a safe baseline option
+    8. If uncertain, default to "aged" or "well_preserved" with appropriate confidence (never return empty array for real photographs)
     
     IMPORTANT: Even scanned slides with minimal issues should get "well_preserved" profile. NEVER return [] for actual photographs.
 
