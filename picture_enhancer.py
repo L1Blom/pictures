@@ -385,7 +385,8 @@ class SmartEnhancer:
             return self.enhance_from_analysis(
                 image_path,
                 analysis['enhancement'],
-                output_path
+                output_path,
+                analysis_data=analysis  # Pass full analysis for AI-profile matching
             )
         except Exception as e:
             print(f"Error reading analysis file: {e}")
