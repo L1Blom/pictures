@@ -80,10 +80,11 @@ Analyze this image and provide detailed information in two separate sections.
     - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
     - Each line must start with: "ACTION: description with percentage or parameter"
     - If NO enhancement needed, respond: "NO_ENHANCEMENTS: maintain current quality"
-    - **CRITICAL FOR YELLOW/ORANGE CAST IMAGES**: Include these specific corrections:
-      1. COLOR_TEMPERATURE: cool by XXXk (to reduce warm tint)
-      2. RED_CHANNEL: reduce by X% (to desaturate reds/oranges)
-      3. VIBRANCE or GREEN_SATURATION: increase by X% (to bring green back to life)
+    - **CRITICAL FOR YELLOW/ORANGE CAST IMAGES**: Include these specific corrections (in order of importance):
+      1. COLOR_TEMPERATURE: cool by XXXk (to reduce warm tint - e.g., "cool by 800K")
+      2. RED_CHANNEL: reduce by X% (to desaturate reds/oranges - e.g., "reduce by 20%")
+      3. BLUE_CHANNEL: increase by X% (to restore blue vibrancy and balance warm tint - ESSENTIAL!)
+      4. VIBRANCE or GREEN_SATURATION: increase by X% (to bring green back to life)
     - **CRITICAL**: NOISE_REDUCTION MUST have a numeric strength value (e.g., "apply 20%", "apply 35%") - NEVER use words like "light", "moderate", "heavy" without a percentage
     - Examples of CORRECT format: 
       * "BRIGHTNESS: increase by 25%"
@@ -93,6 +94,7 @@ Analyze this image and provide detailed information in two separate sections.
       * "SHARPNESS: increase by 30%"
       * "NOISE_REDUCTION: apply 25%" (MUST be numeric percentage)
       * "RED_CHANNEL: reduce by 15%" (for orange/yellow cast)
+      * "BLUE_CHANNEL: increase by 25%" (ESSENTIAL for color balance with warm casts!)
       * "GREEN_SATURATION: increase by 20%" (to restore green vibrancy)
       * "UNSHARP_MASK: radius=1.5px, strength=80%, threshold=0"
       * "SHADOWS: brighten by 15%"
@@ -102,7 +104,7 @@ Analyze this image and provide detailed information in two separate sections.
       * "YELLOW_CAST_REMOVAL: shift to neutral" (alternative for extreme cases)
     - DO NOT use phrases like "maintain", "normalize", "none needed", "as is"
     - DO NOT forget the percentage, value, or parameter for each action - EVERY recommendation must have a numeric value
-    - List in order of priority/impact (color temperature correction should be high priority for color casts)
+    - List in order of priority/impact (COLOR_TEMPERATURE + RED_CHANNEL + BLUE_CHANNEL should be top 3 for yellow/orange casts)
     - ALWAYS include at least 3-5 specific enhancement recommendations (even if small)
 
 18. **Overall Enhancement Priority**:
