@@ -50,11 +50,14 @@ Analyze this image and provide detailed information in two separate sections.
     - Color temperature assessment: warm (K), neutral (K), cool (K) - estimate Kelvin temperature
     - Detected color casts: none/slight warm/strong warm/slight cool/strong cool
     - Saturation level: desaturated (recommend +40-50%)/normal/oversaturated (recommend -20-30%)
-    - **CRITICAL**: If warm/orange/yellow cast detected → MUST include COLOR_TEMPERATURE correction in recommendations
+    - **CRITICAL**: If warm/orange/yellow cast detected → MUST include COLOR_TEMPERATURE + RED_CHANNEL + BLUE_CHANNEL in recommendations
     - For strong orange/yellow casts (typical of 1970s-1980s film):
-      * Recommend 500-1000K cooler shift OR reduce red/yellow channels by 15-25%
-      * Also boost GREEN channel or VIBRANCE (20-30%) to restore green vibrancy hidden by orange
-    - Specific correction: e.g., "shift color temperature 500K cooler", "reduce red channel by 15%", "boost green saturation by 25%", "boost cyan in shadows"
+      * ALWAYS recommend COLOR_TEMPERATURE cool by 500-1000K
+      * ALWAYS recommend RED_CHANNEL reduce by 15-25% (to desaturate oranges)
+      * ALWAYS recommend BLUE_CHANNEL increase by 20-30% (to restore blue balance - ESSENTIAL!)
+      * ALWAYS recommend VIBRANCE increase by 20-30% (to restore green/cyan vibrancy hidden by orange)
+      * Example: "COLOR_TEMPERATURE: cool by 800K", "RED_CHANNEL: reduce by 20%", "BLUE_CHANNEL: increase by 25%", "VIBRANCE: increase by 25%"
+    - **REMINDER**: For ANY photo that appears to be from 1950-2000 era, automatically apply this color correction pattern. Don't skip BLUE_CHANNEL.
 
 14. **Sharpness, Clarity & Noise**:
     - Overall sharpness: soft/slightly soft/sharp/oversharpened
@@ -80,10 +83,10 @@ Analyze this image and provide detailed information in two separate sections.
     - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
     - Each line must start with: "ACTION: description with percentage or parameter"
     - If NO enhancement needed, respond: "NO_ENHANCEMENTS: maintain current quality"
-    - **CRITICAL FOR YELLOW/ORANGE CAST IMAGES**: Include these specific corrections (in order of importance):
-      1. COLOR_TEMPERATURE: cool by XXXk (to reduce warm tint - e.g., "cool by 800K")
-      2. RED_CHANNEL: reduce by X% (to desaturate reds/oranges - e.g., "reduce by 20%")
-      3. BLUE_CHANNEL: increase by X% (to restore blue vibrancy and balance warm tint - ESSENTIAL!)
+    - **MANDATORY FOR ALL PHOTOS FROM 1950-2000 ERA (especially 1970s-1980s)**: ALWAYS include these specific corrections in this priority order:
+      1. COLOR_TEMPERATURE: cool by XXXk (MANDATORY - to reduce warm/orange tint typical of old film)
+      2. RED_CHANNEL: reduce by X% (MANDATORY - to desaturate reds/oranges)
+      3. BLUE_CHANNEL: increase by X% (MANDATORY - to restore blue vibrancy and balance warm tint - NEVER SKIP!)
       4. VIBRANCE or GREEN_SATURATION: increase by X% (to bring green back to life)
     - **CRITICAL**: NOISE_REDUCTION MUST have a numeric strength value (e.g., "apply 20%", "apply 35%") - NEVER use words like "light", "moderate", "heavy" without a percentage
     - Examples of CORRECT format: 
@@ -93,8 +96,8 @@ Analyze this image and provide detailed information in two separate sections.
       * "COLOR_TEMPERATURE: warm by 500K" (or "COLOR_TEMPERATURE: cool by 800K" for removing orange)
       * "SHARPNESS: increase by 30%"
       * "NOISE_REDUCTION: apply 25%" (MUST be numeric percentage)
-      * "RED_CHANNEL: reduce by 15%" (for orange/yellow cast)
-      * "BLUE_CHANNEL: increase by 25%" (ESSENTIAL for color balance with warm casts!)
+      * "RED_CHANNEL: reduce by 15%" (for orange/yellow cast - ALWAYS INCLUDE for old photos)
+      * "BLUE_CHANNEL: increase by 25%" (ESSENTIAL for color balance - ALWAYS INCLUDE for warm casts!)
       * "GREEN_SATURATION: increase by 20%" (to restore green vibrancy)
       * "UNSHARP_MASK: radius=1.5px, strength=80%, threshold=0"
       * "SHADOWS: brighten by 15%"
@@ -104,8 +107,9 @@ Analyze this image and provide detailed information in two separate sections.
       * "YELLOW_CAST_REMOVAL: shift to neutral" (alternative for extreme cases)
     - DO NOT use phrases like "maintain", "normalize", "none needed", "as is"
     - DO NOT forget the percentage, value, or parameter for each action - EVERY recommendation must have a numeric value
-    - List in order of priority/impact (COLOR_TEMPERATURE + RED_CHANNEL + BLUE_CHANNEL should be top 3 for yellow/orange casts)
+    - List in order of priority/impact (COLOR_TEMPERATURE + RED_CHANNEL + BLUE_CHANNEL should ALWAYS be top 3 for warm/orange casts)
     - ALWAYS include at least 3-5 specific enhancement recommendations (even if small)
+    - **REMINDER: For images that look like they're from 1950-2000, ALWAYS recommend COLOR_TEMPERATURE cool shift + RED_CHANNEL reduce + BLUE_CHANNEL increase. This is NOT optional.**
 
 18. **Overall Enhancement Priority**:
     - Which issue is most critical to fix first
@@ -132,6 +136,7 @@ Analyze this image and provide detailed information in two separate sections.
     CRITICAL DETECTION RULES:
     1. If filename contains "dia", "slide", "transparency", "positive" → DEFINITELY analyze as slide/dia and provide profiles
     2. If image appears to be from before 2000 (especially 1970s-1980s) → expect strong color casts (orange/yellow/red typical of old film)
+       - **ALSO APPLY**: When 1970s-80s photo is detected, ALWAYS recommend COLOR_TEMPERATURE cool + RED_CHANNEL reduce + BLUE_CHANNEL increase in enhancements (see section 17)
     3. If image has strong orange/yellow tint → use yellow_cast profile (high priority for 1970s-80s photos)
     4. If image has red/magenta tint → use red_cast profile
     5. If image has any color cast, fading, grain, or dust → do NOT return empty, match closest profile
