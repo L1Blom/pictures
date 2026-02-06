@@ -44,12 +44,12 @@ class SlideRestoration:
             'color_balance': {'red': 0.85, 'green': 1.08, 'blue': 1.12},  # Reduce red, boost green and blue
         },
         'yellow_cast': {
-            'description': 'Strong yellow color cast (warm aging)',
-            'saturation': 1.3,
-            'contrast': 1.35,
-            'brightness': 1.1,
-            'sharpness': 1.15,
-            'color_balance': {'red': 0.95, 'green': 1.0, 'blue': 1.15},  # Boost blue, reduce red slightly
+            'description': 'Strong yellow/orange color cast (warm aging) - needs desaturation and blue boost',
+            'saturation': 0.75,  # REDUCE saturation (was boosting before) to remove orange cast
+            'contrast': 1.2,
+            'brightness': 1.05,
+            'sharpness': 1.1,
+            'color_balance': {'red': 0.85, 'green': 1.0, 'blue': 1.25},  # Significantly boost blue, reduce red
         },
         'aged': {
             'description': 'Moderately aged with some fading and contrast loss',
