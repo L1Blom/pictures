@@ -21,7 +21,8 @@ from enhancement_filters import (
     adjust_color_temperature,
     adjust_shadows_highlights,
     apply_clarity_filter,
-    adjust_vibrance
+    adjust_vibrance,
+    adjust_color_channel
 )
 
 
@@ -469,6 +470,34 @@ class SmartEnhancer:
                     })
                     print(f"  → Color Temperature: {target_kelvin}K ({kelvin_shift:+d}K shift)")
             
+            # ===== COLOR CHANNEL ADJUSTMENTS =====
+            elif 'red_channel' in rec_lower or 'blue_channel' in rec_lower or 'green_channel' in rec_lower:
+                # Determine which channel
+                channel = None
+                if 'red' in rec_lower:
+                    channel = 'red'
+                elif 'blue' in rec_lower:
+                    channel = 'blue'
+                elif 'green' in rec_lower:
+                    channel = 'green'
+                
+                # Extract percentage and direction
+                percent_match = re.search(r'([+-]?\d+)\s*%', rec_lower)
+                if percent_match and channel:
+                    percent = int(percent_match.group(1))
+                    # Check if "reduce" or "decrease" keywords present (negate the percentage)
+                    if 'reduce' in rec_lower or 'decrease' in rec_lower:
+                        percent = -percent
+                    factor = 1.0 + (percent / 100.0)
+                    factor = max(0.1, min(2.5, factor))  # Clamp to reasonable range
+                    
+                    advanced_ops.append({
+                        'type': 'channel',
+                        'channel': channel,
+                        'factor': factor
+                    })
+                    print(f"  → {channel.capitalize()} Channel: {percent:+d}% (factor: {factor:.2f})")
+            
             # ===== UNSHARP MASK =====
             elif 'unsharp_mask' in rec_lower or 'unsharp mask' in rec_lower:
                 radius = 1.5
@@ -678,6 +707,15 @@ class SmartEnhancer:
                     current_path = apply_clarity_filter(
                         current_path,
                         strength=op.get('strength', 20) * 100,  # Convert 0-1 to 0-100
+                        output_path=current_path
+                    )
+                
+                elif op_type == 'channel':
+                    print(f"    → Adjusting {op.get('channel', 'unknown')} channel...")
+                    current_path = adjust_color_channel(
+                        current_path,
+                        channel=op.get('channel', 'red'),
+                        factor=op.get('factor', 1.0),
                         output_path=current_path
                     )
                 
