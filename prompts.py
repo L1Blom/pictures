@@ -51,8 +51,10 @@ Analyze this image and provide detailed information in two separate sections.
     - Detected color casts: none/slight warm/strong warm/slight cool/strong cool
     - Saturation level: desaturated (recommend +40-50%)/normal/oversaturated (recommend -20-30%)
     - **CRITICAL**: If warm/orange/yellow cast detected → MUST include COLOR_TEMPERATURE correction in recommendations
-    - Specific correction: e.g., "shift color temperature 500K cooler", "reduce red channel by 10%", "boost cyan in shadows"
-    - For strong orange/yellow casts (typical of 1970s-1980s film): recommend 500-1000K cooler shift or reduce red/yellow channels by 15-25%
+    - For strong orange/yellow casts (typical of 1970s-1980s film):
+      * Recommend 500-1000K cooler shift OR reduce red/yellow channels by 15-25%
+      * Also boost GREEN channel or VIBRANCE (20-30%) to restore green vibrancy hidden by orange
+    - Specific correction: e.g., "shift color temperature 500K cooler", "reduce red channel by 15%", "boost green saturation by 25%", "boost cyan in shadows"
 
 14. **Sharpness, Clarity & Noise**:
     - Overall sharpness: soft/slightly soft/sharp/oversharpened
@@ -78,23 +80,28 @@ Analyze this image and provide detailed information in two separate sections.
     - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
     - Each line must start with: "ACTION: description with percentage or parameter"
     - If NO enhancement needed, respond: "NO_ENHANCEMENTS: maintain current quality"
-    - **CRITICAL**: For any detected warm/orange/yellow color cast → ALWAYS include COLOR_TEMPERATURE correction as HIGH PRIORITY
+    - **CRITICAL FOR YELLOW/ORANGE CAST IMAGES**: Include these specific corrections:
+      1. COLOR_TEMPERATURE: cool by XXXk (to reduce warm tint)
+      2. RED_CHANNEL: reduce by X% (to desaturate reds/oranges)
+      3. VIBRANCE or GREEN_SATURATION: increase by X% (to bring green back to life)
+    - **CRITICAL**: NOISE_REDUCTION MUST have a numeric strength value (e.g., "apply 20%", "apply 35%") - NEVER use words like "light", "moderate", "heavy" without a percentage
     - Examples of CORRECT format: 
       * "BRIGHTNESS: increase by 25%"
       * "CONTRAST: boost by 20%"
       * "SATURATION: increase by 15%"
       * "COLOR_TEMPERATURE: warm by 500K" (or "COLOR_TEMPERATURE: cool by 800K" for removing orange)
       * "SHARPNESS: increase by 30%"
-      * "NOISE_REDUCTION: apply 25% strength" (or "light", "moderate", "heavy" if no numeric value available)
+      * "NOISE_REDUCTION: apply 25%" (MUST be numeric percentage)
+      * "RED_CHANNEL: reduce by 15%" (for orange/yellow cast)
+      * "GREEN_SATURATION: increase by 20%" (to restore green vibrancy)
       * "UNSHARP_MASK: radius=1.5px, strength=80%, threshold=0"
       * "SHADOWS: brighten by 15%"
       * "HIGHLIGHTS: reduce by 10%"
       * "VIBRANCE: increase by 25%"
       * "CLARITY: boost by 20%"
-      * "RED_CHANNEL: reduce by 20%" (for strong orange cast)
       * "YELLOW_CAST_REMOVAL: shift to neutral" (alternative for extreme cases)
     - DO NOT use phrases like "maintain", "normalize", "none needed", "as is"
-    - DO NOT forget the percentage, value, or parameter for each action
+    - DO NOT forget the percentage, value, or parameter for each action - EVERY recommendation must have a numeric value
     - List in order of priority/impact (color temperature correction should be high priority for color casts)
     - ALWAYS include at least 3-5 specific enhancement recommendations (even if small)
 

@@ -98,20 +98,11 @@ def cmd_batch_impl(args):
     for idx, image_path in enumerate(image_files, 1):
         image_stem = image_path.stem
         
-        # When using restore-slide, put files directly in output dir
-        # Otherwise, organize by subdirectories
-        if hasattr(args, 'restore_slide') and args.restore_slide:
-            analyzed_path = Path(output_dir) / f"{image_stem}_analyzed.jpg"
-            enhanced_path = Path(output_dir) / f"{image_stem}_enhanced.jpg" if enhancer else None
-            restored_path = Path(output_dir) / f"{image_stem}_restored.jpg"
-            analysis_json = Path(output_dir) / f"{image_stem}_analyzed.json"
-        else:
-            analysis_dir = Path(output_dir) / image_stem
-            analysis_dir.mkdir(exist_ok=True)
-            analyzed_path = analysis_dir / f"{image_stem}_analyzed.jpg"
-            enhanced_path = analysis_dir / f"{image_stem}_enhanced.jpg" if enhancer else None
-            restored_path = None
-            analysis_json = analysis_dir / f"{image_stem}_analyzed.json"
+        # Always put files directly in output directory (flat structure, no subdirs)
+        analyzed_path = Path(output_dir) / f"{image_stem}_analyzed.jpg"
+        enhanced_path = Path(output_dir) / f"{image_stem}_enhanced.jpg" if enhancer else None
+        restored_path = Path(output_dir) / f"{image_stem}_restored.jpg" if (hasattr(args, 'restore_slide') and args.restore_slide) else None
+        analysis_json = Path(output_dir) / f"{image_stem}_analyzed.json"
         
         print(f"[{idx}/{total}] Processing: {image_path.name}")
         
