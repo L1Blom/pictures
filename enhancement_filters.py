@@ -287,3 +287,49 @@ def adjust_vibrance(
     except Exception as e:
         print(f"Error adjusting vibrance: {e}")
         return None
+
+def adjust_color_channel(
+    image_path: str,
+    channel: str = 'red',
+    factor: float = 1.0,
+    output_path: Optional[str] = None
+) -> Optional[str]:
+    """
+    Adjust a specific color channel (red, green, or blue)
+    
+    Args:
+        image_path: Path to source image
+        channel: Which channel to adjust ('red', 'green', or 'blue')
+        factor: Multiplication factor (>1 = increase, <1 = decrease)
+        output_path: Path to save enhanced image
+        
+    Returns:
+        Path to saved image or None if failed
+    """
+    try:
+        image = Image.open(image_path)
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        pixels = image.load()
+        width, height = image.size
+        
+        channel_idx = {'red': 0, 'green': 1, 'blue': 2}.get(channel.lower(), 0)
+        
+        for y in range(height):
+            for x in range(width):
+                r, g, b = pixels[x, y][:3]
+                channels = [r, g, b]
+                
+                # Adjust the selected channel
+                channels[channel_idx] = int(min(255, channels[channel_idx] * factor))
+                
+                pixels[x, y] = tuple(channels)
+        
+        if output_path:
+            image.save(output_path, quality=95)
+            return output_path
+        return None
+    except Exception as e:
+        print(f"Error adjusting {channel} channel: {e}")
+        return None
