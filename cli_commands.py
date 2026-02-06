@@ -110,10 +110,15 @@ def cmd_batch_impl(args):
             # Step 1: Analyze
             analysis = analyzer.analyze_and_save(str(image_path), str(analyzed_path), save_json=True)
             
-            # Step 2: Enhance (optional)
+            # Step 2: Enhance (optional) - now includes AI-profile matching
             enhanced_exists = False
             if enhancer and 'enhancement' in analysis:
-                result = enhancer.enhance_from_analysis(str(analyzed_path), analysis['enhancement'], str(enhanced_path))
+                result = enhancer.enhance_from_analysis(
+                    str(analyzed_path), 
+                    analysis['enhancement'],
+                    str(enhanced_path),
+                    analysis_data=analysis  # Pass full analysis for profile matching
+                )
                 if result:
                     metadata_mgr = MetadataManager()
                     metadata_mgr.copy_exif(str(analyzed_path), str(enhanced_path), str(enhanced_path))
