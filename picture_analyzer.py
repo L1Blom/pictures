@@ -324,12 +324,29 @@ class PictureAnalyzer:
     def _parse_response(self, response: str) -> Dict[str, Any]:
         """Parse OpenAI response into structured format with metadata and enhancement sections"""
         try:
-            # Try to extract JSON from the response
-            json_start = response.find('{')
-            json_end = response.rfind('}') + 1
+            # First try to extract JSON from markdown code blocks
+            json_str = None
+            if '```json' in response:
+                # Extract JSON from markdown code block
+                start = response.find('```json') + 7
+                end = response.find('```', start)
+                if end > start:
+                    json_str = response[start:end].strip()
+            elif '```' in response:
+                # Try generic code block
+                start = response.find('```') + 3
+                end = response.find('```', start)
+                if end > start:
+                    json_str = response[start:end].strip()
             
-            if json_start != -1 and json_end > json_start:
-                json_str = response[json_start:json_end]
+            # If no code block, try to extract JSON directly
+            if not json_str:
+                json_start = response.find('{')
+                json_end = response.rfind('}') + 1
+                if json_start != -1 and json_end > json_start:
+                    json_str = response[json_start:json_end]
+            
+            if json_str:
                 analysis = json.loads(json_str)
                 
                 # If response has metadata and enhancement sections, return as-is
