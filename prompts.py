@@ -85,7 +85,7 @@ Analyze this image and provide detailed information in two separate sections.
       * "SATURATION: increase by 15%"
       * "COLOR_TEMPERATURE: warm by 500K" (or "COLOR_TEMPERATURE: cool by 800K" for removing orange)
       * "SHARPNESS: increase by 30%"
-      * "NOISE_REDUCTION: apply moderate filter"
+      * "NOISE_REDUCTION: apply 25% strength" (or "light", "moderate", "heavy" if no numeric value available)
       * "UNSHARP_MASK: radius=1.5px, strength=80%, threshold=0"
       * "SHADOWS: brighten by 15%"
       * "HIGHLIGHTS: reduce by 10%"
