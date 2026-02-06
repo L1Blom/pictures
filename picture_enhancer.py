@@ -449,13 +449,25 @@ class SmartEnhancer:
                 match = re.search(r'([+-]?\d+)\s*k(?:elvin)?', rec_lower)
                 if match:
                     kelvin_shift = int(match.group(1))
+                    
+                    # Check if recommendation says "cool" or "warm" to get the direction right
+                    if 'cool' in rec_lower:
+                        # Cool = bluer = lower kelvin = negative shift
+                        kelvin_shift = -abs(kelvin_shift)
+                    elif 'warm' in rec_lower:
+                        # Warm = redder = higher kelvin = positive shift
+                        kelvin_shift = abs(kelvin_shift)
+                    
                     # Convert shift to absolute kelvin (assuming 6500K baseline)
                     target_kelvin = 6500 + kelvin_shift
+                    # Clamp to valid range
+                    target_kelvin = max(1500, min(15000, target_kelvin))
+                    
                     advanced_ops.append({
                         'type': 'color_temperature',
                         'kelvin': target_kelvin
                     })
-                    print(f"  → Color Temperature: {target_kelvin}K ({kelvin_shift:+d}K)")
+                    print(f"  → Color Temperature: {target_kelvin}K ({kelvin_shift:+d}K shift)")
             
             # ===== UNSHARP MASK =====
             elif 'unsharp_mask' in rec_lower or 'unsharp mask' in rec_lower:
