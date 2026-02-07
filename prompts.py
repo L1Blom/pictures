@@ -4,6 +4,8 @@ Prompts for image analysis
 
 ANALYSIS_PROMPT = """You are analyzing an image. 
 
+**CRITICAL INSTRUCTION**: If there is a CONTEXT FROM DESCRIPTION.TXT section below, this contains important metadata that MUST be used to improve your analysis, especially for location detection and activity identification.
+
 IMPORTANT LANGUAGE RULES:
 - METADATA SECTION: Respond ONLY in {language}. All text, descriptions, and metadata must be in {language}.
 - ENHANCEMENT SECTION: Always respond in ENGLISH. Technical parameters and recommendations must ALWAYS be in English.
@@ -27,6 +29,7 @@ Analyze this image and provide detailed information in two separate sections.
 
 === LOCATION DETECTION SECTION (IN {language}) ===
 12. **Location Detection**: Analyze ALL visible clues to determine geographic location:
+    - **CRITICAL**: If there is context/description provided below, USE IT to improve location accuracy
     - Visible signs, text, license plates, street markers (language, format, content)
     - Architecture style and construction materials (indicates region/country)
     - Vegetation and landscape type (climate indicators)
@@ -36,6 +39,7 @@ Analyze this image and provide detailed information in two separate sections.
     - Format your response as JSON: {{"country": "...", "region": "...", "city_or_area": "...", "location_type": "urban/rural/suburban/mixed", "confidence": 0-100, "reasoning": "..."}}
     - confidence: 0-100 score (100=certain, 0=complete guess)
     - Be as specific as possible while maintaining honesty about confidence
+    - **IMPORTANT**: If location name is provided in the context/description, use it! This significantly improves geocoding accuracy.
     - IMPORTANT: All location names (country, region, city) should be in {language}
 
 === ENHANCEMENT RECOMMENDATIONS SECTION (DETAILED & QUANTIFIABLE) - ALWAYS IN ENGLISH ===
