@@ -110,23 +110,21 @@ def cmd_batch_impl(args):
             # Step 1: Analyze
             analysis = analyzer.analyze_and_save(str(image_path), str(analyzed_path), save_json=True)
             
-            # Step 2: Enhance (optional) - now includes AI-profile matching
-            enhanced_exists = False
+            # Step 2: Apply AI enhancements (INDEPENDENT - from analyzed/source)
             if enhancer and 'enhancement' in analysis:
                 result = enhancer.enhance_from_analysis(
                     str(analyzed_path), 
                     analysis['enhancement'],
-                    str(enhanced_path),
-                    analysis_data=analysis  # Pass full analysis for profile matching
+                    str(enhanced_path)
                 )
                 if result:
                     metadata_mgr = MetadataManager()
                     metadata_mgr.copy_exif(str(analyzed_path), str(enhanced_path), str(enhanced_path))
-                    enhanced_exists = True
             
-            # Step 3: Restore slide (optional)
+            # Step 3: Apply profile restoration (INDEPENDENT - ALWAYS from analyzed/source, not from enhanced)
             if hasattr(args, 'restore_slide') and args.restore_slide:
-                restore_input = str(enhanced_path) if (enhancer and enhanced_exists) else str(analyzed_path)
+                # ALWAYS restore from the analyzed image (source), not from enhanced
+                restore_input = str(analyzed_path)
                 
                 # Determine which profile(s) to use
                 profiles_to_process = []

@@ -264,11 +264,14 @@ class SmartEnhancer:
         """
         Enhance image based on AI analysis recommendations
         
+        IMPORTANT: This applies ONLY AI enhancements from the analysis.
+        For independent profile restoration, use SlideRestoration.restore_slide() separately.
+        
         Args:
             image_path: Path to source image
             enhancement_data: Enhancement section from AI analysis
             output_path: Path to save enhanced image
-            analysis_data: Full analysis data (optional, for profile matching)
+            analysis_data: Full analysis data (optional, not used for profile application)
             
         Returns:
             Path to saved image or None if failed
@@ -313,48 +316,16 @@ class SmartEnhancer:
                 output_path
             )
             
-            # Step 2: Apply AI-detected profile if confidence is high (>70%)
-            if analysis_data and current_image_path:
-                slide_profiles = analysis_data.get('slide_profiles', [])
-                if slide_profiles and isinstance(slide_profiles, list):
-                    # Get the top-confidence profile
-                    top_profile = None
-                    max_confidence = 0
-                    
-                    for p in slide_profiles:
-                        if isinstance(p, dict) and 'profile' in p and 'confidence' in p:
-                            confidence = p.get('confidence', 0)
-                            if confidence > max_confidence:
-                                max_confidence = confidence
-                                top_profile = p.get('profile')
-                    
-                    # Apply profile if confidence is high enough
-                    if top_profile and max_confidence >= 70:
-                        print(f"  → Applying AI-detected profile: {top_profile} ({max_confidence}% confidence)")
-                        from slide_restoration import SlideRestoration
-                        
-                        # Create temporary output for profile
-                        profile_output = current_image_path.replace('.jpg', '_profiled.jpg') if current_image_path.endswith('.jpg') else current_image_path + '_profiled.jpg'
-                        
-                        SlideRestoration.restore_slide(
-                            current_image_path,
-                            profile=top_profile,
-                            output_path=profile_output
-                        )
-                        
-                        if Path(profile_output).exists():
-                            # Use profiled version as final output
-                            if output_path:
-                                import shutil
-                                shutil.move(profile_output, output_path)
-                                current_image_path = output_path
-                            else:
-                                current_image_path = profile_output
+            # NOTE: Profile restoration is now applied independently by CLI
+            # This ensures both AI enhancement and profile restoration
+            # start from the source image, not from each other
             
             return current_image_path
         
         except Exception as e:
             print(f"Error during smart enhancement: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     
     def enhance_from_json(
