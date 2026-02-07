@@ -43,6 +43,8 @@ Analyze this image and provide detailed information in two separate sections.
     - Current state: underexposed/properly exposed/overexposed
     - Specific measurements: estimated EV adjustment needed (-1.5 to +1.5)
     - Shadow detail: crushed/normal/blown out
+    - **CRITICAL**: If underexposed, MUST recommend specific brightness increase percentage in recommendations (see section 17)
+    - **CRITICAL**: If overexposed, MUST recommend specific brightness decrease or highlight reduction in recommendations
     - Specific recommendation: e.g., "increase brightness by 25-30%", "reduce highlights by 15%"
 
 13. **Color & White Balance Analysis**:
@@ -84,12 +86,18 @@ Analyze this image and provide detailed information in two separate sections.
     - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
     - Each line must start with: "ACTION: description with percentage or parameter"
     - If NO enhancement needed, respond: "NO_ENHANCEMENTS: maintain current quality"
+    - **MANDATORY: BRIGHTNESS ADJUSTMENT FOR EXPOSURE**
+      * If image is underexposed: ALWAYS include "BRIGHTNESS: increase by X%" (typically 15-40% for dark images, more for very dark)
+      * If image is overexposed: ALWAYS include "BRIGHTNESS: decrease by X%" or reduce highlights
+      * Calculate brightness increase needed based on EV adjustment: roughly 1 EV = 25-30% brightness increase
+      * For very dark/underexposed images, FIRST priority should be BRIGHTNESS before other adjustments
     - **MANDATORY FOR ALL PHOTOS FROM 1950-2000 ERA (especially 1970s-1980s)**: ALWAYS include these specific corrections in this priority order:
-      1. COLOR_TEMPERATURE: cool by XXXk (MANDATORY - to reduce warm/orange tint typical of old film)
-      2. RED_CHANNEL: reduce by X% (MANDATORY - to desaturate reds/oranges - typically 12-18%)
-      3. BLUE_CHANNEL: increase by X% (MANDATORY - to restore blue vibrancy and balance warm tint - typically 15-20%)
-      4. GREEN_CHANNEL: increase by X% (MANDATORY - to brighten underexposed greens - typically 10-15%)
-      5. VIBRANCE or SATURATION: increase by X% (to bring colors back to life - typically 15-25%)
+      1. BRIGHTNESS: increase by X% (IF UNDEREXPOSED - MANDATORY! typically 15-40% depending on darkness level)
+      2. COLOR_TEMPERATURE: cool by XXXk (MANDATORY - to reduce warm/orange tint typical of old film)
+      3. RED_CHANNEL: reduce by X% (MANDATORY - to desaturate reds/oranges - typically 12-18%)
+      4. BLUE_CHANNEL: increase by X% (MANDATORY - to restore blue vibrancy and balance warm tint - typically 15-20%)
+      5. GREEN_CHANNEL: increase by X% (MANDATORY - to brighten underexposed greens - typically 10-15%)
+      6. VIBRANCE or SATURATION: increase by X% (to bring colors back to life - typically 15-25%)
     - **CRITICAL**: NOISE_REDUCTION MUST have a numeric strength value (e.g., "apply 20%", "apply 35%") - NEVER use words like "light", "moderate", "heavy" without a percentage
     - Examples of CORRECT format: 
       * "BRIGHTNESS: increase by 25%"
