@@ -1,0 +1,17 @@
+# Slide restoration profile: Well Preserved
+# For slides in good condition needing only minor touch-up
+name: Well Preserved
+description: For slides in good condition needing minor touch-up
+
+saturation: 1.1
+contrast: 1.15
+brightness: 1.05
+sharpness: 1.08
+
+color_balance:
+  red: 1.0
+  green: 1.0
+  blue: 1.0
+
+denoise: false
+denoise_radius: 0.5

@@ -1,0 +1,17 @@
+# Slide restoration profile: Red Cast
+# For slides with reddish/warm color cast (typical of old Kodachrome)
+name: Red Cast
+description: For slides with reddish/warm color cast
+
+saturation: 1.25
+contrast: 1.35
+brightness: 1.1
+sharpness: 1.15
+
+color_balance:
+  red: 0.85
+  green: 1.08
+  blue: 1.12
+
+denoise: true
+denoise_radius: 0.5

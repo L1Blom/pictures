@@ -2,7 +2,7 @@
 
 Replaces the legacy ``SlideRestoration`` class with a version that uses
 the Phase 1 Pydantic models (``SlideProfile``, ``ColorBalance``) and
-centralized defaults from ``defaults.py``.
+externalized YAML profiles loaded via ``config.loader``.
 """
 from __future__ import annotations
 
@@ -11,35 +11,13 @@ from typing import Any, Dict, Optional
 
 from PIL import Image, ImageEnhance, ImageFilter
 
-from ...config.defaults import DEFAULT_JPEG_QUALITY, DEFAULT_SLIDE_PROFILES
+from ...config.defaults import DEFAULT_JPEG_QUALITY
+from ...config.loader import load_slide_profiles
 from ...core.models import ColorBalance, SlideProfile, SlideProfileDetection
 
 
-def _load_builtin_profiles() -> dict[str, SlideProfile]:
-    """Convert the raw dict profiles from defaults.py into typed models."""
-    profiles = {}
-    for key, raw in DEFAULT_SLIDE_PROFILES.items():
-        cb_raw = raw.get("color_balance", {})
-        profiles[key] = SlideProfile(
-            name=raw.get("name", key),
-            description=raw.get("description", ""),
-            saturation=raw.get("saturation", 1.0),
-            contrast=raw.get("contrast", 1.0),
-            brightness=raw.get("brightness", 1.0),
-            sharpness=raw.get("sharpness", 1.0),
-            color_balance=ColorBalance(
-                red=cb_raw.get("red", 1.0),
-                green=cb_raw.get("green", 1.0),
-                blue=cb_raw.get("blue", 1.0),
-            ),
-            denoise=raw.get("denoise", False),
-            denoise_radius=raw.get("denoise_radius", 0.5),
-        )
-    return profiles
-
-
-# Module-level cache of typed profiles
-BUILTIN_PROFILES: dict[str, SlideProfile] = _load_builtin_profiles()
+# Module-level cache of typed profiles (loaded from YAML → defaults fallback)
+BUILTIN_PROFILES: dict[str, SlideProfile] = load_slide_profiles()
 
 
 class SlideRestorer:
@@ -58,9 +36,15 @@ class SlideRestorer:
     def __init__(
         self,
         profiles: dict[str, SlideProfile] | None = None,
+        profiles_dir: str | Path | None = None,
         jpeg_quality: int = DEFAULT_JPEG_QUALITY,
     ):
-        self._profiles = profiles or dict(BUILTIN_PROFILES)
+        if profiles is not None:
+            self._profiles = profiles
+        elif profiles_dir is not None:
+            self._profiles = load_slide_profiles(custom_dir=profiles_dir)
+        else:
+            self._profiles = dict(BUILTIN_PROFILES)
         self.jpeg_quality = jpeg_quality
 
     @property

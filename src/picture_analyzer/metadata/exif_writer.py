@@ -24,6 +24,7 @@ from ..config.defaults import (
     LUMINANCE_RED,
     PROBLEMATIC_EXIF_TAGS,
 )
+from ..config.loader import load_translations
 from ..core.models import AnalysisResult, GeoLocation
 
 
@@ -235,43 +236,8 @@ class ExifWriter:
         """Format metadata into a readable description for ImageDescription."""
         lines: list[str] = []
 
-        # Language-specific labels
-        translations = {
-            "nl": {
-                "LOCATION": "LOCATIE",
-                "Confidence": "Betrouwbaarheid",
-                "Location uncertain": "Locatie onzeker",
-                "Objects": "Objecten",
-                "Persons": "Personen",
-                "Weather": "Weer",
-                "Mood/Atmosphere": "Sfeer/Atmosfeer",
-                "Time of Day": "Tijd van de dag",
-                "Season/Date": "Seizoen/Datum",
-                "Scene Type": "Type scène",
-                "Setting": "Omgeving",
-                "Activity": "Activiteit",
-                "Photography Style": "Fotografische stijl",
-                "Composition Quality": "Samenstelling kwaliteit",
-            },
-            "en": {
-                "LOCATION": "LOCATION",
-                "Confidence": "Confidence",
-                "Location uncertain": "Location uncertain",
-                "Objects": "Objects",
-                "Persons": "Persons",
-                "Weather": "Weather",
-                "Mood/Atmosphere": "Mood/Atmosphere",
-                "Time of Day": "Time of Day",
-                "Season/Date": "Season/Date",
-                "Scene Type": "Scene Type",
-                "Setting": "Setting",
-                "Activity": "Activity",
-                "Photography Style": "Photography Style",
-                "Composition Quality": "Composition Quality",
-            },
-        }
-
-        lang_trans = translations.get(self.language, translations["en"])
+        # Language-specific labels (loaded from data/translations/*.yaml)
+        lang_trans = load_translations(self.language)
 
         # Location section
         if location_detection:
@@ -341,7 +307,9 @@ class ExifWriter:
         # Source description
         if source_description:
             lines.append("")
-            lines.append("SOURCE DESCRIPTION (from description.txt):")
+            lines.append(
+                f"{lang_trans.get('SOURCE_DESCRIPTION_HEADER', 'SOURCE DESCRIPTION (from description.txt)')}:"
+            )
             lines.append(source_description)
 
         description = "\n".join(lines)

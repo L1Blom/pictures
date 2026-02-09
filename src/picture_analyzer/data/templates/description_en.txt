@@ -1,0 +1,8 @@
+Album name: 
+Location: 
+Date: 
+People: 
+Activity: 
+Weather: 
+Notes: 
+Mood: 

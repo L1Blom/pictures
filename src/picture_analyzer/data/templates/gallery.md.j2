@@ -1,0 +1,38 @@
+{# Jinja2 template for the gallery report (Markdown format) #}
+{# Variables: analyses (list), total (int), thumbnails_rel_path (str) #}
+# Picture Gallery Report
+
+**Total Images:** {{ total }}
+
+{% if directory_description %}
+## 📝 Directory Description
+
+> {{ directory_description }}
+
+{% endif %}
+## Image Gallery
+
+| # | Image Name | 📝 | Original | Enhanced | Restored 1 | Restored 2 |
+|---|------------|-----|----------|----------|-----------|-----------|
+{% for item in analyses %}
+{%- set desc_indicator = "📝" if item.get("has_description") else "" -%}
+{%- set original = "" -%}
+{%- set enhanced = "" -%}
+{%- set restored_1 = "" -%}
+{%- set restored_2 = "" -%}
+{%- if item.analyzed_thumb -%}
+  {%- set original = '<img src="' ~ item.analyzed_thumb ~ '" style="min-width: 150px;" />' -%}
+{%- endif -%}
+{%- if item.enhanced_thumb -%}
+  {%- set enhanced = '<img src="' ~ item.enhanced_thumb ~ '" style="min-width: 150px;" />' -%}
+{%- endif -%}
+{%- if item.restored_thumbs | default([]) | length >= 1 -%}
+  {%- set r = item.restored_thumbs[0] -%}
+  {%- set restored_1 = '<img src="' ~ r.path ~ '" style="min-width: 150px;" /> **' ~ r.profile ~ '**' -%}
+{%- endif -%}
+{%- if item.restored_thumbs | default([]) | length >= 2 -%}
+  {%- set r = item.restored_thumbs[1] -%}
+  {%- set restored_2 = '<img src="' ~ r.path ~ '" style="min-width: 150px;" /> **' ~ r.profile ~ '**' -%}
+{%- endif -%}
+| {{ loop.index }} | {{ item.name }} | {{ desc_indicator }} | {{ original }} | {{ enhanced }} | {{ restored_1 }} | {{ restored_2 }} |
+{% endfor %}

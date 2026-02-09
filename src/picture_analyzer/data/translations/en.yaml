@@ -1,0 +1,24 @@
+# English translations for picture-analyzer metadata labels
+# These are used by ExifWriter when formatting EXIF descriptions.
+# Add new languages by creating a new file (e.g. de.yaml, fr.yaml).
+
+# Section headers
+LOCATION: "LOCATION"
+SOURCE_DESCRIPTION_HEADER: "SOURCE DESCRIPTION (from description.txt)"
+
+# Location-related
+Confidence: "Confidence"
+Location uncertain: "Location uncertain"
+
+# Metadata field labels  (key = JSON field name from AI response)
+Objects: "Objects"
+Persons: "Persons"
+Weather: "Weather"
+Mood/Atmosphere: "Mood/Atmosphere"
+Time of Day: "Time of Day"
+Season/Date: "Season/Date"
+Scene Type: "Scene Type"
+Setting: "Setting"
+Activity: "Activity"
+Photography Style: "Photography Style"
+Composition Quality: "Composition Quality"

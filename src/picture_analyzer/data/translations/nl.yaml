@@ -1,0 +1,23 @@
+# Nederlandse vertalingen voor picture-analyzer metadata-labels
+# Gebruikt door ExifWriter bij het formatteren van EXIF-beschrijvingen.
+
+# Sectie-koppen
+LOCATION: "LOCATIE"
+SOURCE_DESCRIPTION_HEADER: "BRONBESCHRIJVING (uit description.txt)"
+
+# Locatie-gerelateerd
+Confidence: "Betrouwbaarheid"
+Location uncertain: "Locatie onzeker"
+
+# Metadata-veldlabels  (sleutel = JSON-veldnaam uit AI-antwoord)
+Objects: "Objecten"
+Persons: "Personen"
+Weather: "Weer"
+Mood/Atmosphere: "Sfeer/Atmosfeer"
+Time of Day: "Tijd van de dag"
+Season/Date: "Seizoen/Datum"
+Scene Type: "Type scène"
+Setting: "Omgeving"
+Activity: "Activiteit"
+Photography Style: "Fotografische stijl"
+Composition Quality: "Samenstelling kwaliteit"

@@ -42,12 +42,14 @@ web = ["flask>=3.0"]
 yaml = ["PyYAML>=6.0"]
 numpy = ["numpy>=1.24"]
 rich = ["rich>=13.0"]
+templates = ["Jinja2>=3.0"]
 all = [
     "pillow-heif>=0.10",
     "flask>=3.0",
     "PyYAML>=6.0",
     "numpy>=1.24",
     "rich>=13.0",
+    "Jinja2>=3.0",
 ]
 dev = [
     "pytest>=7.0",

@@ -1,0 +1,171 @@
+{# Jinja2 template for the analysis report (Markdown format) #}
+{# Variables: analyses (list of dicts), total (int) #}
+# Picture Analysis Report
+
+**Total Images Analyzed:** {{ total }}
+
+## Summary
+
+| # | Image | Objects | Persons | Weather | Mood |
+|---|-------|---------|---------|---------|------|
+{% for item in analyses %}
+{%- set meta = item.analysis.get("metadata", {}) -%}
+{%- set objects = meta.get("objects", meta.get("objects_subjects", "N/A")) -%}
+{%- if objects is sequence and objects is not string -%}
+  {%- set objects = objects | join(", ") if objects else "N/A" -%}
+{%- endif -%}
+{%- set persons = meta.get("persons", meta.get("persons_count", "N/A")) -%}
+{%- if persons is sequence and persons is not string -%}
+  {%- set person_parts = [] -%}
+  {%- for p in persons -%}
+    {%- if p is mapping -%}
+      {%- for k in ["description", "brief_description", "details"] -%}
+        {%- if k in p -%}
+          {%- set _ = person_parts.append(p[k]) -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- else -%}
+      {%- set _ = person_parts.append(p | string) -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- set persons = person_parts | join("; ") if person_parts else "N/A" -%}
+{%- endif -%}
+{%- set weather = meta.get("weather", meta.get("weather_conditions", "N/A")) -%}
+{%- set mood = meta.get("mood_atmosphere") or meta.get("mood/atmosphere") or meta.get("mood") or "N/A" -%}
+{%- if mood is mapping -%}
+  {%- set mood = mood.get("description", mood | string) -%}
+{%- elif mood is sequence and mood is not string -%}
+  {%- set mood = mood[0] | string if mood else "N/A" -%}
+{%- endif -%}
+| {{ loop.index }} | {{ item.name }} | {{ objects | string | replace("|", "\\|") }} | {{ persons | string | replace("|", "\\|") }} | {{ weather | string | replace("|", "\\|") }} | {{ mood | string | replace("|", "\\|") }} |
+{% endfor %}
+
+{% for item in analyses %}
+
+## {{ loop.index }}. {{ item.name }}
+
+{% if item.description %}
+### Description
+
+> {{ item.description }}
+
+{% endif %}
+### Images
+
+{% if item.analyzed_img or item.enhanced_img %}
+| Original | Enhanced |
+|----------|----------|
+| {% if item.analyzed_img %}![Original]({{ item.analyzed_img.name }}){% endif %} | {% if item.enhanced_img %}![Enhanced]({{ item.enhanced_img.name }}){% endif %} |
+
+{% endif %}
+{% if item.restored_imgs %}
+### Restored Versions
+
+| Profile | Image |
+|---------|-------|
+{% for restored in item.restored_imgs %}
+{%- set profile = restored.stem.split("_restored_")[-1] if "_restored_" in restored.stem else "restored" -%}
+| {{ profile | title }} | ![{{ profile }}]({{ restored.name }}) |
+{% endfor %}
+
+{% endif %}
+### Full Analysis
+
+{%- set meta = item.analysis.get("metadata", {}) %}
+{%- set field_mapping = [
+    ("objects", "Objects"),
+    ("objects_subjects", "Objects & Subjects"),
+    ("persons", "Persons"),
+    ("persons_count", "Persons Count"),
+    ("weather", "Weather"),
+    ("weather_conditions", "Weather Conditions"),
+    ("mood_atmosphere", "Mood & Atmosphere"),
+    ("mood/atmosphere", "Mood & Atmosphere"),
+    ("mood", "Mood & Atmosphere"),
+    ("time_of_day", "Time of Day"),
+    ("season_date", "Season & Date"),
+    ("scene_type", "Scene Type"),
+    ("location_setting", "Location & Setting"),
+    ("activity", "Activity"),
+    ("photography_style", "Photography Style"),
+    ("composition_quality", "Composition Quality"),
+] %}
+
+| Aspect | Details |
+|--------|---------|
+{%- set seen = [] -%}
+{% for key, display in field_mapping %}
+{%- if key in meta and display not in seen -%}
+{%- set _ = seen.append(display) -%}
+{%- set detail = meta[key] -%}
+{%- if detail is sequence and detail is not string -%}
+  {%- set detail = detail | join(", ") if detail else "N/A" -%}
+{%- elif detail is mapping -%}
+  {%- set detail = detail | string -%}
+{%- endif -%}
+{%- set detail = detail | string | replace("|", "\\|") -%}
+{%- if detail | length > 200 -%}
+  {%- set detail = detail[:197] ~ "..." -%}
+{%- endif %}
+| {{ display }} | {{ detail }} |
+{%- endif -%}
+{% endfor %}
+
+{% set enhancement = item.analysis.get("enhancement", {}) %}
+{% if enhancement %}
+### Enhancement Recommendations
+
+{% for param, value in enhancement.items() %}
+{% if param != "summary" and param | lower != "raw_response" %}
+**{{ param | title | replace("_", " ") }}:**
+
+{% if value is mapping %}
+{% for k, v in value.items() %}
+- **{{ k | replace("_", " ") | title }}:** {{ v }}
+{% endfor %}
+{% elif value is sequence and value is not string %}
+{% for v in value %}
+{% if v is mapping %}
+- {{ v.items() | map("join", ": ") | join(", ") }}
+{% else %}
+- {{ v }}
+{% endif %}
+{% endfor %}
+{% else %}
+{{ value }}
+{% endif %}
+
+{% endif %}
+{% endfor %}
+{% if "summary" in enhancement %}
+
+**Summary:** {{ enhancement.summary }}
+
+{% endif %}
+{% endif %}
+{% set profiles = item.analysis.get("slide_profiles", []) %}
+{% if profiles %}
+### Recommended Restoration Profiles
+
+| Profile | Confidence | Description |
+|---------|------------|-------------|
+{% for profile in profiles %}
+{%- set name = profile.get("profile", "Unknown") -%}
+{%- set confidence = profile.get("confidence", 0) -%}
+{%- set conf = "%.0f%%"|format(confidence) if confidence > 1 else "%.0f%%"|format(confidence * 100) -%}
+{%- set desc_map = {
+    "faded": "Very faded with lost color and contrast",
+    "color_cast": "Generic color casts from aging",
+    "red_cast": "Red/magenta color casts from aging",
+    "yellow_cast": "Yellow/warm color casts from aging",
+    "aged": "Moderately aged with some fading",
+    "well_preserved": "Minimal aging",
+} -%}
+| {{ name | title }} | {{ conf }} | {{ desc_map.get(name, "Slide restoration profile") }} |
+{% endfor %}
+
+{% endif %}
+---
+
+{% endfor %}

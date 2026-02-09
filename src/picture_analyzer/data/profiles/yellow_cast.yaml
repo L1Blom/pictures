@@ -1,0 +1,17 @@
+# Slide restoration profile: Yellow Cast
+# For slides with yellowish aging cast (typical of 1970s-1980s film)
+name: Yellow Cast
+description: For slides with yellowish aging cast
+
+saturation: 0.75
+contrast: 1.2
+brightness: 1.05
+sharpness: 1.1
+
+color_balance:
+  red: 0.85
+  green: 1.0
+  blue: 1.25
+
+denoise: true
+denoise_radius: 0.5

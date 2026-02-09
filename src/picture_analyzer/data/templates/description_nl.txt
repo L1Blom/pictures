@@ -1,0 +1,8 @@
+Albumnaam: 
+Locatie: 
+Datum: 
+Personen: 
+Activiteit: 
+Weer: 
+Opmerkingen: 
+Stemming: 
