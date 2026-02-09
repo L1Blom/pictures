@@ -1,0 +1,94 @@
+# ============================================================================
+# Picture Analyzer — Configuration File
+# ============================================================================
+# Optional configuration file.  Values here override defaults but are
+# overridden by environment variables and CLI arguments.
+#
+# Place this file as config.yaml in your project root.
+#
+# Config priority (highest wins):
+#   CLI args > Env vars (.env) > config.yaml > Built-in defaults
+# ============================================================================
+
+openai:
+  # model: "gpt-4o-mini"         # Vision model to use
+  # max_tokens: 4096              # Max tokens for AI response
+  # detail: "auto"                # Image detail: auto, low, high
+
+geo:
+  # provider: "nominatim"         # Geocoding provider: nominatim, google, none
+  # confidence_threshold: 80      # Min confidence to embed GPS (0-100)
+  # cache_enabled: true
+  # cache_path: ".geocoding_cache.json"
+  # user_agent: "picture-analyzer/2.0"
+  # timeout_seconds: 5
+  # google_api_key: null          # Only for provider: google
+
+metadata:
+  language: "nl"                  # Metadata language: en, nl, de, fr, es, ...
+  # write_exif: true
+  # write_xmp: true
+  # write_gps: true
+  # jpeg_quality: 95
+  # description_max_length: 16000
+
+enhancement:
+  # enabled: true
+  # jpeg_quality: 95
+  # color_temperature_baseline: 6500  # Kelvin (daylight neutral)
+
+slide_restoration:
+  # enabled: true
+  # auto_detect: true
+  # confidence_threshold: 50      # Min confidence for auto profile
+  # profiles_dir: null            # Path to custom YAML profiles
+  # denoise_radius: 0.5
+
+output:
+  # directory: "output"
+  # temp_directory: "tmp"
+  # naming_pattern: "{stem}_analyzed{suffix}"
+  # enhanced_pattern: "{stem}_enhanced{suffix}"
+  # restored_pattern: "{stem}_restored_{profile}{suffix}"
+  # thumbnails_dir: "thumbnails"
+  # thumbnail_size: 150
+  # thumbnail_quality: 85
+  # cleanup_temp: true
+
+web:
+  # host: "127.0.0.1"
+  # port: 7000
+  # debug: true
+  # thumbnail_size: 200
+  # thumbnail_format: "PNG"       # PNG, JPEG, or WEBP
+  # photos_dir: "."
+
+report:
+  # format: "markdown"            # markdown or html
+  # template: "default"           # Template name or path
+  # include_thumbnails: true
+  # thumbnail_max_size: 300
+  # base64_thumbnails: true
+  # report_filename: "analysis_report.md"
+  # gallery_filename: "gallery.md"
+
+prompt:
+  # detect_slide_profiles: true
+  # recommend_enhancements: true
+  # detect_location: true
+  # detect_people: true
+  # detect_era: true
+  # custom_instructions: null     # Extra text appended to AI prompt
+
+# Top-level settings
+# batch_size: 5
+# log_level: "INFO"
+# supported_formats:
+#   - ".jpg"
+#   - ".jpeg"
+#   - ".png"
+#   - ".gif"
+#   - ".bmp"
+#   - ".tiff"
+#   - ".webp"
+#   - ".heic"
