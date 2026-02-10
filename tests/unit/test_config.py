@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 from picture_analyzer.config.defaults import (
-    DEFAULT_JPEG_QUALITY,
-    DEFAULT_OPENAI_MODEL,
     DEFAULT_GEO_CONFIDENCE_THRESHOLD,
+    DEFAULT_JPEG_QUALITY,
     DEFAULT_METADATA_LANGUAGE,
+    DEFAULT_OPENAI_MODEL,
     DEFAULT_WEB_PORT,
 )
 from picture_analyzer.config.settings import Settings

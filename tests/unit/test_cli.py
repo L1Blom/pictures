@@ -13,8 +13,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
-from picture_analyzer.cli.app import cli, _resolve_profiles
-
+from picture_analyzer.cli.app import _resolve_profiles, cli
 
 # ── Fixtures ─────────────────────────────────────────────────────────
 
@@ -125,8 +124,14 @@ class TestAnalyze:
     def test_analyze_no_json(self, runner, fake_image, mock_legacy):
         result = runner.invoke(cli, ["analyze", str(fake_image), "--no-json"])
         assert result.exit_code == 0
-        call_kwargs = mock_legacy["PictureAnalyzer"].return_value.analyze_and_save.call_args
-        assert call_kwargs[1].get("save_json") is False or call_kwargs[0][2] is False
+        call_kwargs = (
+            mock_legacy["PictureAnalyzer"]
+            .return_value.analyze_and_save.call_args
+        )
+        assert (
+            call_kwargs[1].get("save_json") is False
+            or call_kwargs[0][2] is False
+        )
 
     def test_analyze_with_enhance(self, runner, fake_image, mock_legacy):
         result = runner.invoke(cli, ["analyze", str(fake_image), "--enhance"])

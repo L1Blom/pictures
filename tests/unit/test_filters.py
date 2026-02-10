@@ -2,12 +2,7 @@
 import pytest
 from PIL import Image
 
-from picture_analyzer.enhancers.filters.basic import (
-    BrightnessFilter,
-    ContrastFilter,
-    SaturationFilter,
-    SharpnessFilter,
-)
+from picture_analyzer.core.interfaces import ImageFilter as ImageFilterProtocol
 from picture_analyzer.enhancers.filters.advanced import (
     ClarityFilter,
     ColorChannelFilter,
@@ -16,9 +11,13 @@ from picture_analyzer.enhancers.filters.advanced import (
     UnsharpMaskFilter,
     VibranceFilter,
 )
+from picture_analyzer.enhancers.filters.basic import (
+    BrightnessFilter,
+    ContrastFilter,
+    SaturationFilter,
+    SharpnessFilter,
+)
 from picture_analyzer.enhancers.pipeline import FilterPipeline, RecommendationParser
-from picture_analyzer.core.interfaces import ImageFilter as ImageFilterProtocol
-
 
 # ── Fixtures ─────────────────────────────────────────────────────────
 
@@ -166,11 +165,11 @@ def test_pipeline_order_matters(sample_image):
     """Different filter orders should produce different results (generally)."""
     # Brightness then contrast
     p1 = FilterPipeline([BrightnessFilter(1.5), ContrastFilter(0.5)])
-    r1 = p1.run(sample_image)
+    _r1 = p1.run(sample_image)
 
     # Contrast then brightness
     p2 = FilterPipeline([ContrastFilter(0.5), BrightnessFilter(1.5)])
-    r2 = p2.run(sample_image)
+    _r2 = p2.run(sample_image)
 
     # For a uniform image the result may be the same, but the pipeline
     # structure should differ

@@ -1,13 +1,9 @@
 """Tests for NominatimGeocoder."""
-import json
-import pytest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-from picture_analyzer.geo.nominatim import NominatimGeocoder
-from picture_analyzer.core.models import GeoLocation, LocationInfo
 from picture_analyzer.core.interfaces import Geocoder, GeocoderWithCache
-
+from picture_analyzer.core.models import GeoLocation, LocationInfo
+from picture_analyzer.geo.nominatim import NominatimGeocoder
 
 # ── Protocol conformance ────────────────────────────────────────────
 

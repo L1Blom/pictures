@@ -2,21 +2,19 @@
 from __future__ import annotations
 
 import pytest
-from pathlib import Path
 
 from picture_analyzer.config.loader import (
-    load_translations,
-    load_slide_profiles,
-    load_report_template,
-    load_description_template,
-    clear_translation_cache,
-    clear_profile_cache,
-    _english_fallback,
     _data_dir,
+    _english_fallback,
     _parse_simple_yaml,
+    clear_profile_cache,
+    clear_translation_cache,
+    load_description_template,
+    load_report_template,
+    load_slide_profiles,
+    load_translations,
 )
-from picture_analyzer.core.models import SlideProfile, ColorBalance
-
+from picture_analyzer.core.models import ColorBalance, SlideProfile
 
 # ── Fixtures ─────────────────────────────────────────────────────────
 
@@ -108,7 +106,11 @@ def test_load_builtin_profiles():
     profiles = load_slide_profiles()
     assert isinstance(profiles, dict)
     assert len(profiles) >= 6
-    for name in ["faded", "color_cast", "red_cast", "yellow_cast", "aged", "well_preserved"]:
+    expected = [
+        "faded", "color_cast", "red_cast",
+        "yellow_cast", "aged", "well_preserved",
+    ]
+    for name in expected:
         assert name in profiles, f"Missing profile: {name}"
         p = profiles[name]
         assert isinstance(p, SlideProfile)
