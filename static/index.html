@@ -363,8 +363,8 @@
                 
                 const list = document.getElementById('directoryList');
                 list.innerHTML = data.directories.map(dir => `
-                    <div class="directory-item" onclick="selectDirectory('${dir.path}')">
-                        <div class="directory-item-name">${dir.name}</div>
+                    <div class="directory-item" onclick="selectDirectory(decodeURIComponent('${encodeURIComponent(dir.path)}'))">
+                        <div class="directory-item-name">${escapeHtml(dir.name)}</div>
                         <div class="directory-item-info">
                             🖼️ ${dir.image_count} images
                             ${dir.has_description ? '✅ Has description' : '⬜ No description'}
@@ -385,7 +385,7 @@
                 const mainContent = document.getElementById('mainContent');
                 mainContent.innerHTML = '<div style="padding: 20px; color: #999;">⏳ Loading...</div>';
                 
-                const response = await fetch(`/api/directory/${dirPath}`);
+                const response = await fetch(`/api/directory/${encodePath(dirPath)}`);
                 const data = await response.json();
                 
                 if (!data.success) {
@@ -418,8 +418,8 @@
                             <h2>🖼️ Preview (${dir.total_images} images)</h2>
                             <div class="thumbnail-grid" id="thumbnailGrid">
                                 ${dir.images.map(img => `
-                                    <div class="thumbnail-item" onclick="openImageModal('${img.path}', '${escapeHtml(img.name)}')">
-                                        <img src="/api/thumbnail/${img.path}?size=150" alt="${img.name}" title="${img.name}">
+                                    <div class="thumbnail-item" onclick="openImageModal(decodeURIComponent('${encodeURIComponent(img.path)}'), decodeURIComponent('${encodeURIComponent(img.name)}'))">
+                                        <img src="/api/thumbnail/${encodePath(img.path)}?size=150" alt="${escapeHtml(img.name)}" title="${escapeHtml(img.name)}">
                                     </div>
                                 `).join('')}
                             </div>
@@ -446,7 +446,7 @@
             const description = document.getElementById('descriptionText').value;
             
             try {
-                const response = await fetch(`/api/directory/${currentDirectory}`, {
+                const response = await fetch(`/api/directory/${encodePath(currentDirectory)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ description }),
@@ -483,6 +483,11 @@
             };
             return text.replace(/[&<>"']/g, m => map[m]);
         }
+
+        function encodePath(p) {
+            // Encode each segment individually, preserving slashes
+            return p.split('/').map(s => encodeURIComponent(s)).join('/');
+        }
         
         // Modal functions
         function openImageModal(imagePath, imageName) {
@@ -491,7 +496,7 @@
             const modalInfo = document.getElementById('modalInfo');
             
             // Set full image path and name
-            modalImage.src = `/api/thumbnail/${imagePath}?size=1600`;
+            modalImage.src = `/api/thumbnail/${encodePath(imagePath)}?size=1600`;
             modalInfo.textContent = imageName;
             
             // Show modal

@@ -34,4 +34,4 @@ if __name__ == '__main__':
     print("\n" + "="*70 + "\n")
     
     app = create_app(photos_dir=photos_dir)
-    app.run(debug=True, port=7000, use_reloader=True)
+    app.run(debug=True, host="0.0.0.0", port=7000, use_reloader=True)
