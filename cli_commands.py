@@ -13,7 +13,7 @@ Provides individual command implementations:
 import json
 import sys
 from pathlib import Path
-from picture_analyzer import PictureAnalyzer
+from picture_analyzer_legacy import PictureAnalyzer
 from picture_enhancer import SmartEnhancer
 from slide_restoration import SlideRestoration
 from metadata_manager import MetadataManager
