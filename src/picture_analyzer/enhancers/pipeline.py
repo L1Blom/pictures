@@ -62,6 +62,10 @@ class FilterPipeline:
             result = result.convert("RGB")
 
         for f in self._filters:
+            factor_info = f""
+            if hasattr(f, 'factor'):
+                factor_info = f" ({f.factor:.2f}x)"
+            print(f"    → Adjusting {f.name.lower()}{factor_info}...")
             result = f.apply(result)
 
         return result

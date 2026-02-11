@@ -639,21 +639,25 @@ class SmartEnhancer:
             # Apply basic PIL adjustments in optimal order
             # 1. Brightness (affects overall exposure)
             if 'brightness' in basic_adjustments:
+                print(f"    → Adjusting brightness ({basic_adjustments['brightness']:.2f}x)...")
                 enhancer = ImageEnhance.Brightness(image)
                 image = enhancer.enhance(basic_adjustments['brightness'])
             
             # 2. Contrast (affects perception of lighting)
             if 'contrast' in basic_adjustments:
+                print(f"    → Adjusting contrast ({basic_adjustments['contrast']:.2f}x)...")
                 enhancer = ImageEnhance.Contrast(image)
                 image = enhancer.enhance(basic_adjustments['contrast'])
             
             # 3. Saturation (affects color vibrancy)
             if 'saturation' in basic_adjustments:
+                print(f"    → Adjusting saturation ({basic_adjustments['saturation']:.2f}x)...")
                 enhancer = ImageEnhance.Color(image)
                 image = enhancer.enhance(basic_adjustments['saturation'])
             
             # 4. Sharpness (final detail enhancement)
             if 'sharpness' in basic_adjustments:
+                print(f"    → Adjusting sharpness ({basic_adjustments['sharpness']:.2f}x)...")
                 enhancer = ImageEnhance.Sharpness(image)
                 image = enhancer.enhance(basic_adjustments['sharpness'])
             
