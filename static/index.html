@@ -351,6 +351,20 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', loadDirectories);
         
+        // Use event delegation for click handlers to avoid inline onclick escaping issues
+        document.addEventListener('click', function(e) {
+            const dirItem = e.target.closest('[data-dir-path]');
+            if (dirItem) {
+                selectDirectory(dirItem.dataset.dirPath);
+                return;
+            }
+            const thumbItem = e.target.closest('[data-img-path]');
+            if (thumbItem) {
+                openImageModal(thumbItem.dataset.imgPath, thumbItem.dataset.imgName);
+                return;
+            }
+        });
+        
         async function loadDirectories() {
             try {
                 const response = await fetch('/api/directories');
@@ -363,7 +377,7 @@
                 
                 const list = document.getElementById('directoryList');
                 list.innerHTML = data.directories.map(dir => `
-                    <div class="directory-item" onclick="selectDirectory(decodeURIComponent('${encodeURIComponent(dir.path)}'))">
+                    <div class="directory-item" data-dir-path="${escapeAttr(dir.path)}">
                         <div class="directory-item-name">${escapeHtml(dir.name)}</div>
                         <div class="directory-item-info">
                             🖼️ ${dir.image_count} images
@@ -418,8 +432,8 @@
                             <h2>🖼️ Preview (${dir.total_images} images)</h2>
                             <div class="thumbnail-grid" id="thumbnailGrid">
                                 ${dir.images.map(img => `
-                                    <div class="thumbnail-item" onclick="openImageModal(decodeURIComponent('${encodeURIComponent(img.path)}'), decodeURIComponent('${encodeURIComponent(img.name)}'))">
-                                        <img src="/api/thumbnail/${encodePath(img.path)}?size=150" alt="${escapeHtml(img.name)}" title="${escapeHtml(img.name)}">
+                                    <div class="thumbnail-item" data-img-path="${escapeAttr(img.path)}" data-img-name="${escapeAttr(img.name)}">
+                                        <img src="/api/thumbnail/${encodePath(img.path)}?size=150" alt="${escapeAttr(img.name)}" title="${escapeAttr(img.name)}">
                                     </div>
                                 `).join('')}
                             </div>
@@ -430,7 +444,7 @@
                 // Mark active directory
                 document.querySelectorAll('.directory-item').forEach(item => {
                     item.classList.remove('active');
-                    if (item.textContent.includes(dir.directory)) {
+                    if (item.dataset.dirPath === dirPath) {
                         item.classList.add('active');
                     }
                 });
@@ -474,14 +488,14 @@
         }
         
         function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function escapeAttr(text) {
+            // Escape for safe use inside HTML attribute values (double-quoted)
+            return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
         function encodePath(p) {
