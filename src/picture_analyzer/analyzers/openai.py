@@ -97,11 +97,13 @@ class OpenAIAnalyzer:
         lang = context.language or DEFAULT_METADATA_LANGUAGE
         prompt = ANALYSIS_PROMPT.format(language=lang)
 
+        # If description.txt is present, clarify its language for the model
         if context.description_text:
             prompt += (
-                f"\n\n=== CONTEXT FROM DESCRIPTION.TXT ===\n"
+                f"\n\n=== CONTEXT FROM DESCRIPTION.TXT (in {lang_name}) ===\n"
+                f"The following description is written in {lang_name} ({lang}):\n"
                 f"{context.description_text}\n\n"
-                "Please consider this context when analyzing the image."
+                "Please consider this context (in {lang_name}) only for the METADATA section."
             )
 
         lang_name = LANGUAGE_NAMES.get(lang, lang)
@@ -113,11 +115,9 @@ class OpenAIAnalyzer:
                 {
                     "role": "system",
                     "content": (
-                        f"You are an image analysis assistant. IMPORTANT: For METADATA "
-                        f"section - respond exclusively in {lang_name} ({lang}). For "
-                        f"ENHANCEMENT RECOMMENDATIONS section - respond ONLY in English. "
-                        f"Every metadata description must be in {lang_name}, while all "
-                        f"technical enhancement parameters must stay in English."
+                        f"You are an image analysis assistant. IMPORTANT: Only the METADATA section and the description context (if present) are in {lang_name} ({lang}). "
+                        f"All instructions, technical fields, and ENHANCEMENT RECOMMENDATIONS must remain in English. "
+                        f"Every metadata description must be in {lang_name}, while all technical enhancement parameters and instructions must stay in English."
                     ),
                 },
                 {
