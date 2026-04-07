@@ -392,7 +392,19 @@ class SmartEnhancer:
         
         if not recommendations:
             return {'adjustments': adjustments, 'advanced_ops': advanced_ops}
-        
+
+        # Deduplicate and cap recommendations to prevent model runaway loops
+        seen = set()
+        capped = []
+        for r in recommendations:
+            key = str(r).strip()[:80]  # normalise for dedup
+            if key not in seen:
+                seen.add(key)
+                capped.append(r)
+            if len(capped) >= 15:  # hard cap — more than 15 is always a model loop
+                break
+        recommendations = capped
+
         for recommendation in recommendations:
             # Handle cases where recommendation might be a dict instead of string
             if isinstance(recommendation, dict):

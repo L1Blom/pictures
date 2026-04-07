@@ -121,8 +121,16 @@ class RecommendationParser:
             ):
                 continue
 
-            # Must have a numeric value
-            if not re.search(r"\d+", text):
+            # Must have a numeric value — unless it is a known named operation
+            _KNOWN_NUMBERLESS = frozenset({
+                "yellow_cast_removal",
+                "remove_yellow_cast",
+                "red_cast_removal",
+                "remove_red_cast",
+            })
+            has_number = bool(re.search(r"\d+", text))
+            is_named_op = any(kw in text_lower for kw in _KNOWN_NUMBERLESS)
+            if not has_number and not is_named_op:
                 continue
 
             self._parse_one(text, text_lower, basic_filters, advanced_filters)
@@ -300,6 +308,22 @@ class RecommendationParser:
                 pct = int(m.group(1))
                 basic["sharpness"] = SharpnessFilter(factor=1.0 + pct / 100.0)
                 print(f"  → Sharpness: {pct:+d}%")
+
+        # ── YELLOW_CAST_REMOVAL (numberless named op) ──────────────
+        elif "yellow_cast_removal" in text_lower or "remove_yellow_cast" in text_lower:
+            # Standard cool temperature shift to counteract yellow/warm film aging
+            target = max(
+                DEFAULT_KELVIN_RANGE[0],
+                min(DEFAULT_KELVIN_RANGE[1], DEFAULT_COLOR_TEMP_BASELINE - 700),
+            )
+            advanced.append(ColorTemperatureFilter(kelvin=target))
+            print(f"  → Yellow Cast Removal → Color Temperature: {target}K (-700K)")
+
+        # ── RED_CAST_REMOVAL (numberless named op) ─────────────────
+        elif "red_cast_removal" in text_lower or "remove_red_cast" in text_lower:
+            factor = max(DEFAULT_CHANNEL_FACTOR_RANGE[0], min(DEFAULT_CHANNEL_FACTOR_RANGE[1], 0.85))
+            advanced.append(ColorChannelFilter(channel="red", factor=factor))
+            print("  → Red Cast Removal → Red Channel: -15%")
 
 
 def enhance_image(

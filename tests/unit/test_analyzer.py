@@ -19,6 +19,8 @@ from picture_analyzer.analyzers.openai import (
     _str,
     _to_list,
 )
+from picture_analyzer.analyzers import create_analyzer
+from picture_analyzer.config.settings import get_settings, reset_settings
 from picture_analyzer.core.models import AnalysisContext, ImageData
 
 # ── Module-level helpers ─────────────────────────────────────────────
@@ -234,3 +236,31 @@ class TestEncode:
 
         encoded = analyzer._encode(img)
         assert base64.b64decode(encoded) == content
+
+
+class TestAnalyzerFactory:
+    def test_create_openai(self):
+        with patch("picture_analyzer.analyzers.openai.OpenAI"):
+            analyzer = create_analyzer(provider="openai", openai_api_key="sk-test")
+        assert analyzer.__class__.__name__ == "OpenAIAnalyzer"
+
+    def test_create_ollama(self):
+        with patch("picture_analyzer.analyzers.ollama.ollama.Client"):
+            analyzer = create_analyzer(provider="ollama", ollama_model="llava")
+        assert analyzer.__class__.__name__ == "OllamaAnalyzer"
+
+    def test_invalid_provider(self):
+        with pytest.raises(ValueError, match="Unsupported analyzer provider"):
+            create_analyzer(provider="unknown")
+
+
+class TestSettingsAnalyzerProvider:
+    def test_default_provider_is_valid(self):
+        reset_settings()
+        settings = get_settings()
+        assert settings.analyzer_provider in ("openai", "ollama")
+
+    def test_provider_override_ollama(self):
+        reset_settings()
+        settings = get_settings(analyzer_provider="ollama")
+        assert settings.analyzer_provider == "ollama"

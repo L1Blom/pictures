@@ -35,6 +35,15 @@ class OpenAIConfig(BaseModel):
     detail: str = Field(default=d.DEFAULT_DETAIL_LEVEL, pattern="^(auto|low|high)$")
 
 
+class OllamaConfig(BaseModel):
+    """Ollama API configuration."""
+
+    model: str = Field(default=d.DEFAULT_OLLAMA_MODEL, description="Vision model name")
+    host: str = Field(default=d.DEFAULT_OLLAMA_HOST, description="Ollama host URL")
+    timeout: int = Field(default=d.DEFAULT_OLLAMA_TIMEOUT, ge=10, le=3600, description="Request timeout in seconds")
+    num_ctx: int = Field(default=d.DEFAULT_OLLAMA_NUM_CTX, ge=512, description="KV-cache context window size (tokens); lower = less VRAM")
+
+
 class GeoConfig(BaseModel):
     """Geocoding configuration."""
 
@@ -139,6 +148,30 @@ class PromptConfig(BaseModel):
     )
 
 
+class StepConfig(BaseModel):
+    """Per-step model/provider overrides.
+
+    All fields are optional — omitting one means the step inherits from the
+    matching global provider config (``openai`` or ``ollama``).
+    """
+
+    enabled: bool = True
+    provider: Optional[str] = None        # "openai" | "ollama"
+    model: Optional[str] = None           # falls back to openai.model / ollama.model
+    max_tokens: Optional[int] = Field(default=None, ge=1, le=16384)
+    prompt_template: Optional[str] = None  # falls back to built-in template
+
+
+class PipelineConfig(BaseModel):
+    """Pipeline execution and per-step configuration."""
+
+    mode: str = Field(default=d.DEFAULT_PIPELINE_MODE, pattern="^(single|stepped)$")
+    metadata: StepConfig = Field(default_factory=StepConfig)
+    location: StepConfig = Field(default_factory=StepConfig)
+    enhancement: StepConfig = Field(default_factory=StepConfig)
+    slide_profiles: StepConfig = Field(default_factory=StepConfig)
+
+
 # ── Root Settings ────────────────────────────────────────────────────
 
 
@@ -160,8 +193,49 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    @classmethod
+    def settings_customise_sources(cls, settings_cls, **kwargs):
+        """Add config.yaml as a source between defaults and env/.env.
+
+        Priority (highest wins): env vars → .env → config.yaml → defaults.
+        """
+        from pydantic_settings import (
+            DotEnvSettingsSource,
+            EnvSettingsSource,
+            InitSettingsSource,
+            PydanticBaseSettingsSource,
+        )
+
+        class YamlSettingsSource(PydanticBaseSettingsSource):
+            def get_field_value(self, field, field_name):
+                return None, field_name, False
+
+            def __call__(self):
+                import yaml
+                for candidate in (
+                    Path.cwd() / "config.yaml",
+                    Path.home() / ".config" / "picture-analyzer" / "config.yaml",
+                ):
+                    if candidate.is_file():
+                        try:
+                            data = yaml.safe_load(candidate.read_text(encoding="utf-8"))
+                            if isinstance(data, dict):
+                                return data
+                        except Exception:
+                            pass
+                return {}
+
+        return (
+            InitSettingsSource(settings_cls, kwargs.get("init_settings", {}).init_kwargs if "init_settings" in kwargs else {}),
+            EnvSettingsSource(settings_cls),
+            DotEnvSettingsSource(settings_cls),
+            YamlSettingsSource(settings_cls),
+        )
+
     # Sub-configurations
+    analyzer_provider: str = Field(default=d.DEFAULT_ANALYZER_PROVIDER, pattern="^(openai|ollama)$")
     openai: OpenAIConfig = Field(default_factory=OpenAIConfig)
+    ollama: OllamaConfig = Field(default_factory=OllamaConfig)
     geo: GeoConfig = Field(default_factory=GeoConfig)
     metadata: MetadataConfig = Field(default_factory=MetadataConfig)
     enhancement: EnhancementConfig = Field(default_factory=EnhancementConfig)
@@ -170,6 +244,7 @@ class Settings(BaseSettings):
     web: WebConfig = Field(default_factory=WebConfig)
     report: ReportConfig = Field(default_factory=ReportConfig)
     prompt: PromptConfig = Field(default_factory=PromptConfig)
+    pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
 
     # Top-level settings
     supported_formats: FrozenSet[str] = Field(default=d.DEFAULT_SUPPORTED_FORMATS)
@@ -197,6 +272,22 @@ class Settings(BaseSettings):
             if isinstance(openai_cfg, dict) and not openai_cfg.get("api_key"):
                 openai_cfg["api_key"] = legacy_key
                 data["openai"] = openai_cfg
+
+        # Legacy/helper: OLLAMA_HOST → ollama.host
+        legacy_ollama_host = os.getenv("OLLAMA_HOST")
+        if legacy_ollama_host:
+            ollama_cfg = data.get("ollama", {})
+            if isinstance(ollama_cfg, dict) and not ollama_cfg.get("host"):
+                ollama_cfg["host"] = legacy_ollama_host
+                data["ollama"] = ollama_cfg
+
+        # Legacy/helper: OLLAMA_MODEL → ollama.model
+        legacy_ollama_model = os.getenv("OLLAMA_MODEL")
+        if legacy_ollama_model:
+            ollama_cfg = data.get("ollama", {})
+            if isinstance(ollama_cfg, dict) and not ollama_cfg.get("model"):
+                ollama_cfg["model"] = legacy_ollama_model
+                data["ollama"] = ollama_cfg
 
         # Legacy: METADATA_LANGUAGE → metadata.language
         legacy_lang = os.getenv("METADATA_LANGUAGE")
@@ -250,3 +341,28 @@ def reset_settings() -> None:
     """Reset the cached settings (for testing)."""
     global _settings
     _settings = None
+
+
+def resolve_step_config(step: StepConfig, settings: "Settings") -> dict:
+    """Return the effective provider/model/max_tokens for a pipeline step.
+
+    Step-level values take precedence over the matching global provider config.
+    When a step has no ``provider`` override, ``settings.analyzer_provider`` is used.
+
+    Args:
+        step: Per-step config (possibly all-defaults).
+        settings: Root settings instance supplying global provider defaults.
+
+    Returns:
+        Dict with keys ``provider``, ``model``, ``max_tokens``, ``prompt_template``.
+    """
+    provider = step.provider or settings.analyzer_provider
+    base = settings.openai if provider == "openai" else settings.ollama
+    return {
+        "provider": provider,
+        "model": step.model or base.model,
+        "max_tokens": step.max_tokens or getattr(base, "max_tokens", None),
+        "prompt_template": step.prompt_template,
+        "timeout": getattr(base, "timeout", None),
+        "num_ctx": getattr(base, "num_ctx", None),
+    }

@@ -1,0 +1,12 @@
+=== LOCATION DETECTION SECTION ===
+12. **Location Detection**: Determine the geographic location.
+    - **HIGHEST PRIORITY**: If the description context below contains an explicit location name (city, region, country), use it exactly as given. Do NOT override it with visual inference.
+    - If no location is provided in the context, infer from visual clues:
+      - Visible signs, text, license plates, street markers
+      - Architecture style and construction materials
+      - Vegetation and landscape type
+      - Road/infrastructure style
+      - Vehicle types and styles
+    - confidence: 0-100 (use 95-100 when the location is explicitly named in the description)
+    - reasoning: briefly explain whether the location came from the description or from visual clues
+    - Write all values in full — do NOT abbreviate or truncate with "…" or "..."

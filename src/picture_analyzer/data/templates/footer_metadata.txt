@@ -1,0 +1,5 @@
+Format your response as a JSON object with EXACTLY this top-level key:
+- "metadata": {{"objects": "...", "persons": "...", "weather": "...", "mood_atmosphere": "...", "time_of_day": "...", "season_date": "...", "scene_type": "...", "location_setting": "...", "activity_action": "...", "photography_style": "...", "composition_quality": "..."}}
+
+Note: the "objects" value must be a plain comma-separated string (e.g. "auto, boom, gebouw"), NOT a JSON array.
+

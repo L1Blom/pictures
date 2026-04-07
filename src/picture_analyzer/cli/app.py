@@ -12,13 +12,17 @@ Entry point registered in ``pyproject.toml``::
 from __future__ import annotations
 
 import json
+import mimetypes
 import sys
 from pathlib import Path
 from typing import Optional
 
 import click
 
+from ..analyzers import create_analyzer
 from ..config.defaults import DEFAULT_SUPPORTED_FORMATS
+from ..config.settings import get_settings
+from ..core.models import AnalysisContext, ImageData
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -74,7 +78,7 @@ def _resolve_profiles(restore_slide: str, analysis: dict) -> list[str]:
             profiles = [
                 p["profile"]
                 for p in slide_profiles
-                if isinstance(p, dict) and "profile" in p and p.get("confidence", 0) >= 50
+                if isinstance(p, dict) and "profile" in p
             ]
         except (KeyError, TypeError):
             profiles = []
@@ -115,6 +119,177 @@ def _restore_from_analysis(
             MetadataManager().copy_exif(source_path, restored_path, restored_path)
 
 
+def _build_runtime_provider(provider: str | None) -> str:
+    settings = get_settings()
+    return (provider or settings.analyzer_provider).lower()
+
+
+def _build_analyzer(provider: str | None = None):
+    settings = get_settings()
+    selected = _build_runtime_provider(provider)
+
+    return create_analyzer(
+        provider=selected,
+        openai_api_key=settings.openai.api_key.get_secret_value(),
+        openai_model=settings.openai.model,
+        ollama_model=settings.ollama.model,
+        ollama_host=settings.ollama.host,
+        max_tokens=settings.openai.max_tokens,
+    )
+
+
+def _analyze_with_provider(
+    image_path: Path,
+    provider: str | None = None,
+    pipeline_mode: str | None = None,
+    pipeline=None,
+):
+    settings = get_settings()
+    effective_mode = pipeline_mode or settings.pipeline.mode
+
+    # Per-image description takes priority over the folder-wide description.txt
+    per_image_desc = image_path.parent / (image_path.stem + ".txt")
+    folder_desc = image_path.parent / "description.txt"
+    desc_file = per_image_desc if per_image_desc.is_file() else (folder_desc if folder_desc.is_file() else None)
+    description_text = desc_file.read_text(encoding="utf-8").strip() if desc_file else None
+    context = AnalysisContext(
+        language=settings.metadata.language,
+        detect_slide_profiles=settings.prompt.detect_slide_profiles,
+        recommend_enhancements=settings.prompt.recommend_enhancements,
+        detect_location=settings.prompt.detect_location,
+        custom_instructions=settings.prompt.custom_instructions,
+        description_text=description_text,
+    )
+    mime_type, _ = mimetypes.guess_type(str(image_path))
+    image = ImageData(path=image_path, mime_type=mime_type or "image/jpeg")
+
+    if effective_mode == "stepped":
+        from ..pipeline import build_pipeline
+        active_pipeline = pipeline or build_pipeline(settings)
+        return active_pipeline.run(image, context)
+
+    analyzer = _build_analyzer(provider)
+    result = analyzer.analyze(image, context)
+
+    # ── Geocoding: resolve GPS coordinates from AI-detected location ──
+    if result.location and settings.geo.provider != "none":
+        try:
+            from ..geo.nominatim import NominatimGeocoder
+            geocoder = NominatimGeocoder(
+                cache_path=settings.geo.cache_path,
+                confidence_threshold=settings.geo.confidence_threshold,
+                user_agent=settings.geo.user_agent,
+                timeout=settings.geo.timeout_seconds,
+                max_results=settings.geo.max_results,
+            )
+            enriched_location = geocoder.geocode_location_info(result.location)
+            if enriched_location.coordinates:
+                result = result.model_copy(update={"location": enriched_location})
+                # Propagate GPS into raw_response so legacy metadata writers pick it up
+                geo = enriched_location.coordinates
+                raw = dict(result.raw_response)
+                raw["gps_coordinates"] = {
+                    "latitude": geo.latitude,
+                    "longitude": geo.longitude,
+                    "display_name": geo.display_name,
+                }
+                result = result.model_copy(update={"raw_response": raw})
+        except Exception as exc:
+            click.echo(f"  ⚠ Geocoding failed: {exc}", err=True)
+
+    return result
+
+
+_ANALYSIS_KEYS = frozenset({"metadata", "enhancement", "location_detection", "slide_profiles"})
+
+
+def _normalise_raw_response(raw: dict) -> dict:
+    """Ensure enhancement recs in raw_response are always plain strings."""
+    enhancement = raw.get("enhancement", {})
+    if isinstance(enhancement, dict):
+        recs = enhancement.get("recommended_enhancements", [])
+        normalised = []
+        for rec in recs:
+            if isinstance(rec, str):
+                normalised.append(rec)
+            elif isinstance(rec, dict):
+                action = rec.get("action", "")
+                value = rec.get("value", "")
+                normalised.append(f"{action}: {value}" if value else action)
+            else:
+                normalised.append(str(rec))
+        raw = {**raw, "enhancement": {**enhancement, "recommended_enhancements": normalised}}
+    return raw
+
+
+def _analysis_to_legacy_dict(result) -> dict:
+    # Use raw_response when it has real parsed analysis keys — but normalise
+    # enhancement recs first (some models return dicts instead of strings).
+    if result.raw_response and isinstance(result.raw_response, dict):
+        if _ANALYSIS_KEYS.intersection(result.raw_response):
+            data = _normalise_raw_response(result.raw_response)
+            # Inject GPS from GeocodingStep result (stepped mode sets location.coordinates
+            # but never writes it back into raw_response)
+            if (
+                "gps_coordinates" not in data
+                and result.location is not None
+                and result.location.coordinates is not None
+            ):
+                geo = result.location.coordinates
+                data = {
+                    **data,
+                    "gps_coordinates": {
+                        "latitude": geo.latitude,
+                        "longitude": geo.longitude,
+                        "display_name": getattr(geo, "display_name", ""),
+                    },
+                }
+            # Inject source_description so ExifWriter embeds description.txt in ImageDescription
+            if "source_description" not in data and result.description_context:
+                data = {**data, "source_description": result.description_context}
+            return data
+
+    metadata = {
+        "scene_type": result.scene_type or result.title or "",
+        "location_setting": result.description or "",
+        "objects": result.keywords or [],
+        "persons": result.people or [],
+        "mood_atmosphere": result.mood or "",
+        "photography_style": result.photography_style or "",
+        "composition_quality": result.composition_quality or "",
+    }
+    if result.era:
+        if result.era.time_of_day:
+            metadata["time_of_day"] = result.era.time_of_day
+        if result.era.season:
+            metadata["season_date"] = result.era.season
+
+    payload: dict = {"metadata": metadata, "enhancement": {"recommended_enhancements": []}}
+
+    if result.enhancement_recommendations:
+        payload["enhancement"]["recommended_enhancements"] = [
+            e.raw_text for e in result.enhancement_recommendations
+        ]
+
+    if result.location:
+        payload["location_detection"] = {
+            "country": result.location.country or "",
+            "region": result.location.region or "",
+            "city_or_area": result.location.city or "",
+            "confidence": result.location.confidence,
+        }
+
+    if result.slide_profile:
+        payload["slide_profiles"] = [
+            {
+                "profile": result.slide_profile.profile_name,
+                "confidence": result.slide_profile.confidence,
+            }
+        ]
+
+    return payload
+
+
 # ── Root group ───────────────────────────────────────────────────────
 
 
@@ -144,6 +319,9 @@ def cli(ctx: click.Context):
 @click.argument("image", type=click.Path(exists=True))
 @click.option("-o", "--output", type=click.Path(), default=None,
               help="Output directory or file path.")
+@click.option("--provider", type=click.Choice(["openai", "ollama"], case_sensitive=False),
+              default=None,
+              help="AI analyzer provider override (openai or ollama).")
 @click.option("-b", "--batch", is_flag=True,
               help="Treat IMAGE as a directory and process all images.")
 @click.option("--enhance", "do_enhance", is_flag=True,
@@ -154,8 +332,17 @@ def cli(ctx: click.Context):
               help="Also restore slides using the given profile (or 'auto').")
 @click.option("--no-json", is_flag=True,
               help="Do not save the JSON analysis sidecar.")
-def analyze(image: str, output: str | None, batch: bool,
-            do_enhance: bool, restore_slide: str | None, no_json: bool):
+@click.option("--debug", is_flag=True,
+              help="Print raw AI response before parsing (useful for diagnosing empty results).")
+@click.option("--pipeline-mode", "pipeline_mode",
+              type=click.Choice(["single", "stepped"], case_sensitive=False),
+              default=None,
+              help="Analysis pipeline mode override (single or stepped).")
+@click.option("--skip-existing", "skip_existing", is_flag=True,
+              help="Skip images that already have a completed analysis JSON in the output dir.")
+def analyze(image: str, output: str | None, provider: str | None, batch: bool,
+            do_enhance: bool, restore_slide: str | None, no_json: bool, debug: bool,
+            pipeline_mode: str | None, skip_existing: bool):
     """Analyze a single image or batch-process a directory.
 
     IMAGE is a path to an image file, or a directory when --batch is used.
@@ -171,13 +358,22 @@ def analyze(image: str, output: str | None, batch: bool,
 
     Analyze + restore a scanned slide:
         picture-analyzer analyze scan.jpg --restore-slide auto
+
+    Use stepped pipeline mode:
+        picture-analyzer analyze photo.jpg --pipeline-mode stepped
     """
     image_path = Path(image)
 
+    if provider:
+        click.echo(f"Using analyzer provider: {provider.lower()}")
+
+    if debug:
+        import os; os.environ["PA_ANALYZER_DEBUG"] = "1"
+
     if batch or image_path.is_dir():
-        _batch_analyze(image_path, output, do_enhance, restore_slide)
+        _batch_analyze(image_path, output, do_enhance, restore_slide, provider, pipeline_mode, skip_existing=skip_existing)
     else:
-        _single_analyze(image_path, output, do_enhance, restore_slide, no_json)
+        _single_analyze(image_path, output, do_enhance, restore_slide, no_json, provider, pipeline_mode)
 
 
 def _single_analyze(
@@ -186,21 +382,42 @@ def _single_analyze(
     do_enhance: bool,
     restore_slide: str | None,
     no_json: bool,
+    provider: str | None = None,
+    pipeline_mode: str | None = None,
 ) -> None:
     """Analyze a single image."""
-    PictureAnalyzer, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
+    _, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
 
-    analyzer = PictureAnalyzer()
     click.echo(f"Analyzing: {image_path}")
 
-    # Resolve output path
+    # Resolve output path — treat as output directory when:
+    #  • it already is one, OR
+    #  • the raw string ends with a path separator (user wrote "output_dir/")
     output_path = output
-    if output_path and Path(output_path).is_dir():
-        output_path = str(Path(output_path) / f"{image_path.stem}_analyzed.jpg")
+    if output_path:
+        _raw = str(output)
+        if Path(output_path).is_dir() or _raw.endswith("/") or _raw.endswith("\\"):
+            output_path = str(Path(output_path) / f"{image_path.stem}_analyzed.jpg")
 
-    analysis = analyzer.analyze_and_save(
-        str(image_path), output_path=output_path, save_json=not no_json,
-    )
+    analysis_result = _analyze_with_provider(image_path, provider, pipeline_mode)
+    analysis = _analysis_to_legacy_dict(analysis_result)
+
+    analyzed_target = Path(output_path) if output_path else Path("output") / f"{image_path.stem}_analyzed.jpg"
+    analyzed_target.parent.mkdir(parents=True, exist_ok=True)
+    analyzed_target.write_bytes(image_path.read_bytes())
+
+    # Embed EXIF metadata (including GPS if geocoding resolved coordinates)
+    try:
+        from ..metadata.exif_writer import ExifWriter
+        exif_writer = ExifWriter(language=get_settings().metadata.language)
+        exif_writer.write_from_dict(analyzed_target, analyzed_target, analysis)
+    except Exception as exc:
+        click.echo(f"  ⚠ Could not embed EXIF metadata: {exc}", err=True)
+
+    if not no_json:
+        json_path = analyzed_target.with_suffix(".json")
+        json_path.write_text(json.dumps(analysis, indent=2), encoding="utf-8")
+
     click.echo("\nAnalysis Results:")
     click.echo(json.dumps(analysis, indent=2))
 
@@ -210,12 +427,12 @@ def _single_analyze(
         out_dir = output or "output"
         enhanced_path = str(Path(out_dir) / f"{image_path.stem}_enhanced.jpg")
         result = enhancer.enhance_from_analysis(
-            output_path or str(image_path), analysis["enhancement"], enhanced_path,
+            str(analyzed_target), analysis["enhancement"], enhanced_path,
         )
         if result:
             click.echo(f"✓ Enhanced: {result}")
             MetadataManager().copy_exif(
-                output_path or str(image_path), enhanced_path, enhanced_path,
+                str(analyzed_target), enhanced_path, enhanced_path,
             )
 
     # Optional slide restoration
@@ -223,7 +440,7 @@ def _single_analyze(
         out_dir = output or "output"
         _restore_from_analysis(
             SlideRestoration, MetadataManager,
-            source_path=output_path or str(image_path),
+            source_path=str(analyzed_target),
             analysis=analysis,
             restore_slide=restore_slide,
             output_dir=out_dir,
@@ -231,19 +448,36 @@ def _single_analyze(
         )
 
 
+def _is_complete_analysis(json_path: Path) -> bool:
+    """Return True only if *json_path* exists and contains real analysis content."""
+    if not json_path.is_file() or json_path.stat().st_size < 200:
+        return False
+    try:
+        data = json.loads(json_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False
+    # Must have a metadata section with at least one non-empty value
+    metadata = data.get("metadata", {})
+    if not isinstance(metadata, dict):
+        return False
+    return any(v for v in metadata.values() if v)
+
+
 def _batch_analyze(
     directory: Path,
     output: str | None,
     do_enhance: bool,
     restore_slide: str | None,
+    provider: str | None = None,
+    pipeline_mode: str | None = None,
+    skip_existing: bool = False,
 ) -> None:
     """Batch-analyze all images in a directory."""
-    PictureAnalyzer, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
+    _, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
 
     if not directory.is_dir():
         raise click.ClickException(f"Not a directory: {directory}")
 
-    analyzer = PictureAnalyzer()
     enhancer = SmartEnhancer() if do_enhance else None
     output_dir = output or "output"
     Path(output_dir).mkdir(exist_ok=True)
@@ -263,6 +497,8 @@ def _batch_analyze(
 
     total = len(image_files)
     click.echo(f"Found {total} image(s) to process")
+    if skip_existing:
+        click.echo("  + Skipping already-completed images")
     if enhancer:
         click.echo("  + Enhancement enabled")
     if restore_slide:
@@ -270,11 +506,40 @@ def _batch_analyze(
     click.echo()
 
     success_count = 0
+    skipped_count = 0
+
+    # Build the pipeline once — reusing the same 4 OllamaClient instances for all images
+    settings = get_settings()
+    shared_pipeline = None
+    if (pipeline_mode or settings.pipeline.mode) == "stepped":
+        from ..pipeline import build_pipeline
+        shared_pipeline = build_pipeline(settings)
+
     for idx, img in enumerate(image_files, 1):
+        json_path = Path(output_dir) / f"{img.stem}_analyzed.json"
+        if skip_existing and _is_complete_analysis(json_path):
+            click.echo(f"[{idx}/{total}] Skipping (already done): {img.name}")
+            skipped_count += 1
+            continue
         click.echo(f"[{idx}/{total}] Processing: {img.name}")
         try:
             analyzed_path = str(Path(output_dir) / f"{img.stem}_analyzed.jpg")
-            analysis = analyzer.analyze_and_save(str(img), analyzed_path, save_json=True)
+            analysis_result = _analyze_with_provider(img, provider, pipeline_mode, pipeline=shared_pipeline)
+            analysis = _analysis_to_legacy_dict(analysis_result)
+            Path(analyzed_path).write_bytes(img.read_bytes())
+
+            # Embed EXIF metadata into the analyzed image copy
+            try:
+                from ..metadata.exif_writer import ExifWriter
+                ExifWriter(language=get_settings().metadata.language).write_from_dict(
+                    analyzed_path, analyzed_path, analysis
+                )
+            except Exception as exc:
+                click.echo(f"  ⚠ Could not embed EXIF metadata: {exc}", err=True)
+
+            Path(analyzed_path).with_suffix(".json").write_text(
+                json.dumps({k: v for k, v in analysis.items() if k != "source_description"}, indent=2), encoding="utf-8"
+            )
 
             if enhancer and "enhancement" in analysis:
                 enhanced_path = str(Path(output_dir) / f"{img.stem}_enhanced.jpg")
@@ -298,9 +563,22 @@ def _batch_analyze(
             click.echo("  ✓ Complete")
         except Exception as exc:
             click.echo(f"  ✗ Error: {exc}", err=True)
+        finally:
+            # Flush Ollama KV-cache between images: repeated prompt text causes
+            # the previous image's visual context to bleed into the next one.
+            # "ollama stop" unloads the model immediately without running inference.
+            try:
+                import subprocess as _sub
+                _sub.run(
+                    ["ollama", "stop", settings.ollama.model],
+                    timeout=30,
+                    capture_output=True,
+                )
+            except Exception:
+                pass  # non-fatal: cache flush is best-effort
 
     click.echo(f"\n{'=' * 50}")
-    click.echo(f"Batch complete: {success_count}/{total} successful")
+    click.echo(f"Batch complete: {success_count}/{total} successful" + (f" ({skipped_count} skipped)" if skipped_count else ""))
     click.echo(f"Output directory: {output_dir}")
 
 
@@ -313,11 +591,14 @@ def _batch_analyze(
 @click.argument("image", type=click.Path(exists=True))
 @click.option("-o", "--output", type=click.Path(), default=None,
               help="Output directory.")
+@click.option("--provider", type=click.Choice(["openai", "ollama"], case_sensitive=False),
+              default=None,
+              help="AI analyzer provider override (openai or ollama).")
 @click.option("--restore-slide",
               type=click.Choice(PROFILE_CHOICES, case_sensitive=False),
               default=None,
               help="Also restore slide using given profile.")
-def process(image: str, output: str | None, restore_slide: str | None):
+def process(image: str, output: str | None, provider: str | None, restore_slide: str | None):
     """Analyze, enhance, and optionally restore in one step.
 
     \b
@@ -332,9 +613,12 @@ def process(image: str, output: str | None, restore_slide: str | None):
     Custom output:
         picture-analyzer process photo.jpg -o results/
     """
-    PictureAnalyzer, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
+    _, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
 
     image_path = Path(image)
+
+    if provider:
+        click.echo(f"Using analyzer provider: {provider.lower()}")
     output_dir = output or "output"
     Path(output_dir).mkdir(exist_ok=True)
 
@@ -344,8 +628,20 @@ def process(image: str, output: str | None, restore_slide: str | None):
     # Step 1 — Analyze
     step_total = 3 if restore_slide else 2
     click.echo(f"[1/{step_total}] Analyzing: {image}")
-    analyzer = PictureAnalyzer()
-    analysis = analyzer.analyze_and_save(str(image_path), analyzed_path, save_json=True)
+    analysis_result = _analyze_with_provider(image_path, provider)
+    analysis = _analysis_to_legacy_dict(analysis_result)
+    Path(analyzed_path).write_bytes(image_path.read_bytes())
+    # Embed EXIF metadata (includes GPS when geocoding resolved coordinates)
+    try:
+        from ..metadata.exif_writer import ExifWriter
+        ExifWriter(language=get_settings().metadata.language).write_from_dict(
+            analyzed_path, analyzed_path, analysis
+        )
+    except Exception as exc:
+        click.echo(f"  ⚠ Could not embed EXIF metadata: {exc}", err=True)
+    Path(analyzed_path).with_suffix(".json").write_text(
+        json.dumps(analysis, indent=2), encoding="utf-8"
+    )
     click.echo("  ✓ Analysis complete")
 
     # Step 2 — Enhance

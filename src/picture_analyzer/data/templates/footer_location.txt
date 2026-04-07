@@ -1,0 +1,5 @@
+Format your response as a JSON object with EXACTLY this top-level key:
+- "location_detection": {{"country": "(full name, no abbreviation)", "region": "(full name, no abbreviation)", "city_or_area": "(full name, no abbreviation)", "location_type": "...", "confidence": 0-100, "reasoning": "..."}}
+
+CRITICAL: Write ALL values in full. NEVER abbreviate or truncate with "..." or "…". NEVER end a value with "...", "…", or "-".
+

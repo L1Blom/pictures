@@ -6,6 +6,9 @@
 # OpenAI Vision API integration
 openai==2.14.0
 
+# Ollama local model integration
+ollama==0.6.0
+
 # Image processing and format support
 Pillow==12.1.0
 pillow_heif==1.1.1

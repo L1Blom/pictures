@@ -1,0 +1,3 @@
+Format your response as a JSON object with EXACTLY this top-level key:
+- "slide_profiles": [{{"profile": "profile_name", "confidence": 0-100}}, ...] — use an empty array [] if no slide characteristics are detected.
+

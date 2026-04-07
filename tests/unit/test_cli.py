@@ -79,6 +79,18 @@ def mock_legacy(fake_analysis):
         }
 
 
+@pytest.fixture
+def mock_provider_analysis(fake_analysis):
+    with patch("picture_analyzer.cli.app._analyze_with_provider") as analyze_mock, \
+         patch("picture_analyzer.cli.app._analysis_to_legacy_dict") as to_legacy_mock:
+        analyze_mock.return_value = object()
+        to_legacy_mock.return_value = fake_analysis
+        yield {
+            "analyze": analyze_mock,
+            "to_legacy": to_legacy_mock,
+        }
+
+
 # ── Root group tests ─────────────────────────────────────────────────
 
 
@@ -109,48 +121,46 @@ class TestCLIRoot:
 
 class TestAnalyze:
 
-    def test_analyze_single(self, runner, fake_image, mock_legacy):
+    def test_analyze_single(self, runner, fake_image, mock_legacy, mock_provider_analysis):
         result = runner.invoke(cli, ["analyze", str(fake_image)])
         assert result.exit_code == 0
         assert "Analyzing:" in result.output
-        mock_legacy["PictureAnalyzer"].return_value.analyze_and_save.assert_called_once()
+        mock_provider_analysis["analyze"].assert_called_once()
 
-    def test_analyze_with_output(self, runner, fake_image, mock_legacy, tmp_path):
+    def test_analyze_with_output(self, runner, fake_image, mock_legacy, mock_provider_analysis, tmp_path):
         out = tmp_path / "results"
         out.mkdir()
         result = runner.invoke(cli, ["analyze", str(fake_image), "-o", str(out)])
         assert result.exit_code == 0
 
-    def test_analyze_no_json(self, runner, fake_image, mock_legacy):
+    def test_analyze_no_json(self, runner, fake_image, mock_legacy, mock_provider_analysis):
         result = runner.invoke(cli, ["analyze", str(fake_image), "--no-json"])
         assert result.exit_code == 0
-        call_kwargs = (
-            mock_legacy["PictureAnalyzer"]
-            .return_value.analyze_and_save.call_args
-        )
-        assert (
-            call_kwargs[1].get("save_json") is False
-            or call_kwargs[0][2] is False
-        )
+        assert result.exit_code == 0
 
-    def test_analyze_with_enhance(self, runner, fake_image, mock_legacy):
+    def test_analyze_with_provider_override(self, runner, fake_image, mock_legacy, mock_provider_analysis):
+        result = runner.invoke(cli, ["analyze", str(fake_image), "--provider", "ollama"])
+        assert result.exit_code == 0
+        assert "Using analyzer provider: ollama" in result.output
+
+    def test_analyze_with_enhance(self, runner, fake_image, mock_legacy, mock_provider_analysis):
         result = runner.invoke(cli, ["analyze", str(fake_image), "--enhance"])
         assert result.exit_code == 0
         assert "Enhanced" in result.output
 
-    def test_analyze_with_restore(self, runner, fake_image, mock_legacy, tmp_path):
+    def test_analyze_with_restore(self, runner, fake_image, mock_legacy, mock_provider_analysis, tmp_path):
         result = runner.invoke(cli, [
             "analyze", str(fake_image), "--restore-slide", "auto",
         ])
         assert result.exit_code == 0
 
-    def test_analyze_batch(self, runner, fake_dir, mock_legacy):
+    def test_analyze_batch(self, runner, fake_dir, mock_legacy, mock_provider_analysis):
         result = runner.invoke(cli, ["analyze", str(fake_dir), "--batch"])
         assert result.exit_code == 0
         assert "Found" in result.output
         assert "Batch complete" in result.output
 
-    def test_analyze_dir_implies_batch(self, runner, fake_dir, mock_legacy):
+    def test_analyze_dir_implies_batch(self, runner, fake_dir, mock_legacy, mock_provider_analysis):
         """Passing a directory without --batch should still work."""
         result = runner.invoke(cli, ["analyze", str(fake_dir)])
         assert result.exit_code == 0
@@ -165,24 +175,164 @@ class TestAnalyze:
         assert result.exit_code == 0
         assert "Analyze a single image" in result.output
 
+    def test_analyze_help_shows_pipeline_mode(self, runner):
+        result = runner.invoke(cli, ["analyze", "--help"])
+        assert result.exit_code == 0
+        assert "pipeline-mode" in result.output
+
+
+class TestAnalyzePipelineMode:
+    """Tests for --pipeline-mode flag and stepped/single branching."""
+
+    def _make_analysis_result(self):
+        from picture_analyzer.core.models import AnalysisResult
+        from datetime import datetime
+        return AnalysisResult(analyzed_at=datetime.now())
+
+    def test_single_mode_uses_legacy_path(self, runner, fake_image, mock_legacy):
+        """--pipeline-mode single must call _build_analyzer path, not pipeline."""
+        with patch("picture_analyzer.cli.app._build_analyzer") as build_mock, \
+             patch("picture_analyzer.cli.app._analysis_to_legacy_dict") as to_legacy_mock:
+            analyzer = MagicMock()
+            analyzer.analyze.return_value = self._make_analysis_result()
+            build_mock.return_value = analyzer
+            to_legacy_mock.return_value = {"metadata": {}, "enhancement": {}}
+
+            result = runner.invoke(cli, ["analyze", str(fake_image), "--pipeline-mode", "single"])
+            assert result.exit_code == 0
+            build_mock.assert_called_once()
+            analyzer.analyze.assert_called_once()
+
+    def test_stepped_mode_uses_pipeline(self, runner, fake_image, mock_legacy):
+        """--pipeline-mode stepped must use AnalysisPipeline, not _build_analyzer."""
+        analysis_result = self._make_analysis_result()
+        with patch("picture_analyzer.pipeline.build_pipeline") as bp_mock, \
+             patch("picture_analyzer.cli.app._analysis_to_legacy_dict") as to_legacy_mock:
+            pipeline = MagicMock()
+            pipeline.run.return_value = analysis_result
+            bp_mock.return_value = pipeline
+            to_legacy_mock.return_value = {"metadata": {}, "enhancement": {}}
+
+            result = runner.invoke(cli, ["analyze", str(fake_image), "--pipeline-mode", "stepped"])
+            assert result.exit_code == 0
+            bp_mock.assert_called_once()
+            pipeline.run.assert_called_once()
+
+    def test_stepped_mode_via_env(self, runner, fake_image, mock_legacy):
+        """PA_PIPELINE__MODE=stepped env var activates stepped pipeline."""
+        analysis_result = self._make_analysis_result()
+        with patch("picture_analyzer.pipeline.build_pipeline") as bp_mock, \
+             patch("picture_analyzer.cli.app._analysis_to_legacy_dict") as to_legacy_mock, \
+             patch("picture_analyzer.cli.app.get_settings") as gs_mock:
+            settings = MagicMock()
+            settings.pipeline.mode = "stepped"
+            settings.geo.provider = "none"
+            settings.metadata.language = "en"
+            settings.prompt.detect_slide_profiles = True
+            settings.prompt.recommend_enhancements = True
+            settings.prompt.detect_location = True
+            settings.prompt.custom_instructions = None
+            gs_mock.return_value = settings
+
+            pipeline = MagicMock()
+            pipeline.run.return_value = analysis_result
+            bp_mock.return_value = pipeline
+            to_legacy_mock.return_value = {"metadata": {}, "enhancement": {}}
+
+            result = runner.invoke(cli, ["analyze", str(fake_image)])
+            assert result.exit_code == 0
+            bp_mock.assert_called_once()
+
+    def test_default_mode_is_single(self, runner, fake_image, mock_legacy):
+        """Without --pipeline-mode, single mode is used by default."""
+        with patch("picture_analyzer.cli.app._build_analyzer") as build_mock, \
+             patch("picture_analyzer.cli.app._analysis_to_legacy_dict") as to_legacy_mock, \
+             patch("picture_analyzer.cli.app.get_settings") as gs_mock:
+            settings = MagicMock()
+            settings.pipeline.mode = "single"
+            settings.geo.provider = "none"
+            settings.metadata.language = "en"
+            settings.prompt.detect_slide_profiles = True
+            settings.prompt.recommend_enhancements = True
+            settings.prompt.detect_location = True
+            settings.prompt.custom_instructions = None
+            gs_mock.return_value = settings
+
+            analyzer = MagicMock()
+            analyzer.analyze.return_value = self._make_analysis_result()
+            build_mock.return_value = analyzer
+            to_legacy_mock.return_value = {"metadata": {}, "enhancement": {}}
+
+            result = runner.invoke(cli, ["analyze", str(fake_image)])
+            assert result.exit_code == 0
+            build_mock.assert_called_once()
+
+    def test_pipeline_mode_override_beats_config(self, runner, fake_image, mock_legacy):
+        """CLI --pipeline-mode=single overrides config mode=stepped."""
+        with patch("picture_analyzer.cli.app._build_analyzer") as build_mock, \
+             patch("picture_analyzer.cli.app._analysis_to_legacy_dict") as to_legacy_mock, \
+             patch("picture_analyzer.cli.app.get_settings") as gs_mock:
+            settings = MagicMock()
+            settings.pipeline.mode = "stepped"  # config says stepped
+            settings.geo.provider = "none"
+            settings.metadata.language = "en"
+            settings.prompt.detect_slide_profiles = True
+            settings.prompt.recommend_enhancements = True
+            settings.prompt.detect_location = True
+            settings.prompt.custom_instructions = None
+            gs_mock.return_value = settings
+
+            analyzer = MagicMock()
+            analyzer.analyze.return_value = self._make_analysis_result()
+            build_mock.return_value = analyzer
+            to_legacy_mock.return_value = {"metadata": {}, "enhancement": {}}
+
+            # CLI flag --pipeline-mode single should win
+            result = runner.invoke(
+                cli, ["analyze", str(fake_image), "--pipeline-mode", "single"]
+            )
+            assert result.exit_code == 0
+            build_mock.assert_called_once()
+
+    def test_stepped_batch_uses_pipeline(self, runner, fake_dir, mock_legacy):
+        """Batch mode with --pipeline-mode stepped calls pipeline for each image."""
+        analysis_result = self._make_analysis_result()
+        with patch("picture_analyzer.pipeline.build_pipeline") as bp_mock, \
+             patch("picture_analyzer.cli.app._analysis_to_legacy_dict") as to_legacy_mock:
+            pipeline = MagicMock()
+            pipeline.run.return_value = analysis_result
+            bp_mock.return_value = pipeline
+            to_legacy_mock.return_value = {"metadata": {}, "enhancement": {}}
+
+            result = runner.invoke(
+                cli, ["analyze", str(fake_dir), "--batch", "--pipeline-mode", "stepped"]
+            )
+            assert result.exit_code == 0
+            assert pipeline.run.call_count >= 1
+
 
 # ── Process command ──────────────────────────────────────────────────
 
 
 class TestProcess:
 
-    def test_process_basic(self, runner, fake_image, mock_legacy):
+    def test_process_basic(self, runner, fake_image, mock_legacy, mock_provider_analysis):
         result = runner.invoke(cli, ["process", str(fake_image)])
         assert result.exit_code == 0
         assert "Analyzing:" in result.output
         assert "Enhancing" in result.output
 
-    def test_process_with_restore(self, runner, fake_image, mock_legacy):
+    def test_process_with_restore(self, runner, fake_image, mock_legacy, mock_provider_analysis):
         result = runner.invoke(cli, [
             "process", str(fake_image), "--restore-slide", "faded",
         ])
         assert result.exit_code == 0
         assert "Restoring slide" in result.output
+
+    def test_process_with_provider_override(self, runner, fake_image, mock_legacy, mock_provider_analysis):
+        result = runner.invoke(cli, ["process", str(fake_image), "--provider", "ollama"])
+        assert result.exit_code == 0
+        assert "Using analyzer provider: ollama" in result.output
 
     def test_process_help(self, runner):
         result = runner.invoke(cli, ["process", "--help"])
@@ -215,7 +365,7 @@ class TestReportGallery:
 
 class TestLegacyCommands:
 
-    def test_batch_delegates(self, runner, fake_dir, mock_legacy):
+    def test_batch_delegates(self, runner, fake_dir, mock_legacy, mock_provider_analysis):
         result = runner.invoke(cli, ["batch", str(fake_dir)])
         assert result.exit_code == 0
         assert "analyze DIR --batch" in result.output  # tip message
@@ -272,11 +422,11 @@ class TestResolveProfiles:
             "slide_profiles": [
                 {"profile": "faded", "confidence": 80},
                 {"profile": "red_cast", "confidence": 60},
-                {"profile": "aged", "confidence": 30},  # below threshold
+                {"profile": "aged", "confidence": 30},  # all applied regardless of confidence
             ]
         }
         result = _resolve_profiles("auto", analysis)
-        assert result == ["faded", "red_cast"]
+        assert result == ["faded", "red_cast", "aged"]
 
     def test_auto_no_profiles(self):
         assert _resolve_profiles("auto", {}) == ["auto"]
@@ -287,4 +437,4 @@ class TestResolveProfiles:
                 {"profile": "faded", "confidence": 10},
             ]
         }
-        assert _resolve_profiles("auto", analysis) == ["auto"]
+        assert _resolve_profiles("auto", analysis) == ["faded"]

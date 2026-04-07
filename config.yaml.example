@@ -10,10 +10,16 @@
 #   CLI args > Env vars (.env) > config.yaml > Built-in defaults
 # ============================================================================
 
+analyzer_provider: "openai"       # openai or ollama
+
 openai:
   # model: "gpt-4o-mini"         # Vision model to use
   # max_tokens: 4096              # Max tokens for AI response
   # detail: "auto"                # Image detail: auto, low, high
+
+ollama:
+  # model: "llava"               # Local Ollama vision model name
+  # host: "http://127.0.0.1:11434"
 
 geo:
   # provider: "nominatim"         # Geocoding provider: nominatim, google, none
@@ -79,6 +85,26 @@ prompt:
   # detect_people: true
   # detect_era: true
   # custom_instructions: null     # Extra text appended to AI prompt
+
+pipeline:
+  # mode: "single"                # "single" = monolithic call (default, backward-compat)
+                                  # "stepped" = one AI call per analysis section
+  #
+  # Per-step overrides. Any field omitted here inherits from the matching
+  # global provider config (openai: / ollama:) above.
+  #
+  # metadata:
+  #   provider: ollama            # Use local model for cheap scene description
+  #   model: llava:7b
+  # location:
+  #   provider: openai
+  #   model: gpt-4o               # Best geographic reasoning
+  #   max_tokens: 1024            # Location response is small
+  # enhancement:
+  #   provider: openai
+  #   model: gpt-4o-mini          # Cheaper, sufficient for filter recommendations
+  # slide_profiles:
+  #   enabled: false              # Skip entirely when not processing slides
 
 # Top-level settings
 # batch_size: 5

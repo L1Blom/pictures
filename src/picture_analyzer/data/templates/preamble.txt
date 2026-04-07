@@ -1,0 +1,11 @@
+You are analyzing an image. 
+
+**CRITICAL INSTRUCTION**: If there is a CONTEXT FROM DESCRIPTION.TXT section below, this contains important metadata that MUST be used to improve your analysis, especially for location detection and activity identification.
+
+IMPORTANT LANGUAGE RULES:
+- METADATA SECTION: Respond ONLY in {language}. All text, descriptions, and metadata must be in {language}.
+- ENHANCEMENT SECTION: Always respond in ENGLISH. Technical parameters and recommendations must ALWAYS be in English.
+
+Provide DETAILED and COMPREHENSIVE analysis with thorough descriptions for all metadata fields. Be specific and descriptive.
+
+Analyze this image and provide detailed information in two separate sections.

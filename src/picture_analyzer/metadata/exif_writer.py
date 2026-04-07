@@ -6,6 +6,7 @@ analysis results into JPEG image EXIF data.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -362,7 +363,102 @@ class ExifWriter:
         if coordinates:
             self._add_gps_to_exif(exif_dict, coordinates)
 
+        # DateTime — parse from source_description "Date:" line
+        date_str = self._extract_date_from_description(source_description)
+        if date_str:
+            exif_dict["0th"][piexif.ImageIFD.DateTime] = date_str.encode("utf-8")
+            exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = date_str.encode("utf-8")
+            exif_dict["Exif"][piexif.ExifIFD.DateTimeDigitized] = date_str.encode("utf-8")
+
         return exif_dict
+
+    @staticmethod
+    def _extract_date_from_description(source_description: str | None) -> str | None:
+        """Parse a 'Date:' line from description.txt into EXIF datetime format.
+
+        Accepts formats like:
+          "Juni 1984", "June 1984", "1984", "July 4, 1984", "04-07-1984", "1984-07-04"
+
+        Returns EXIF-format string "YYYY:MM:DD HH:MM:SS" (time defaults to 00:00:00),
+        or None if no parseable date is found.
+        """
+        if not source_description:
+            return None
+
+        # Find the Date: / Datum: line (English and Dutch)
+        match = re.search(r"(?im)^(?:date|datum)\s*:\s*(.+)$", source_description)
+        if not match:
+            return None
+        raw = match.group(1).strip()
+        if not raw:
+            return None
+
+        MONTHS = {
+            "januari": 1, "january": 1, "jan": 1,
+            "februari": 2, "february": 2, "feb": 2,
+            "maart": 3, "march": 3, "mar": 3,
+            "april": 4, "apr": 4,
+            "mei": 5, "may": 5,
+            "juni": 6, "june": 6, "jun": 6,
+            "juli": 7, "july": 7, "jul": 7,
+            "augustus": 8, "august": 8, "aug": 8,
+            "september": 9, "sep": 9, "sept": 9,
+            "oktober": 10, "october": 10, "oct": 10, "okt": 10,
+            "november": 11, "nov": 11,
+            "december": 12, "dec": 12,
+        }
+
+        year, month, day = None, 1, 1
+
+        # "YYYY-MM-DD" or "DD-MM-YYYY"
+        m = re.match(r"(\d{4})-(\d{2})-(\d{2})", raw)
+        if m:
+            year, month, day = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        else:
+            m = re.match(r"(\d{2})-(\d{2})-(\d{4})", raw)
+            if m:
+                day, month, year = int(m.group(1)), int(m.group(2)), int(m.group(3))
+
+        # "D Month YYYY" (Dutch: "25 december 1986")
+        if year is None:
+            m = re.search(r"(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})", raw)
+            if m and m.group(2).lower() in MONTHS:
+                day = int(m.group(1))
+                month = MONTHS[m.group(2).lower()]
+                year = int(m.group(3))
+
+        # "Month D, YYYY" or "Month YYYY" or "YYYY Month" (Dutch/English month name)
+        if year is None:
+            m = re.search(r"([a-zA-Z]+)\s+(\d{1,2}),?\s+(\d{4})", raw)
+            if m and m.group(1).lower() in MONTHS:
+                month = MONTHS[m.group(1).lower()]
+                day = int(m.group(2))
+                year = int(m.group(3))
+        if year is None:
+            m = re.search(r"([a-zA-Z]+)\s+(\d{4})", raw)
+            if m:
+                mon_name = m.group(1).lower()
+                if mon_name in MONTHS:
+                    month = MONTHS[mon_name]
+                    year = int(m.group(2))
+            if year is None:
+                m = re.search(r"(\d{4})\s+([a-zA-Z]+)", raw)
+                if m:
+                    mon_name = m.group(2).lower()
+                    if mon_name in MONTHS:
+                        month = MONTHS[mon_name]
+                        year = int(m.group(1))
+
+        # Plain year only: "1984"
+        if year is None:
+            m = re.fullmatch(r"\d{4}", raw.strip())
+            if m:
+                year = int(m.group(0))
+
+        if year is None:
+            return None
+
+        return f"{year:04d}:{month:02d}:{day:02d} 00:00:00"
 
     @staticmethod
     def _add_gps_to_exif(exif_dict: dict, coordinates: dict[str, float]) -> None:

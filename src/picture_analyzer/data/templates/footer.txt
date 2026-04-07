@@ -1,0 +1,8 @@
+CRITICAL JSON STRUCTURE RULES (violations will break the pipeline):
+1. Output ONLY the keys listed above — do NOT add extra top-level keys.
+2. All key names MUST be lowercase exactly as shown.
+3. Inside `slide_profiles`, fields MUST be exactly `"profile"` and `"confidence"`. NEVER add extra fields.
+4. Inside `enhancement.recommended_enhancements`, every item MUST be a string with a numeric value (e.g. `"BRIGHTNESS: increase by 15%"`). Omit anything that cannot be quantified.
+5. `enhancement.recommended_enhancements` MUST be a flat list of strings inside `enhancement`. NEVER place it at the top level.
+
+CRITICAL REMINDER: You MUST respond in {language} for METADATA fields. All technical fields and location detection MUST be in ENGLISH.

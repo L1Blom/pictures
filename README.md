@@ -1,13 +1,14 @@
 # Picture Analysis & Enhancement Tool
 
-A Python project that analyzes pictures using OpenAI Vision API to generate detailed EXIF metadata, intelligently enhances them, and restores old slides.
+A Python project that analyzes pictures using AI vision models (Ollama local models or OpenAI) to generate detailed EXIF metadata, intelligently enhances them, and restores old slides.
 
 ## Features
 
 ### ✅ Implemented Features
 
 **Image Analysis**
-- Analyze pictures with OpenAI Vision API (GPT-4 Turbo with vision)
+- Analyze pictures with **Ollama** (local models, e.g. `llama3.2-vision:11b`) or OpenAI Vision API (GPT-4 Turbo)
+- Local Ollama analysis runs fully offline — no API key or cloud costs required
 - Detect 11 comprehensive aspects:
   - Objects and subjects
   - Persons/people count and positioning
@@ -88,16 +89,15 @@ A Python project that analyzes pictures using OpenAI Vision API to generate deta
 ### 🔜 Planned Features
 - Web interface for easier use
 - Database storage of analysis results
-- Multiple AI model support (Claude, local models)
 - Advanced noise reduction algorithms
 - Image upscaling/resolution enhancement
-- Batch optimization and progress tracking
 
 ## Setup
 
 ### Prerequisites
 - Python 3.8+
-- OpenAI API key
+- **Ollama** (recommended) — install from [ollama.com](https://ollama.com), then `ollama pull llama3.2-vision:11b`
+- OpenAI API key (optional, only if using OpenAI provider)
 
 ### Installation
 
@@ -119,15 +119,27 @@ pip install -r requirements.txt
 ```
 
 4. Configure environment variables:
-Create a `.env` file with:
+Create a `.env` file or `config.yaml` (see `config.yaml.example`):
+```yaml
+# config.yaml — Ollama (local, no API key needed)
+ollama:
+  model: llama3.2-vision:11b
+  base_url: http://127.0.0.1:11434
+  num_ctx: 16384
+  timeout: 1200
+  keep_alive: 2h
+
+metadata:
+  language: nl   # nl, en, de, fr, es, ...
+
+pipeline:
+  mode: stepped  # stepped|single
+```
+
+Or for OpenAI:
 ```
 OPENAI_APIKEY=your-openai-api-key
-
-# Language for EXIF metadata and location names (default: en)
-METADATA_LANGUAGE=nl  # e.g., 'nl' for Dutch, 'en' for English, 'de' for German
-
-# GPS confidence threshold for embedding coordinates (default: 80)
-# Only embed GPS when location detection confidence >= this threshold
+METADATA_LANGUAGE=nl
 GPS_CONFIDENCE_THRESHOLD=80
 ```
 
@@ -227,25 +239,74 @@ The `gallery` command creates a visual markdown table showing all analyzed image
 - **Smart Display**: Shows enhanced and restored versions only when available
 - **Flat Directory Support**: Works with images directly in the output directory
 
+### Pipeline Modes
+
+The analyzer supports two analysis pipeline modes, selectable per-invocation or via configuration.
+
+| Mode | Description |
+|------|-------------|
+| `single` (default) | One AI call returns all analysis sections — identical to pre-pipeline behaviour |
+| `stepped` | Each section (metadata, location, enhancement, slide profiles) is a separate AI call, followed by GPS geocoding |
+
+**Select mode via CLI flag:**
+```bash
+# Use stepped pipeline for a single image
+picture-analyzer analyze photo.jpg --pipeline-mode stepped
+
+# Batch-process with stepped pipeline
+picture-analyzer analyze photos/ --batch --pipeline-mode stepped
+```
+
+**Select mode via environment variable** (persists for the session):
+```bash
+export PA_PIPELINE__MODE=stepped
+picture-analyzer analyze photo.jpg
+```
+
+**Select mode via `config.yaml`:**
+```yaml
+pipeline:
+  mode: stepped          # "single" | "stepped"
+  location:
+    enabled: false       # skip the location step entirely
+  slide_profiles:
+    model: gpt-4o        # use a different model for this step only
+```
+
+Per-step overrides let you route each section to a different model or provider, or disable individual steps without changing the others. See [`config.yaml.example`](config.yaml.example) for the full list of knobs and [`PIPELINE_DECOUPLING_PROPOSAL.md`](PIPELINE_DECOUPLING_PROPOSAL.md) for design rationale.
+
 ### Context-Aware Analysis with description.txt
 
-You can enhance EXIF analysis by placing a `description.txt` file in the output directory. The description provides context that helps AI understand the images better, resulting in more accurate and detailed metadata.
+Place a `description.txt` in the image folder to provide ground-truth context to the AI. Supported in both Dutch and English.
 
-**Example description.txt:**
+**Dutch example:**
 ```
-Family vacation in Switzerland, summer 2015.
-Taken at Jungfrau region during hiking trip in late July.
-Shows traditional alpine village with mountains in background.
-Grandpa's 80th birthday celebration gathering.
-Weather was partly cloudy, early morning light.
+Albumnaam: 1986-12-25 Geboorte Leendert-Jan
+Locatie: Han Hollanderweg 17, Gouda, Nederland
+Datum: 25 december 1986
+Personen: Leendert en Leny Blom, Leendert-Jan Blom en familieleden
+Activiteit: Geboorte, kraamtijd, doop en bezoek
+Weer: n.v.t.
+Stemming: Vrolijk, blij
 ```
 
-When you have a `description.txt` file in the output directory, the analysis will use this context for all images. This improves:
-- Location and setting identification
-- Event and occasion detection
-- People and gathering context
-- Time period estimation
-- Overall scene understanding
+**English example:**
+```
+Album: 1984 Goes streetscapes
+Location: Goes, Zeeland, Netherlands
+Date: June 1984
+Activity: Documenting the old town centre
+```
+
+**Field handling:**
+
+| Field | Dutch | English | Used for |
+|---|---|---|---|
+| Location/date | `Locatie:`, `Datum:` | `Location:`, `Date:` | EXIF DateTimeOriginal, GPS ground truth |
+| Persons/activity | `Personen:`, `Activiteit:` | `People:`, `Activity:` | **Stripped** — prevents hallucination |
+| Notes | `Opmerkingen:` | `Notes:` | **Stripped** — prevents biography → person hallucination |
+
+Stripping person/activity fields prevents the AI from copying description text verbatim into metadata fields instead of deriving them from the image.
 
 ### Python API
 
@@ -344,7 +405,6 @@ echo "OPENAI_APIKEY=sk-..." > .env
 
 - [ ] Web UI for interactive use
 - [ ] Database storage for analysis results
-- [ ] Multiple AI model support (Claude, local models)
 - [ ] Advanced algorithms (noise reduction, upscaling)
 - [ ] Result caching and indexing
 - [ ] Image tagging and organization

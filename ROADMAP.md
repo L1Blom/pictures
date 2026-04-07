@@ -39,9 +39,12 @@
 
 ## Phase 2.6: Context-Aware Analysis ✅ COMPLETED
 - [x] Support for description.txt files in image directories
-- [x] Description context passed to OpenAI Vision API
+- [x] Description context passed to AI vision model
 - [x] Enhanced EXIF generation with contextual understanding
 - [x] Automatic description file reading and integration
+- [x] Dutch field names supported: `Datum:`, `Locatie:`, `Personen:`, `Activiteit:`, `Opmerkingen:`
+- [x] Hallucination-prevention: person/activity/notes fields stripped from prompt context
+- [x] `D Month YYYY` Dutch date format parsed into EXIF DateTimeOriginal
 
 ## Phase 2.7: Report Generation ✅ COMPLETED
 - [x] Markdown report generation from analysis results
@@ -54,6 +57,16 @@
 - [x] Slide restoration profile recommendations in reports
 - [x] 'report' CLI command for markdown generation
 - [x] Configurable report output paths
+
+## Phase 2.8: Local AI Model Support (Ollama) ✅ COMPLETED
+- [x] OllamaAnalyzer — full drop-in for OpenAI in stepped pipeline
+- [x] `llama3.2-vision:11b` tested and working (CPU and GPU)
+- [x] Configurable via `config.yaml`: model, base_url, num_ctx, timeout, keep_alive
+- [x] Stepped pipeline mode: separate AI call per section (metadata, location, enhancement, slide profiles)
+- [x] KV-cache flush between batch images (`ollama stop` after each image) — prevents visual bleed
+- [x] `repeat_penalty: 1.3` to prevent model repetition loops
+- [x] Token statistics displayed per step (prompt→output tokens, tok/s)
+- [x] `--skip-existing` flag to resume interrupted batch runs
 
 ## Phase 3: Advanced Features (NEXT)
 - [ ] Database storage for analysis results
@@ -73,27 +86,16 @@
   - [ ] Advanced search functionality
   
 - [ ] Performance optimization
-  - [ ] Result caching
-  - [ ] Parallel processing for batch jobs
+  - [ ] Parallel batch processing (multiple images simultaneously)
   - [ ] Progress tracking for long operations
 
 ## Phase 4: AI Integration Enhancements
-- [ ] Multiple AI model support
-  - [ ] Claude 3 Vision integration
-  - [ ] Fallback mechanisms
-  - [ ] Local models (LLaVA, etc.)
-  
+- [ ] Additional local model support (other Ollama-compatible models)
+- [ ] Claude Vision integration
 - [ ] Advanced analysis features
   - [ ] Object recognition with confidence scores
   - [ ] Text extraction (OCR)
   - [ ] Face detection and privacy blur
-  - [ ] Scene understanding improvements
-  
-- [ ] Enhanced metadata generation
-  - [ ] Automatic caption generation
-  - [ ] Detailed scene descriptions
-  - [ ] Copyright and licensing suggestions
-  - [ ] Keywords and tags
 
 ## Phase 5: Deployment & Distribution
 - [ ] Docker containerization

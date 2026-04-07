@@ -6,9 +6,17 @@ in ``settings.py`` references these constants as field defaults.
 """
 from __future__ import annotations
 
+# ── Pipeline ────────────────────────────────────────────────────────
+DEFAULT_PIPELINE_MODE = "single"  # "single" | "stepped"
+
 # ── AI / OpenAI ──────────────────────────────────────────────────────
+DEFAULT_ANALYZER_PROVIDER = "openai"  # "openai" | "ollama"
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
-DEFAULT_MAX_TOKENS = 4096
+DEFAULT_OLLAMA_MODEL = "llava"
+DEFAULT_OLLAMA_HOST = "http://127.0.0.1:11434"
+DEFAULT_OLLAMA_TIMEOUT = 1200  # 20 minutes per step; CPU inference + cold model reload can exceed 10 min
+DEFAULT_OLLAMA_NUM_CTX = 16384  # mllama image tiles use ~8000 tokens; 16384 leaves room for prompt+output
+DEFAULT_MAX_TOKENS = 16384
 DEFAULT_DETAIL_LEVEL = "auto"  # "auto" | "low" | "high"
 
 # ── Image Processing ────────────────────────────────────────────────
@@ -98,7 +106,7 @@ DEFAULT_BATCH_SIZE = 5
 DEFAULT_CLEANUP_TEMP = True
 
 # ── Slide Restoration ───────────────────────────────────────────────
-DEFAULT_PROFILE_CONFIDENCE_THRESHOLD = 50  # for auto profile selection
+DEFAULT_PROFILE_CONFIDENCE_THRESHOLD = 0  # apply all detected profiles regardless of confidence
 
 DEFAULT_SLIDE_PROFILES = {
     "faded": {

@@ -1,0 +1,12 @@
+=== METADATA SECTION (for EXIF embedding) - RESPOND IN {language} ===
+1. **Objects**: List up to 10 main visible objects as a short comma-separated string (e.g. "auto, boom, gebouw, fiets"). Do NOT use an array. Do NOT repeat items.
+2. **Persons**: Describe visible people purely visually — count, apparent gender, approximate age, clothing, pose (e.g. "een vrouw in zomerjurk", "twee mannen zittend", "geen personen zichtbaar"). Do NOT use names.
+3. **Weather**: Describe weather conditions visible in the image (e.g. "zonnig, warm, blauwe lucht")
+4. **Mood/Atmosphere**: Write a FULL DESCRIPTIVE SENTENCE about the mood and atmosphere (e.g. "Een warme zomermiddag in een rustige Nederlandse straat, licht nostalgisch")
+5. **Time of Day**: Estimate time of day from lighting (morning / afternoon / evening / night)
+6. **Season/Date**: Estimate season and period from visual clues and any context hints
+7. **Scene Type**: Classify scene type with a short explanatory phrase (e.g. "straatfotografie in een woonwijk")
+8. **Location/Setting**: Describe what you VISUALLY SEE in the image — indoor or outdoor, urban/rural, specific surroundings (e.g. "buiten, een smalle straat met rijwoningen en bomen"). Do NOT copy from the description context.
+9. **Activity/Action**: Describe ONLY what you can VISUALLY CONFIRM in the image. If you cannot see a specific activity, describe the scene. Do NOT use the description context for this field.
+10. **Photography Style**: Identify photography style and technique (e.g. "documentaire stadfotografie, natuurlijk licht")
+11. **Composition Quality**: Write a FULL DESCRIPTIVE SENTENCE about composition (e.g. "Redelijke compositie met de straat als leidende lijn, maar licht onderbelicht")

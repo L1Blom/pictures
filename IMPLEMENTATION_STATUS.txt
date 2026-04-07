@@ -2,22 +2,49 @@
 ║                                                                              ║
 ║                   IMPLEMENTATION COMPLETION STATUS                           ║
 ║                                                                              ║
-║           Advanced Picture Enhancement System - FULLY COMPLETE               ║
-║                          WITH LOCATION & GPS SUPPORT                         ║
+║        Advanced Picture Enhancement System - FULLY COMPLETE                  ║
+║         WITH LOCAL AI (OLLAMA), LOCATION/GPS & MULTI-LANGUAGE                ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-Date: January 2026
-Version: 1.2 (Complete + Location Detection + GPS + Multi-Language)
+Date: April 2026
+Version: 1.3 (+ Ollama local AI, batch hallucination fixes, Dutch description.txt)
 Status: ✅ PRODUCTION READY
 
 
-LATEST FEATURES (January 2026)
+LATEST FEATURES (April 2026)
 ═════════════════════════════════════════════════════════════════════════════════
 
-✅ LOCATION DETECTION WITH CONFIDENCE SCORING
-   • AI analyzes visual clues for geographic location
-   • Returns: country, region, city/area, location_type, confidence (0-100%)
+✅ LOCAL AI MODEL SUPPORT (OLLAMA)
+   • OllamaAnalyzer: full drop-in replacement for OpenAI in all pipeline modes
+   • Tested with llama3.2-vision:11b (13 GB, runs CPU-only)
+   • Configurable via config.yaml: model, base_url, num_ctx, timeout, keep_alive
+   • No API key or cloud costs required
+   • Stepped pipeline: separate AI call per section (metadata, location,
+     enhancement, slide_profiles) — each step is independent and resumable
+
+✅ BATCH HALLUCINATION FIXES
+   • KV-cache flush between batch images: subprocess "ollama stop" after each
+     image unloads the model, wiping cross-image visual memory bleed
+   • repeat_penalty: 1.3 prevents the model from entering infinite repetition
+     loops (e.g. "badkamermeubel, badkamermeubel, ..." filling the objects field)
+   • Person/activity fields (Personen:, Activiteit:, People:, Notes:,
+     Opmerkingen:) stripped from prompt context — prevents the model from
+     copying description text verbatim into metadata fields
+
+✅ DUTCH DESCRIPTION.TXT SUPPORT
+   • Datum: field parsed to EXIF DateTimeOriginal (incl. "25 december 1986")
+   • Locatie: field used as location ground truth (same as English Location:)
+   • D Month YYYY date format parsed for Dutch dates
+   • All Dutch field names handled alongside English equivalents
+
+✅ TOKEN STATISTICS IN BATCH OUTPUT
+   • Each pipeline step now prints: prompt→output tokens and tok/s
+   • Example: ✓ [metadata] done in 159.0s  (847→312 tok, 2.0 tok/s)
+   • Helps diagnose slow steps and confirm model is generating output
+
+
+
    • Reasoning provided for transparency
    • Fully integrated into EXIF metadata
 

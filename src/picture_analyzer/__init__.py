@@ -3,7 +3,7 @@
 Public API::
 
     from picture_analyzer import __version__
-    from picture_analyzer.analyzers import OpenAIAnalyzer
+    from picture_analyzer.analyzers import OpenAIAnalyzer, OllamaAnalyzer, create_analyzer
     from picture_analyzer.geo import NominatimGeocoder
     from picture_analyzer.metadata import ExifWriter, XmpWriter
     from picture_analyzer.enhancers import FilterPipeline, RecommendationParser, SlideRestorer

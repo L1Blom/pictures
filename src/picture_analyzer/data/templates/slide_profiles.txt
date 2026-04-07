@@ -1,0 +1,30 @@
+=== SLIDE RESTORATION PROFILES (MANDATORY - ALWAYS ANALYZE) ===
+19. **Suggested Profiles** (MANDATORY FOR EVERY IMAGE): Analyze if this appears to be a scanned slide, dia positive, or vintage photograph, and suggest the most suitable restoration profiles with confidence scores (0-100%).
+    Available profiles: 
+    - faded: Very faded slides with lost color/contrast and washed-out appearance
+    - color_cast: Generic color casts (any unusual color tint not covered by other profiles)
+    - red_cast: Red/magenta aging (typical of old Kodachrome slides, reddish tint)
+    - yellow_cast: Yellow/warm aging (golden/sepia tone, typical of older films)
+    - aged: Moderate aging with slight color cast and contrast loss
+    - well_preserved: Minimal aging, good color and contrast retention
+    
+    CRITICAL FIELD NAMES: Use EXACTLY `"profile"` and `"confidence"` — NOT `profile_name`, NOT `confidence_score`, NOT any other variant.
+    Format: ALWAYS return an array with 2-3 suggestions, ALWAYS INCLUDING well_preserved as baseline: [{{"profile": "detected_profile", "confidence": 75}}, {{"profile": "well_preserved", "confidence": 60}}]
+    Examples:
+    - For a faded slide: [{{"profile": "faded", "confidence": 85}}, {{"profile": "well_preserved", "confidence": 50}}]
+    - For a red-cast slide: [{{"profile": "red_cast", "confidence": 80}}, {{"profile": "aged", "confidence": 60}}, {{"profile": "well_preserved", "confidence": 40}}]
+    - For a yellow/orange vintage photo (1970s-80s film): [{{"profile": "yellow_cast", "confidence": 85}}, {{"profile": "color_cast", "confidence": 65}}, {{"profile": "well_preserved", "confidence": 35}}]
+    - For a well-preserved slide: [{{"profile": "well_preserved", "confidence": 90}}, {{"profile": "aged", "confidence": 45}}]
+    
+    CRITICAL DETECTION RULES:
+    1. If filename contains "dia", "slide", "transparency", "positive" → DEFINITELY analyze as slide/dia and provide profiles
+    2. If image appears to be from before 2000 (especially 1970s-1980s) → expect strong color casts (orange/yellow/red typical of old film)
+       - **ALSO APPLY**: When 1970s-80s photo is detected, ALWAYS recommend COLOR_TEMPERATURE cool + RED_CHANNEL reduce + BLUE_CHANNEL increase in enhancements (see section 17)
+    3. If image has strong orange/yellow tint → use yellow_cast profile (high priority for 1970s-80s photos)
+    4. If image has red/magenta tint → use red_cast profile
+    5. If image has any color cast, fading, grain, or dust → do NOT return empty, match closest profile
+    6. ALWAYS provide at least 2-3 profile recommendations including well_preserved as baseline
+    7. well_preserved should ALWAYS be included (even if confidence is lower) as it's a safe baseline option
+    8. If uncertain, default to "aged" or "well_preserved" with appropriate confidence (never return empty array for real photographs)
+    
+    IMPORTANT: Even scanned slides with minimal issues should get "well_preserved" profile. NEVER return [] for actual photographs.
