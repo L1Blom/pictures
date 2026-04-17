@@ -24,7 +24,7 @@ def _print(msg: str) -> None:
 
 
 def _format_tok_stats(step) -> str:
-    """Return a token/speed summary string from the last Ollama call on a step, or ''."""
+    """Return a token/speed summary string from the last analyzer call on a step, or ''."""
     analyzer = getattr(step, "_analyzer", None)
     stats = getattr(analyzer, "_last_call_stats", None)
     if not stats:

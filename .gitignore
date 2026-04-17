@@ -54,6 +54,7 @@ output/
 output*/
 output_*/
 test_*/
+test-*/
 tmp/
 *.jpg
 *.jpeg

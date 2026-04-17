@@ -43,6 +43,8 @@ def _build_analyzer(resolved: dict[str, Any]):
             kwargs["timeout"] = resolved["timeout"]
         if resolved.get("num_ctx") is not None:
             kwargs["num_ctx"] = resolved["num_ctx"]
+        if resolved.get("host") is not None:
+            kwargs["host"] = resolved["host"]
         return OllamaAnalyzer(**kwargs)
 
 

@@ -58,6 +58,7 @@ class OpenAIAnalyzer:
         self.client = OpenAI(api_key=resolved_key)
         self.model = model
         self.max_tokens = max_tokens
+        self._last_call_stats: dict = {}
 
     # ── Analyzer Protocol ────────────────────────────────────────────
 
@@ -137,6 +138,8 @@ class OpenAIAnalyzer:
                 f"{context.description_text}\n"
             )
 
+        import time as _time
+        _t0 = _time.perf_counter()
         response = self.client.chat.completions.create(
             model=self.model,
             max_tokens=self.max_tokens,
@@ -163,7 +166,14 @@ class OpenAIAnalyzer:
                 },
             ],
         )
+        _elapsed_ns = int((_time.perf_counter() - _t0) * 1e9)
         text = response.choices[0].message.content
+        usage = response.usage
+        self._last_call_stats = {
+            "prompt_tokens": usage.prompt_tokens if usage else None,
+            "output_tokens": usage.completion_tokens if usage else None,
+            "eval_duration_ns": _elapsed_ns,
+        }
         if os.environ.get("PA_ANALYZER_DEBUG"):
             import sys
             print("\n[DEBUG] Raw OpenAI response:\n", text, "\n", file=sys.stderr)

@@ -124,16 +124,36 @@ class NominatimGeocoder:
         Returns:
             GeoLocation or None.
         """
-        threshold = confidence_threshold or self.confidence_threshold
+        threshold = confidence_threshold if confidence_threshold is not None else self.confidence_threshold
         confidence = int(location_data.get("confidence", 0))
         if confidence < threshold:
             return None
 
-        query = self._build_query(location_data)
-        if not query:
-            return None
+        country = self._normalize_country((location_data.get("country") or "").strip())
+        region = (location_data.get("region") or "").strip()
+        city = (location_data.get("city_or_area") or "").strip()
 
-        return self.geocode(query)
+        # Try progressively less specific queries until one succeeds
+        candidates: list[list[str]] = []
+        if city and region and country:
+            candidates.append([city, region, country])
+        if city and country:
+            candidates.append([city, country])
+        if region and country:
+            candidates.append([region, country])
+        if country:
+            candidates.append([country])
+
+        for parts in candidates:
+            filtered = [p for p in parts if p.lower() not in self.vague_terms]
+            query = ", ".join(filtered) if filtered else None
+            if not query:
+                continue
+            result = self.geocode(query)
+            if result:
+                return result
+
+        return None
 
     def geocode_location_info(self, location: LocationInfo) -> LocationInfo:
         """Enrich a ``LocationInfo`` with GPS coordinates from geocoding.
@@ -175,11 +195,78 @@ class NominatimGeocoder:
 
     # ── Internal helpers ─────────────────────────────────────────────
 
+    # Dutch (and a few French/German) country names that Nominatim doesn't resolve
+    _COUNTRY_NAME_MAP: dict[str, str] = {
+        "zwitserland": "Switzerland",
+        "duitsland": "Germany",
+        "frankrijk": "France",
+        "belgie": "Belgium",
+        "belgië": "Belgium",
+        "oostenrijk": "Austria",
+        "italie": "Italy",
+        "italië": "Italy",
+        "spanje": "Spain",
+        "noorwegen": "Norway",
+        "denemarken": "Denmark",
+        "zweden": "Sweden",
+        "finland": "Finland",
+        "griekenland": "Greece",
+        "portugal": "Portugal",
+        "tsjechie": "Czech Republic",
+        "tsjechië": "Czech Republic",
+        "slovenie": "Slovenia",
+        "slovenië": "Slovenia",
+        "kroatie": "Croatia",
+        "kroatië": "Croatia",
+        "hongarije": "Hungary",
+        "polen": "Poland",
+        "rusland": "Russia",
+        "verenigde staten": "United States",
+        "verenigde arabische emiraten": "United Arab Emirates",
+        "groot-brittannie": "United Kingdom",
+        "groot-brittannië": "United Kingdom",
+        "engeland": "England",
+        "schotland": "Scotland",
+        "ierland": "Ireland",
+        "marokko": "Morocco",
+        "tunesie": "Tunisia",
+        "tunesië": "Tunisia",
+        "egypte": "Egypt",
+        "turkije": "Turkey",
+        "israel": "Israel",
+        "israël": "Israel",
+        "jordanie": "Jordan",
+        "jordanië": "Jordan",
+        "australie": "Australia",
+        "australië": "Australia",
+        "nieuw-zeeland": "New Zealand",
+        "canada": "Canada",
+        "mexiko": "Mexico",
+        "argentinie": "Argentina",
+        "argentinië": "Argentina",
+        "brazilie": "Brazil",
+        "brazilië": "Brazil",
+        "china": "China",
+        "japan": "Japan",
+        "india": "India",
+        "thailand": "Thailand",
+        "indonesie": "Indonesia",
+        "indonesië": "Indonesia",
+        "nederland": "Netherlands",
+    }
+
+    @classmethod
+    def _normalize_country(cls, country: str) -> str:
+        """Translate Dutch country names to English for Nominatim compatibility."""
+        return cls._COUNTRY_NAME_MAP.get(country.lower(), country)
+
     def _build_query(self, location_data: dict[str, Any]) -> str | None:
         """Build a geocoding query from a location detection dict."""
         country = (location_data.get("country") or "").strip()
         region = (location_data.get("region") or "").strip()
         city = (location_data.get("city_or_area") or "").strip()
+
+        country = self._normalize_country(country)
 
         parts = []
         for part in [city, region, country]:
@@ -191,10 +278,13 @@ class NominatimGeocoder:
 
     def _build_query_from_info(self, location: LocationInfo) -> str | None:
         """Build a geocoding query from a LocationInfo model."""
-        parts = []
-        for part in [location.city, location.region, location.country]:
-            if part and part.strip().lower() not in self.vague_terms:
-                parts.append(part.strip())
+        raw_parts = [location.city, location.region, location.country]
+        normalized = [
+            self._normalize_country(p.strip()) if i == 2 else p.strip()
+            for i, p in enumerate(raw_parts)
+            if p
+        ]
+        parts = [p for p in normalized if p.lower() not in self.vague_terms]
         return ", ".join(parts) if parts else None
 
     def _query_nominatim(self, query: str) -> GeoLocation | None:

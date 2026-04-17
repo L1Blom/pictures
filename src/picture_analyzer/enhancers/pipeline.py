@@ -262,15 +262,20 @@ class RecommendationParser:
 
         # ── SHADOWS / HIGHLIGHTS ───────────────────────────────────
         elif "shadow" in text_lower or "highlight" in text_lower:
+            def _signed_pct(txt: str) -> float:
+                m = re.search(r"([+-]?\d+)\s*%", txt)
+                if not m:
+                    return 0.0
+                pct = float(m.group(1))
+                if any(w in txt for w in ("reduce", "decrease", "darken", "lower")):
+                    return -abs(pct)
+                return abs(pct)  # brighten / increase / boost / bare number
+
             shadow, highlight = 0.0, 0.0
             if "shadow" in text_lower:
-                m = re.search(r"(?:brighten|darken).*?([+-]?\d+)\s*%", text_lower)
-                if m:
-                    shadow = float(m.group(1))
+                shadow = _signed_pct(text_lower)
             if "highlight" in text_lower:
-                m = re.search(r"(?:brighten|darken).*?([+-]?\d+)\s*%", text_lower)
-                if m:
-                    highlight = float(m.group(1))
+                highlight = _signed_pct(text_lower)
             if shadow or highlight:
                 advanced.append(
                     ShadowsHighlightsFilter(shadow_adjust=shadow, highlight_adjust=highlight)

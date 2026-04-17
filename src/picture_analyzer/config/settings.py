@@ -365,4 +365,5 @@ def resolve_step_config(step: StepConfig, settings: "Settings") -> dict:
         "prompt_template": step.prompt_template,
         "timeout": getattr(base, "timeout", None),
         "num_ctx": getattr(base, "num_ctx", None),
+        "host": getattr(base, "host", None),
     }

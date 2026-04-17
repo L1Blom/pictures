@@ -6,6 +6,7 @@ analyzer_provider: "ollama"
 ollama:
   model: "llama3.2-vision:11b"           # fallback when no per-step model is set
   host: "http://127.0.0.1:11434"
+  #host: "http://192.168.2.66:11434"
   max_tokens: 16384
   timeout: 1200                           # seconds per step; CPU inference + cold reload can take 15+ min
   num_ctx: 16384                          # KV-cache context window; mllama images use ~8000 tokens alone

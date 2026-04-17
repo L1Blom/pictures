@@ -45,7 +45,7 @@
 17. **Recommended Enhancements** (prioritized list with specific parameters - REQUIRED FORMAT):
     - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
     - Each line must start with: "ACTION: description with percentage or parameter"
-    - If NO enhancement needed, respond: "NO_ENHANCEMENTS: maintain current quality"
+    - **MANDATORY: recommended_enhancements must NEVER be an empty list. Even for well-exposed images, scanned slides always benefit from at least SHARPNESS + VIBRANCE.**
     - **BRIGHTNESS ADJUSTMENT FOR EXPOSURE**
       * These are scanned slides — they often look slightly dim but are NOT underexposed. Be very conservative.
       * If image is clearly underexposed (very dark): include "BRIGHTNESS: increase by X%" (maximum 10%; typically 3-7%)
@@ -78,9 +78,8 @@
     - DO NOT use phrases like "maintain", "normalize", "none needed", "as is"
     - DO NOT forget the percentage, value, or parameter for each action - EVERY recommendation must have a numeric value
     - List in order of priority/impact (COLOR_TEMPERATURE + RED_CHANNEL + BLUE_CHANNEL + GREEN_CHANNEL should ALWAYS be top 4 for warm/orange casts)
-    - ALWAYS include at least 4-6 specific enhancement recommendations
-    - **REMINDER: For images that look like they're from 1950-2000, ALWAYS recommend COLOR_TEMPERATURE cool shift + RED_CHANNEL reduce + BLUE_CHANNEL increase + GREEN_CHANNEL increase. This is NOT optional.**
-    - ALWAYS include at least 3-5 specific enhancement recommendations (even if small)
+    - ALWAYS include at least 3-5 specific enhancement recommendations
+    - **MINIMUM BASELINE for any scanned slide (even well-exposed ones): "SHARPNESS: increase by 20%" + "VIBRANCE: increase by 15%" — these two are always appropriate.**
     - **REMINDER: For images that look like they're from 1950-2000, ALWAYS recommend COLOR_TEMPERATURE cool shift + RED_CHANNEL reduce + BLUE_CHANNEL increase. This is NOT optional.**
 
 18. **Overall Enhancement Priority**:

@@ -153,12 +153,32 @@ class OllamaAnalyzer(OpenAIAnalyzer):
         if not match:
             return raw_dict
 
-        parts = [p.strip() for p in match.group(1).split(",") if p.strip()]
+        raw_location = match.group(1).strip()
+
+        # Slash-separated value means multiple countries at the same level
+        # (e.g. "Duitsland / Oostenrijk / Frankrijk").  Store the whole
+        # string as the country field and leave region/city empty.
+        if "/" in raw_location:
+            field_map: dict[str, str] = {
+                "country": " / ".join(p.strip() for p in raw_location.split("/") if p.strip()),
+                "region": "",
+                "city_or_area": "",
+            }
+            loc = dict(raw_dict.get("location_detection") or {})
+            loc.update(field_map)
+            loc.setdefault("location_type", "country")
+            loc["confidence"] = 100
+            loc["reasoning"] = "Explicitly named in the description"
+            raw_dict = {**raw_dict, "location_detection": loc}
+            return raw_dict
+
+        parts = [p.strip() for p in raw_location.split(",") if p.strip()]
         if not parts:
             return raw_dict
 
         # Map positional tokens to location fields (city, region, country)
-        field_map: dict[str, str] = {}
+        # Convention: most specific first → city, region, country
+        field_map = {}
         if len(parts) >= 1:
             field_map["city_or_area"] = parts[0]
         if len(parts) >= 2:

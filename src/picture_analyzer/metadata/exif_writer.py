@@ -393,6 +393,9 @@ class ExifWriter:
         if not raw:
             return None
 
+        # Normalize: remove commas between month name and year ("Juni, 1990" → "Juni 1990")
+        raw = re.sub(r"([a-zA-Z]+),\s*(\d{4})", r"\1 \2", raw)
+
         MONTHS = {
             "januari": 1, "january": 1, "jan": 1,
             "februari": 2, "february": 2, "feb": 2,
@@ -402,11 +405,23 @@ class ExifWriter:
             "juni": 6, "june": 6, "jun": 6,
             "juli": 7, "july": 7, "jul": 7,
             "augustus": 8, "august": 8, "aug": 8,
+            # common typos
+            "augsutus": 8, "aguustus": 8, "augutus": 8,
             "september": 9, "sep": 9, "sept": 9,
             "oktober": 10, "october": 10, "oct": 10, "okt": 10,
             "november": 11, "nov": 11,
             "december": 12, "dec": 12,
         }
+
+        # Strip range notation and keep only the first month when a comma-
+        # or dash-separated list of months is given, e.g.:
+        #   "Juli, augustus 1986"  -> "Juli 1986"
+        #   "Juli-augustus 1986"   -> "Juli 1986"
+        raw = re.sub(
+            r"([a-zA-Z]+)[,\-]\s*[a-zA-Z]+\s+(\d{4})",
+            r"\1 \2",
+            raw,
+        )
 
         year, month, day = None, 1, 1
 

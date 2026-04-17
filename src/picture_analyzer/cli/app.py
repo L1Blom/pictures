@@ -825,6 +825,155 @@ def restore_slide_cmd(image: str, profile: str, analysis_path: str | None,
 # ══════════════════════════════════════════════════════════════════════
 
 
+def _update_exif_for_json(
+    json_path: Path,
+    source_description: str | None,
+    language: str,
+    geocode: bool = True,
+) -> None:
+    """Re-write EXIF for one analyzed image from its JSON + current description.txt."""
+    import re
+    from ..metadata.exif_writer import ExifWriter
+
+    analyzed_jpg = json_path.with_suffix(".jpg")
+    if not analyzed_jpg.exists():
+        raise FileNotFoundError(f"No image found at {analyzed_jpg}")
+
+    analysis = json.loads(json_path.read_text(encoding="utf-8"))
+
+    # Inject current description.txt content
+    if source_description is not None:
+        analysis["source_description"] = source_description
+
+        # Override location_detection with ground truth from description.txt
+        loc_match = re.search(r"(?im)^(?:location|locatie)\s*:\s*(.+)$", source_description)
+        if loc_match:
+            raw_location = loc_match.group(1).strip()
+            loc = dict(analysis.get("location_detection") or {})
+            if "/" in raw_location:
+                loc.update({
+                    "country": " / ".join(p.strip() for p in raw_location.split("/") if p.strip()),
+                    "region": "",
+                    "city_or_area": "",
+                    "location_type": loc.get("location_type", "country"),
+                })
+            else:
+                parts = [p.strip() for p in raw_location.split(",") if p.strip()]
+                if len(parts) >= 1:
+                    loc["city_or_area"] = parts[0]
+                if len(parts) >= 2:
+                    loc["region"] = parts[1]
+                if len(parts) >= 3:
+                    loc["country"] = parts[2]
+            loc["confidence"] = 100
+            loc["reasoning"] = "Explicitly named in the description"
+            analysis["location_detection"] = loc
+
+            # Re-geocode the updated location to get fresh GPS coordinates
+            if geocode:
+                settings = get_settings()
+                if settings.geo.provider != "none":
+                    try:
+                        from ..geo.nominatim import NominatimGeocoder
+                        geocoder = NominatimGeocoder(
+                            cache_path=settings.geo.cache_path,
+                            confidence_threshold=0,  # always geocode ground-truth location
+                            user_agent=settings.geo.user_agent,
+                            timeout=settings.geo.timeout_seconds,
+                            max_results=settings.geo.max_results,
+                        )
+                        geo = geocoder.geocode_from_location_info(loc, confidence_threshold=0)
+                        if geo:
+                            analysis["gps_coordinates"] = {
+                                "latitude": geo.latitude,
+                                "longitude": geo.longitude,
+                                "display_name": getattr(geo, "display_name", ""),
+                            }
+                            click.echo(
+                                f"    GPS: {geo.latitude:.4f}, {geo.longitude:.4f}"
+                                f" ({getattr(geo, 'display_name', '')})"
+                            )
+                    except Exception as exc:
+                        click.echo(f"    ⚠ Geocoding failed: {exc}", err=True)
+
+    ExifWriter(language=language).write_from_dict(analyzed_jpg, analyzed_jpg, analysis)
+
+    # Propagate EXIF to derived files (_enhanced.jpg, _restored_*.jpg)
+    base = analyzed_jpg.stem.removesuffix("_analyzed")
+    out_dir = analyzed_jpg.parent
+    derived = [
+        *out_dir.glob(f"{base}_enhanced.jpg"),
+        *out_dir.glob(f"{base}_restored_*.jpg"),
+    ]
+    if derived:
+        _inject_project_root()
+        from metadata_manager import MetadataManager  # type: ignore[import-untyped]
+        mm = MetadataManager()
+        for d in derived:
+            mm.copy_exif(str(analyzed_jpg), str(d), str(d))
+            click.echo(f"    → Copied EXIF to {d.name}")
+
+
+@cli.command(name="update-exif")
+@click.argument("output_dir", type=click.Path(exists=True, file_okay=False))
+@click.argument("source_dir", type=click.Path(exists=True, file_okay=False), default=".")
+@click.option("--language", default=None,
+              help="Language for EXIF labels (default: from config).")
+@click.option("--no-geocode", is_flag=True,
+              help="Skip re-geocoding even if the Location line changed.")
+def update_exif(output_dir: str, source_dir: str, language: str | None, no_geocode: bool):
+    """Re-write EXIF metadata from current description.txt without re-analyzing.
+
+    \b
+    OUTPUT_DIR  Directory containing *_analyzed.json / *_analyzed.jpg files.
+    SOURCE_DIR  Directory with description.txt (default: current directory).
+
+    \b
+    Examples
+    --------
+    Update EXIF for all images in an output folder:
+        picture-analyzer update-exif ./output ./Photos/1986-Vakantie
+    Update EXIF without specifying source dir (uses current directory):
+        picture-analyzer update-exif ./output
+    Skip geocoding:
+        picture-analyzer update-exif ./output ./Photos/1986-Vakantie --no-geocode
+    Override language:
+        picture-analyzer update-exif ./output ./Photos/1986-Vakantie --language nl
+    """
+    settings = get_settings()
+    lang = language or settings.metadata.language
+    out_path = Path(output_dir)
+    src_path = Path(source_dir)
+
+    # Read description.txt once
+    desc_file = src_path / "description.txt"
+    source_description: str | None = None
+    if desc_file.exists():
+        source_description = desc_file.read_text(encoding="utf-8").strip()
+        click.echo(f"Using description.txt from: {desc_file}")
+    else:
+        click.echo(f"No description.txt found in {src_path} — updating EXIF without it")
+
+    json_files = sorted(out_path.glob("*_analyzed.json"))
+    if not json_files:
+        raise click.ClickException(f"No *_analyzed.json files found in {out_path}")
+
+    click.echo(f"Found {len(json_files)} analyzed image(s) to update\n")
+
+    updated, errors = 0, 0
+    for json_path in json_files:
+        click.echo(f"  {json_path.stem} …")
+        try:
+            _update_exif_for_json(json_path, source_description, lang, geocode=not no_geocode)
+            click.echo("    ✓ EXIF updated")
+            updated += 1
+        except Exception as exc:
+            click.echo(f"    ✗ {exc}", err=True)
+            errors += 1
+
+    click.echo(f"\nDone — {updated} updated, {errors} errors")
+
+
 @cli.command(name="config")
 def config_cmd():
     """Show the current configuration."""
