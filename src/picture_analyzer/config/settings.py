@@ -100,6 +100,7 @@ class OutputConfig(BaseModel):
     """Output file and directory configuration."""
 
     directory: Path = Field(default=Path(d.DEFAULT_OUTPUT_DIR))
+    enhanced_root: Optional[Path] = Field(default=None, description="Root directory for enhanced output folders (used as base for Albumnaam-derived output paths)")
     temp_directory: Path = Field(default=Path(d.DEFAULT_TEMP_DIR))
     naming_pattern: str = Field(default=d.DEFAULT_NAMING_PATTERN)
     enhanced_pattern: str = Field(default=d.DEFAULT_ENHANCED_PATTERN)

@@ -6,6 +6,8 @@ the free Nominatim geocoding service.
 from __future__ import annotations
 
 import json
+import re
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional, Set
 
@@ -56,6 +58,7 @@ class NominatimGeocoder:
         self.max_results = max_results
         self.vague_terms: set[str] = set(vague_terms or DEFAULT_VAGUE_LOCATION_TERMS)
         self._cache: dict[str, dict[str, Any]] = self._load_cache()
+        self._last_request_time: float = 0.0
 
     # ── Geocoder Protocol ────────────────────────────────────────────
 
@@ -68,9 +71,11 @@ class NominatimGeocoder:
         if not location:
             return None
 
-        # Check cache
+        # Check cache (None sentinel means Nominatim returned 200 but no match)
         if location in self._cache:
             cached = self._cache[location]
+            if cached is None:
+                return None
             coords = cached.get("coordinates", cached)
             if "latitude" in coords and "longitude" in coords:
                 return GeoLocation(
@@ -80,9 +85,8 @@ class NominatimGeocoder:
                 )
 
         # Query API
-        result = self._query_nominatim(location)
+        result, not_found = self._query_nominatim(location)
         if result:
-            # Cache the result
             self._cache[location] = {
                 "coordinates": {
                     "latitude": result.latitude,
@@ -91,7 +95,11 @@ class NominatimGeocoder:
                 },
                 "query": location,
             }
-            self._save_cache()
+        elif not_found:
+            # 200 but empty results — cache to skip future pointless queries
+            self._cache[location] = None
+        # Transient errors (429, timeout) are not cached so they retry next run
+        self._save_cache()
         return result
 
     # ── GeocoderWithCache Protocol ───────────────────────────────────
@@ -130,19 +138,27 @@ class NominatimGeocoder:
             return None
 
         country = self._normalize_country((location_data.get("country") or "").strip())
-        region = (location_data.get("region") or "").strip()
-        city = (location_data.get("city_or_area") or "").strip()
+        region = self._strip_noise((location_data.get("region") or "").strip())
+        city = self._strip_noise((location_data.get("city_or_area") or "").strip())
 
-        # Try progressively less specific queries until one succeeds
+        # Try progressively less specific queries until one succeeds.
+        # Order: most geographic precision first, skipping POI-as-city candidates
+        # that would otherwise match a vague country-level result.
         candidates: list[list[str]] = []
         if city and region and country:
             candidates.append([city, region, country])
-        if city and country:
-            candidates.append([city, country])
+        # Try region+country BEFORE city+country to avoid POI names matching country
         if region and country:
             candidates.append([region, country])
-        if country:
-            candidates.append([country])
+        if city and country:
+            candidates.append([city, country])
+        # When no country is given, try geographic combos
+        if city and region and not country:
+            candidates.append([city, region])
+        if region and not country:
+            candidates.append([region])
+        if city and not country:
+            candidates.append([city])
 
         for parts in candidates:
             filtered = [p for p in parts if p.lower() not in self.vague_terms]
@@ -253,7 +269,25 @@ class NominatimGeocoder:
         "indonesie": "Indonesia",
         "indonesië": "Indonesia",
         "nederland": "Netherlands",
+        "oostenrijk": "Austria",
+        "slovakije": "Slovakia",
+        "roemenie": "Romania",
+        "roemeniё": "Romania",
     }
+
+    # Noise patterns stripped from individual location parts before geocoding
+    _NOISE_RE = re.compile(
+        r"\s*\([^)]*\)"  # parenthetical notes: (nu gemeente Veere)
+        r"|\s*,?\s*o\.a\..*$"  # "o.a. ..." (onder andere)
+        r"|\s*,?\s*e\.a\..*$"  # "e.a. ..." (en anderen)
+        r"|\s+en\s+\w.*$",  # " en locatie ..." / " en andere ..."
+        re.IGNORECASE,
+    )
+
+    @classmethod
+    def _strip_noise(cls, text: str) -> str:
+        """Remove parenthetical notes and annotation phrases from a location part."""
+        return cls._NOISE_RE.sub("", text).strip().rstrip(",").strip()
 
     @classmethod
     def _normalize_country(cls, country: str) -> str:
@@ -287,8 +321,20 @@ class NominatimGeocoder:
         parts = [p for p in normalized if p.lower() not in self.vague_terms]
         return ", ".join(parts) if parts else None
 
-    def _query_nominatim(self, query: str) -> GeoLocation | None:
-        """Query the Nominatim API."""
+    def _query_nominatim(self, query: str) -> tuple[GeoLocation | None, bool]:
+        """Query the Nominatim API with rate limiting (1 req/s per policy).
+
+        Returns:
+            (result, not_found) — result is the GeoLocation on success,
+            not_found is True when Nominatim returned 200 but no matches
+            (as opposed to a transient error like 429 or timeout).
+        """
+        # Enforce Nominatim's 1 request/second policy
+        elapsed = time.monotonic() - self._last_request_time
+        if elapsed < 1.0:
+            time.sleep(1.0 - elapsed)
+        self._last_request_time = time.monotonic()
+
         try:
             response = requests.get(
                 self.NOMINATIM_BASE,
@@ -296,6 +342,17 @@ class NominatimGeocoder:
                 headers={"User-Agent": self.user_agent},
                 timeout=self.timeout,
             )
+
+            if response.status_code == 429:
+                # Rate limited — wait 2 seconds and retry once
+                time.sleep(2.0)
+                self._last_request_time = time.monotonic()
+                response = requests.get(
+                    self.NOMINATIM_BASE,
+                    params={"q": query, "format": "json", "limit": self.max_results},
+                    headers={"User-Agent": self.user_agent},
+                    timeout=self.timeout,
+                )
 
             if response.status_code == 200:
                 results = response.json()
@@ -305,14 +362,15 @@ class NominatimGeocoder:
                         latitude=float(best["lat"]),
                         longitude=float(best["lon"]),
                         display_name=best.get("display_name", query),
-                    )
-            return None
+                    ), False
+                return None, True  # 200 but no matches
+            return None, False  # transient error (429, 5xx, etc.)
         except requests.Timeout:
             print(f"Warning: Nominatim API timeout for '{query}'")
-            return None
+            return None, False
         except Exception as e:
             print(f"Warning: Error querying Nominatim: {e}")
-            return None
+            return None, False
 
     def _load_cache(self) -> dict[str, dict[str, Any]]:
         """Load geocoding cache from disk."""

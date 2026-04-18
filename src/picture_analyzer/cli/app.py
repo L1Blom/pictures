@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import mimetypes
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -65,6 +66,52 @@ PROFILE_CHOICES = [
     "auto", "faded", "color_cast", "red_cast",
     "yellow_cast", "aged", "well_preserved",
 ]
+
+# Albumnaam must match: 4-digit year, optional -MM month, then a space and title text
+_ALBUM_NAME_RE = re.compile(r'^\d{4}(-\d{2})? .+')
+
+
+def _default_output_from_description(directory: Path) -> str | None:
+    """Derive a default output path from Albumnaam in description.txt.
+
+    Returns ``enhanced_root/album_name`` if:
+    - ``description.txt`` exists and is non-empty
+    - it contains an ``Albumnaam:`` line
+    - the album name matches ``<year>[-<month>] <title>``
+    - ``output.enhanced_root`` is set in config
+
+    Emits a Click warning and returns None if any check fails.
+    """
+    desc_path = directory / "description.txt"
+    if not desc_path.exists():
+        return None
+    text = desc_path.read_text(encoding="utf-8").strip()
+    if not text:
+        click.echo("  ⚠ description.txt is empty — cannot derive output directory", err=True)
+        return None
+    album: str | None = None
+    for line in text.splitlines():
+        if line.lower().startswith("albumnaam:"):
+            album = line.split(":", 1)[1].strip()
+            break
+    if not album:
+        click.echo("  ⚠ No Albumnaam: line in description.txt — cannot derive output directory", err=True)
+        return None
+    if not _ALBUM_NAME_RE.match(album):
+        click.echo(
+            f"  ⚠ Albumnaam '{album}' does not match <year>[-<month>] <title> — cannot derive output directory",
+            err=True,
+        )
+        return None
+    settings = get_settings()
+    root = settings.output.enhanced_root
+    if not root:
+        click.echo(
+            "  ⚠ output.enhanced_root not configured — cannot derive output directory from Albumnaam",
+            err=True,
+        )
+        return None
+    return str(Path(root) / album)
 
 
 def _resolve_profiles(restore_slide: str, analysis: dict) -> list[str]:
@@ -479,8 +526,10 @@ def _batch_analyze(
         raise click.ClickException(f"Not a directory: {directory}")
 
     enhancer = SmartEnhancer() if do_enhance else None
+    if output is None:
+        output = _default_output_from_description(directory)
     output_dir = output or "output"
-    Path(output_dir).mkdir(exist_ok=True)
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     # Collect image files
     image_files: list[Path] = []
@@ -832,7 +881,6 @@ def _update_exif_for_json(
     geocode: bool = True,
 ) -> None:
     """Re-write EXIF for one analyzed image from its JSON + current description.txt."""
-    import re
     from ..metadata.exif_writer import ExifWriter
 
     analyzed_jpg = json_path.with_suffix(".jpg")
@@ -895,6 +943,9 @@ def _update_exif_for_json(
                             )
                     except Exception as exc:
                         click.echo(f"    ⚠ Geocoding failed: {exc}", err=True)
+
+    # Write updated analysis (GPS coordinates, location_detection) back to JSON
+    json_path.write_text(json.dumps(analysis, indent=2, ensure_ascii=False), encoding="utf-8")
 
     ExifWriter(language=language).write_from_dict(analyzed_jpg, analyzed_jpg, analysis)
 
@@ -972,6 +1023,153 @@ def update_exif(output_dir: str, source_dir: str, language: str | None, no_geoco
             errors += 1
 
     click.echo(f"\nDone — {updated} updated, {errors} errors")
+
+
+@cli.command(name="check-locations")
+@click.argument("root_dir", type=click.Path(exists=True, file_okay=False))
+@click.option("--no-geocode", is_flag=True, help="Only parse location text, skip geocoding.")
+@click.option("--failed-only", is_flag=True, help="Only show entries that failed to resolve.")
+@click.option("--language", default="nl", show_default=True,
+              help="Label for the location line in description.txt (nl → 'Locatie', en → 'Location').")
+def check_locations(root_dir: str, no_geocode: bool, failed_only: bool, language: str):
+    """Check geolocation from description.txt files in all subfolders.
+
+    \b
+    Scans ROOT_DIR recursively for subfolders containing a description.txt,
+    parses the Locatie/Location line, and optionally resolves GPS coordinates
+    via Nominatim. Useful to verify description.txt files before re-processing.
+
+    \b
+    Examples
+    --------
+    Check all locations under a media root:
+        picture-analyzer check-locations ./media
+    Only show failures:
+        picture-analyzer check-locations ./media --failed-only
+    Only parse, no geocoding:
+        picture-analyzer check-locations ./media --no-geocode
+    """
+    import re as _re
+
+    root = Path(root_dir)
+    desc_files = sorted(root.rglob("description.txt"))
+
+    if not desc_files:
+        raise click.ClickException(f"No description.txt files found under {root}")
+
+    click.echo(f"Found {len(desc_files)} description.txt file(s)\n")
+
+    geocoder = None
+    if not no_geocode:
+        settings = get_settings()
+        if settings.geo.provider != "none":
+            from ..geo.nominatim import NominatimGeocoder
+            geocoder = NominatimGeocoder(
+                cache_path=settings.geo.cache_path,
+                confidence_threshold=0,
+                user_agent=settings.geo.user_agent,
+                timeout=settings.geo.timeout_seconds,
+                max_results=settings.geo.max_results,
+            )
+
+    ok = 0
+    failed = 0
+    for desc_file in desc_files:
+        folder = desc_file.parent.name
+        text = desc_file.read_text(encoding="utf-8").strip()
+
+        # Parse location line
+        loc_match = _re.search(r"(?im)^(?:location|locatie)\s*:\s*(.+)$", text)
+        raw_location = loc_match.group(1).strip() if loc_match else None
+
+        if not raw_location:
+            click.echo(f"  {folder}")
+            click.echo(f"    ⚠  No location line found")
+            click.echo()
+            failed += 1
+            continue
+
+        # Detect noise in the location text for suggestion
+        _noise_present = bool(_re.search(r"\(|o\.a\.|e\.a\.| en ", raw_location, _re.I))
+
+        # Build location dict (same logic as _update_exif_for_json)
+        if "/" in raw_location:
+            loc = {
+                "country": " / ".join(p.strip() for p in raw_location.split("/") if p.strip()),
+                "region": "",
+                "city_or_area": "",
+                "confidence": 100,
+            }
+        else:
+            parts = [p.strip() for p in raw_location.split(",") if p.strip()]
+            loc = {
+                "city_or_area": parts[0] if len(parts) >= 1 else "",
+                "region": parts[1] if len(parts) >= 2 else "",
+                "country": parts[2] if len(parts) >= 3 else "",
+                "confidence": 100,
+            }
+
+        resolved = False
+        geo = None
+        if geocoder:
+            try:
+                geo = geocoder.geocode_from_location_info(loc, confidence_threshold=0)
+                resolved = geo is not None
+            except Exception:
+                resolved = False
+
+        if failed_only and resolved:
+            ok += 1
+            continue
+
+        click.echo(f"  {folder}")
+        click.echo(f"    Location text : {raw_location}")
+
+        # Show parsed components
+        if "/" not in raw_location:
+            city = loc.get("city_or_area", "")
+            region = loc.get("region", "")
+            country = loc.get("country", "")
+            if geocoder:
+                from ..geo.nominatim import NominatimGeocoder as _GC
+                city_n = _GC._strip_noise(city)
+                region_n = _GC._strip_noise(region)
+                country_n = _GC._normalize_country(_GC._strip_noise(country))
+                click.echo(f"    Parsed as     : city={city_n!r}  region={region_n!r}  country={country_n!r}")
+            else:
+                click.echo(f"    Parsed as     : city={city!r}  region={region!r}  country={country!r}")
+
+        if geocoder:
+            if resolved:
+                click.echo(f"    GPS           : {geo.latitude:.4f}, {geo.longitude:.4f}")
+                click.echo(f"    Resolved as   : {geo.display_name}")
+                ok += 1
+            else:
+                click.echo(f"    GPS           : ✗ not resolved by Nominatim")
+                # Suggest a cleaner format
+                if _noise_present:
+                    _clean = _re.sub(r"\s*\([^)]*\)", "", raw_location)
+                    _clean = _re.sub(r",?\s*o\.a\..*$", "", _clean, flags=_re.I)
+                    _clean = _re.sub(r",?\s*e\.a\..*$", "", _clean, flags=_re.I)
+                    _clean = _re.sub(r",?\s* en .*$", "", _clean, flags=_re.I)
+                    _clean = _clean.strip().rstrip(",").strip()
+                    click.echo(f"    Suggestion    : try simplifying to: {_clean!r}")
+                else:
+                    _parts = [p.strip() for p in raw_location.split(",") if p.strip()]
+                    if len(_parts) == 2:
+                        click.echo(f"    Suggestion    : add country, e.g.: {raw_location}, Nederland")
+                    elif len(_parts) == 1:
+                        click.echo(f"    Suggestion    : add city/country, e.g.: {raw_location}, [regio], [land]")
+                failed += 1
+        else:
+            ok += 1
+
+        click.echo()
+
+    summary = f"Done — {ok} resolved"
+    if failed:
+        summary += f", {failed} failed/missing"
+    click.echo(summary)
 
 
 @cli.command(name="config")

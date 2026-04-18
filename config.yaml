@@ -39,6 +39,7 @@ geo:
 
 output:
   directory: "output"
+  enhanced_root: "/home/leen/bigfoot/NieuwVolume/enhanced"
 
 batch_size: 5
 log_level: "INFO"
