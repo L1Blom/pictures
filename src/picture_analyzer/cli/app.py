@@ -600,6 +600,7 @@ def _batch_analyze(
                 )
                 if result:
                     MetadataManager().copy_exif(analyzed_path, enhanced_path, enhanced_path)
+                    click.echo(f"  ✓ Enhanced: {enhanced_path}")
 
             if restore_slide:
                 _restore_from_analysis(
