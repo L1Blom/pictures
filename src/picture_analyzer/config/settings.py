@@ -40,6 +40,7 @@ class OllamaConfig(BaseModel):
 
     model: str = Field(default=d.DEFAULT_OLLAMA_MODEL, description="Vision model name")
     host: str = Field(default=d.DEFAULT_OLLAMA_HOST, description="Ollama host URL")
+    docker_host: Optional[str] = Field(default=None, description="Ollama host URL override used automatically when running inside Docker")
     timeout: int = Field(default=d.DEFAULT_OLLAMA_TIMEOUT, ge=10, le=3600, description="Request timeout in seconds")
     num_ctx: int = Field(default=d.DEFAULT_OLLAMA_NUM_CTX, ge=512, description="KV-cache context window size (tokens); lower = less VRAM")
 
@@ -101,6 +102,7 @@ class OutputConfig(BaseModel):
 
     directory: Path = Field(default=Path(d.DEFAULT_OUTPUT_DIR))
     enhanced_root: Optional[Path] = Field(default=None, description="Root directory for enhanced output folders (used as base for Albumnaam-derived output paths)")
+    docker_enhanced_root: Optional[Path] = Field(default=None, description="enhanced_root override used automatically when running inside Docker")
     temp_directory: Path = Field(default=Path(d.DEFAULT_TEMP_DIR))
     naming_pattern: str = Field(default=d.DEFAULT_NAMING_PATTERN)
     enhanced_pattern: str = Field(default=d.DEFAULT_ENHANCED_PATTERN)
@@ -313,6 +315,28 @@ class Settings(BaseSettings):
             if isinstance(out_cfg, dict) and not out_cfg.get("directory"):
                 out_cfg["directory"] = legacy_out
                 data["output"] = out_cfg
+
+        # Docker: if running inside a Docker container and enhanced_root is not
+        # already configured, use docker_enhanced_root from config (if set).
+        import pathlib
+        _in_docker = (
+            pathlib.Path("/.dockerenv").exists()
+            or os.getenv("RUNNING_IN_DOCKER", "").lower() in ("1", "true", "yes")
+        )
+        if _in_docker:
+            out_cfg = data.get("output", {})
+            if isinstance(out_cfg, dict):
+                docker_root = out_cfg.get("docker_enhanced_root")
+                if docker_root:
+                    out_cfg["enhanced_root"] = docker_root
+                    data["output"] = out_cfg
+
+            ollama_cfg = data.get("ollama", {})
+            if isinstance(ollama_cfg, dict):
+                docker_ollama_host = ollama_cfg.get("docker_host")
+                if docker_ollama_host:
+                    ollama_cfg["host"] = docker_ollama_host
+                    data["ollama"] = ollama_cfg
 
         return data
 

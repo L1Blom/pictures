@@ -133,7 +133,26 @@ class EnhancementStep:
     ) -> AnalysisResult:
         if not self._enabled or not context.recommend_enhancements:
             return partial
-        result = self._analyzer.analyze_section(image, context, self._sections)
+
+        # If a slide profile was already detected (SlideProfileStep runs first),
+        # inject that knowledge into the context so the enhancement prompt can
+        # recommend restoration-oriented adjustments instead of treating the
+        # faded/aged scan as a normal photo.
+        active_context = context
+        if partial.slide_profile and partial.slide_profile.confidence >= 60:
+            profile_hint = (
+                f"[SLIDE SCAN DETECTED: profile={partial.slide_profile.profile_name}, "
+                f"confidence={partial.slide_profile.confidence}%] "
+                "This is a scanned photographic slide with aging/fading. "
+                "Recommend enhancements appropriate for slide restoration: "
+                "contrast recovery, color cast correction, grain/noise reduction, "
+                "and sharpness improvements."
+            )
+            existing = context.description_text or ""
+            augmented = f"{profile_hint}\n{existing}".strip()
+            active_context = context.model_copy(update={"description_text": augmented})
+
+        result = self._analyzer.analyze_section(image, active_context, self._sections)
         return partial.model_copy(
             update={
                 "enhancement_recommendations": result.enhancement_recommendations or partial.enhancement_recommendations,
@@ -188,12 +207,12 @@ def build_steps(settings: Settings) -> list:
             config=resolve_step_config(pipeline_cfg.location, settings),
             enabled=pipeline_cfg.location.enabled,
         ),
-        EnhancementStep(
-            config=resolve_step_config(pipeline_cfg.enhancement, settings),
-            enabled=pipeline_cfg.enhancement.enabled,
-        ),
         SlideProfileStep(
             config=resolve_step_config(pipeline_cfg.slide_profiles, settings),
             enabled=pipeline_cfg.slide_profiles.enabled,
+        ),
+        EnhancementStep(
+            config=resolve_step_config(pipeline_cfg.enhancement, settings),
+            enabled=pipeline_cfg.enhancement.enabled,
         ),
     ]

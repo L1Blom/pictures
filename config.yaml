@@ -6,6 +6,7 @@ analyzer_provider: "ollama"
 ollama:
   model: "llama3.2-vision:11b"           # fallback when no per-step model is set
   host: "http://127.0.0.1:11434"
+  docker_host: "http://127.0.0.1:11434"  # same as host because container uses network_mode: host
   #host: "http://192.168.2.66:11434"
   max_tokens: 16384
   timeout: 1200                           # seconds per step; CPU inference + cold reload can take 15+ min
@@ -14,9 +15,9 @@ ollama:
 pipeline:
   mode: stepped
   metadata:
-    model: "llama3.2-vision:11b"   # needs strong visual + language understanding
+    model: "gemma3:12b"   # needs strong visual + language understanding
   location:
-    model: "llama3.2-vision:11b"   # same — geographic reasoning from visual clues
+    model: "gemma3:12b"   # same — geographic reasoning from visual clues
   enhancement:
     model: "llama3.2-vision:11b"   # simpler structured task, smaller model is fine
     max_tokens: 1024               # enhancement JSON is small; cap to prevent runaway loops
@@ -40,6 +41,7 @@ geo:
 output:
   directory: "output"
   enhanced_root: "/home/leen/bigfoot/NieuwVolume/enhanced"
+  docker_enhanced_root: "/data/enhanced"  # used automatically when running inside Docker
 
 batch_size: 5
 log_level: "INFO"

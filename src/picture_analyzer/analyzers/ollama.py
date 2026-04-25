@@ -7,6 +7,8 @@ Implements the ``Analyzer`` protocol using locally hosted Ollama models
 from __future__ import annotations
 
 import base64
+import logging
+import time
 from pathlib import Path
 from typing import Any
 
@@ -77,6 +79,7 @@ class OllamaAnalyzer(OpenAIAnalyzer):
                 f"- VISUAL CONFIRMATION REQUIRED (only use if you can confirm it in the image):\n"
                 f"  Activity, Weather, Mood. Describe ONLY what you can SEE in the image for these fields.\n"
                 f"  If the image contradicts the description, trust the image.\n"
+                f"- OBJECTS: list ONLY objects that are physically visible in the image. Do NOT infer objects from words in this text (e.g. if the text mentions a bike or car, only include it if you can actually see it).\n"
                 f"- PERSONS: describe ONLY people physically visible in the image. If no person is visible, write 'geen personen zichtbaar'. Do NOT infer persons from context text or names.\n"
                 f"- SCENE TYPE: determine scene type from visual evidence only. A cage containing animals is NOT a prison. Do not derive scene type from context text.\n"
                 f"This text is written in {lang_name} ({lang}):\n"
@@ -99,20 +102,37 @@ class OllamaAnalyzer(OpenAIAnalyzer):
         if self.num_ctx is not None:
             options["num_ctx"] = self.num_ctx
 
-        response = self.client.chat(
-            model=self.model,
-            format="json",  # Force the model to emit valid JSON directly
-            options=options,
-            keep_alive="2h",  # Keep model loaded; prevents costly reload mid-batch on CPU
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {
-                    "role": "user",
-                    "content": prompt,
-                    "images": [image.base64_data or self._encode(image.path)],
-                },
-            ],
-        )
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {
+                "role": "user",
+                "content": prompt,
+                "images": [image.base64_data or self._encode(image.path)],
+            },
+        ]
+
+        _OOM_RETRIES = 3
+        _OOM_WAIT = 30  # seconds between retries
+        for _attempt in range(1, _OOM_RETRIES + 1):
+            try:
+                response = self.client.chat(
+                    model=self.model,
+                    format="json",  # Force the model to emit valid JSON directly
+                    options=options,
+                    keep_alive=0,  # Unload model after inference to free memory
+                    messages=messages,
+                )
+                break
+            except ollama.ResponseError as exc:
+                if "system memory" in str(exc).lower() and _attempt < _OOM_RETRIES:
+                    logging.warning(
+                        "Ollama OOM (attempt %d/%d): %s — retrying in %ds",
+                        _attempt, _OOM_RETRIES, exc, _OOM_WAIT,
+                    )
+                    time.sleep(_OOM_WAIT)
+                else:
+                    raise
+        del messages  # release base64 image data immediately
 
         # ollama >= 0.4 returns a typed ChatResponse object
         if hasattr(response, "message") and hasattr(response.message, "content"):
@@ -129,6 +149,7 @@ class OllamaAnalyzer(OpenAIAnalyzer):
             "output_tokens": getattr(response, "eval_count", None),
             "eval_duration_ns": getattr(response, "eval_duration", None),
         }
+        del response  # release response object
 
         import os
         if os.getenv("PA_ANALYZER_DEBUG"):

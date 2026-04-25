@@ -11,9 +11,11 @@ Entry point registered in ``pyproject.toml``::
 """
 from __future__ import annotations
 
+import gc
 import json
 import mimetypes
 import re
+import shutil
 import sys
 from pathlib import Path
 from typing import Optional
@@ -575,7 +577,8 @@ def _batch_analyze(
             analyzed_path = str(Path(output_dir) / f"{img.stem}_analyzed.jpg")
             analysis_result = _analyze_with_provider(img, provider, pipeline_mode, pipeline=shared_pipeline)
             analysis = _analysis_to_legacy_dict(analysis_result)
-            Path(analyzed_path).write_bytes(img.read_bytes())
+            del analysis_result  # release model result immediately
+            shutil.copy2(img, analyzed_path)  # copy without loading into Python memory
 
             # Embed EXIF metadata into the analyzed image copy
             try:
@@ -613,9 +616,10 @@ def _batch_analyze(
         except Exception as exc:
             click.echo(f"  ✗ Error: {exc}", err=True)
         finally:
-            # Flush Ollama KV-cache between images: repeated prompt text causes
-            # the previous image's visual context to bleed into the next one.
-            # "ollama stop" unloads the model immediately without running inference.
+            # Free analysis data and force GC to reclaim image buffers
+            analysis = None  # type: ignore[assignment]
+            gc.collect()
+            # "ollama stop" ensures the model is unloaded on the Ollama side too
             try:
                 import subprocess as _sub
                 _sub.run(
