@@ -1,5 +1,10 @@
-Format your response as a JSON object with EXACTLY this top-level key:
-- "metadata": {{"objects": "...", "persons": "...", "weather": "...", "mood_atmosphere": "...", "time_of_day": "...", "season_date": "...", "scene_type": "...", "location_setting": "...", "activity_action": "...", "photography_style": "...", "composition_quality": "..."}}
+Format your response as a JSON object with EXACTLY these 11 fields in the metadata object:
+- "metadata": with these exact keys: objects, persons, weather, mood_atmosphere, time_of_day, season_date, scene_type, location_setting, activity_action, photography_style, composition_quality
 
-Note: the "objects" value must be a plain comma-separated string (e.g. "auto, boom, gebouw"), NOT a JSON array.
+Example structure (use SHORT values like these):
+{{"metadata": {{"objects": "car, trees, building", "persons": "no persons visible", "weather": "sunny, clear", "mood_atmosphere": "calm, nostalgic", "time_of_day": "afternoon", "season_date": "summer, 1980s", "scene_type": "street photography", "location_setting": "urban street, row houses", "activity_action": "parked cars, quiet", "photography_style": "color slide, natural light", "composition_quality": "balanced, slightly underexposed"}}}}
+
+MANDATORY: All 11 fields MUST be included. Do NOT omit any field. Use brief, concise values.
+
+Note: the "objects" value must be a plain comma-separated string (e.g. "car, trees, building"), NOT a JSON array.
 

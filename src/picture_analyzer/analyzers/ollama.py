@@ -80,25 +80,25 @@ class OllamaAnalyzer(OpenAIAnalyzer):
                 f"  Activity, Weather, Mood. Describe ONLY what you can SEE in the image for these fields.\n"
                 f"  If the image contradicts the description, trust the image.\n"
                 f"- OBJECTS: list ONLY objects that are physically visible in the image. Do NOT infer objects from words in this text (e.g. if the text mentions a bike or car, only include it if you can actually see it).\n"
-                f"- PERSONS: describe ONLY people physically visible in the image. If no person is visible, write 'geen personen zichtbaar'. Do NOT infer persons from context text or names.\n"
+                f"- PERSONS: describe ONLY people physically visible in the image. If no person is visible, write 'no persons visible'. Do NOT infer persons from context text or names.\n"
                 f"- SCENE TYPE: determine scene type from visual evidence only. A cage containing animals is NOT a prison. Do not derive scene type from context text.\n"
-                f"This text is written in {lang_name} ({lang}):\n"
+                f"Context text (written in {lang_name}):\n"
                 f"{desc_for_prompt}\n"
             )
 
         system_prompt = (
-            f"You are an image analysis assistant. "
-            f"All user-facing metadata fields (objects, persons, weather, mood, scene type, location setting, "
-            f"activity, photography style, composition quality) MUST be written in {lang_name} ({lang}). "
+            "You are an image analysis assistant. "
+            "IMPORTANT: Generate all output in English for best quality. "
+            "All user-facing metadata fields (objects, persons, weather, mood, scene type, location setting, "
+            "activity, photography style, composition quality) MUST be written in clear, detailed English. "
             "Technical enhancement fields (lighting_quality, color_analysis, sharpness_clarity, contrast_level, "
-            "composition_issues, recommended_enhancements, overall_priority) MUST remain in English. "
-            "Location field values (country, region, city_or_area) should use the local language name as given "
-            "in the description context when provided. "
+            "composition_issues, recommended_enhancements, overall_priority) remain in English. "
+            "Location field values (country, region, city_or_area) should use English descriptions. "
             "ALWAYS write every string value in full. NEVER abbreviate, truncate, or end any value with '...', "
-            "'\u2026', or '-'."
+            "'…', or '-'. Avoid mixing languages."
         )
 
-        options: dict = {"num_predict": self.max_tokens, "repeat_penalty": 1.3}
+        options: dict = {"num_predict": self.max_tokens, "repeat_penalty": 1.05}
         if self.num_ctx is not None:
             options["num_ctx"] = self.num_ctx
 

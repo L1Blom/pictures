@@ -23,9 +23,11 @@ from typing import Optional
 import click
 
 from ..analyzers import create_analyzer
+from ..analyzers.openai import OpenAIAnalyzer
 from ..config.defaults import DEFAULT_SUPPORTED_FORMATS
 from ..config.settings import get_settings
 from ..core.models import AnalysisContext, ImageData
+from ..utils.translator import translate_analysis_dict
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -69,8 +71,8 @@ PROFILE_CHOICES = [
     "yellow_cast", "aged", "well_preserved",
 ]
 
-# Albumnaam must match: 4-digit year, optional -MM month, then a space and title text
-_ALBUM_NAME_RE = re.compile(r'^\d{4}(-\d{2})? .+')
+# Albumnaam must match: 4-digit year, optional -MM month, optional -DD day, then a space and title text
+_ALBUM_NAME_RE = re.compile(r'^\d{4}(-\d{2}(-\d{2})?)? .+')
 
 
 def _default_output_from_description(directory: Path) -> str | None:
@@ -114,6 +116,18 @@ def _default_output_from_description(directory: Path) -> str | None:
         )
         return None
     return str(Path(root) / album)
+
+
+def _fallback_output(name: str) -> str:
+    """Return ``enhanced_root/<name>`` when Albumnaam derivation fails.
+
+    Falls back to ``./output`` if ``output.enhanced_root`` is not configured.
+    """
+    settings = get_settings()
+    root = settings.output.enhanced_root
+    if root:
+        return str(Path(root) / name)
+    return "output"
 
 
 def _resolve_profiles(restore_slide: str, analysis: dict) -> list[str]:
@@ -253,50 +267,74 @@ _ANALYSIS_KEYS = frozenset({"metadata", "enhancement", "location_detection", "sl
 
 
 def _normalise_raw_response(raw: dict) -> dict:
-    """Ensure enhancement recs in raw_response are always plain strings."""
-    enhancement = raw.get("enhancement", {})
-    if isinstance(enhancement, dict):
-        recs = enhancement.get("recommended_enhancements", [])
-        normalised = []
-        for rec in recs:
-            if isinstance(rec, str):
-                normalised.append(rec)
-            elif isinstance(rec, dict):
-                action = rec.get("action", "")
-                value = rec.get("value", "")
-                normalised.append(f"{action}: {value}" if value else action)
-            else:
-                normalised.append(str(rec))
-        raw = {**raw, "enhancement": {**enhancement, "recommended_enhancements": normalised}}
-    return raw
+    """Apply normalization to merged raw_response from pipeline.
+    
+    Handles the fact that raw_response is a MERGED structure from all pipeline
+    steps (each step returns all 4 sections), not a single model response.
+    
+    Normalizes each section independently to handle model-specific quirks.
+    """
+    if not isinstance(raw, dict):
+        return raw
+    
+    # Normalize each section independently 
+    normalized = dict(raw)
+    
+    # Extract just the metadata section and normalize it as if it were a complete response
+    if "metadata" in normalized and isinstance(normalized["metadata"], dict):
+        metadata_section = normalized["metadata"]
+        # Create a minimal complete response structure just for normalization
+        complete_response = {
+            "metadata": metadata_section,
+            "enhancement": {},
+            "location_detection": {},
+            "slide_profiles": []
+        }
+        # Normalize just this structure
+        norm_complete = OpenAIAnalyzer._normalise_response(complete_response)
+        # Extract back the normalized metadata
+        if "metadata" in norm_complete:
+            normalized["metadata"] = norm_complete["metadata"]
+
+    # Ensure all 11 metadata fields always exist (fill missing with None)
+    _METADATA_FIELDS = [
+        "objects", "persons", "weather", "mood_atmosphere", "time_of_day",
+        "season_date", "scene_type", "location_setting", "activity_action",
+        "photography_style", "composition_quality",
+    ]
+    if "metadata" in normalized and isinstance(normalized["metadata"], dict):
+        for field in _METADATA_FIELDS:
+            if field not in normalized["metadata"]:
+                normalized["metadata"][field] = None
+
+    return normalized
 
 
 def _analysis_to_legacy_dict(result) -> dict:
     # Use raw_response when it has real parsed analysis keys — but normalise
     # enhancement recs first (some models return dicts instead of strings).
-    if result.raw_response and isinstance(result.raw_response, dict):
-        if _ANALYSIS_KEYS.intersection(result.raw_response):
-            data = _normalise_raw_response(result.raw_response)
-            # Inject GPS from GeocodingStep result (stepped mode sets location.coordinates
-            # but never writes it back into raw_response)
-            if (
-                "gps_coordinates" not in data
-                and result.location is not None
-                and result.location.coordinates is not None
-            ):
-                geo = result.location.coordinates
-                data = {
-                    **data,
-                    "gps_coordinates": {
-                        "latitude": geo.latitude,
-                        "longitude": geo.longitude,
-                        "display_name": getattr(geo, "display_name", ""),
-                    },
-                }
-            # Inject source_description so ExifWriter embeds description.txt in ImageDescription
-            if "source_description" not in data and result.description_context:
-                data = {**data, "source_description": result.description_context}
-            return data
+    if isinstance(result.raw_response, dict) and _ANALYSIS_KEYS.intersection(result.raw_response):
+        data = _normalise_raw_response(result.raw_response)
+        # Inject GPS from GeocodingStep result (stepped mode sets location.coordinates
+        # but never writes it back into raw_response)
+        if (
+            "gps_coordinates" not in data
+            and result.location is not None
+            and result.location.coordinates is not None
+        ):
+            geo = result.location.coordinates
+            data = {
+                **data,
+                "gps_coordinates": {
+                    "latitude": geo.latitude,
+                    "longitude": geo.longitude,
+                    "display_name": getattr(geo, "display_name", ""),
+                },
+            }
+        # Inject source_description so ExifWriter embeds description.txt in ImageDescription
+        if "source_description" not in data and result.description_context:
+            data = {**data, "source_description": result.description_context}
+        return data
 
     metadata = {
         "scene_type": result.scene_type or result.title or "",
@@ -315,7 +353,22 @@ def _analysis_to_legacy_dict(result) -> dict:
 
     payload: dict = {"metadata": metadata, "enhancement": {"recommended_enhancements": []}}
 
-    if result.enhancement_recommendations:
+    # Populate enhancement from raw_response or from enhancement_recommendations field
+    if result.raw_response and isinstance(result.raw_response, dict):
+        enhancement = result.raw_response.get("enhancement")
+        if isinstance(enhancement, dict):
+            recs = enhancement.get("recommended_enhancements")
+            if isinstance(recs, list):
+                payload["enhancement"] = enhancement
+            elif result.enhancement_recommendations:
+                payload["enhancement"]["recommended_enhancements"] = [
+                    e.raw_text for e in result.enhancement_recommendations
+                ]
+        elif result.enhancement_recommendations:
+            payload["enhancement"]["recommended_enhancements"] = [
+                e.raw_text for e in result.enhancement_recommendations
+            ]
+    elif result.enhancement_recommendations:
         payload["enhancement"]["recommended_enhancements"] = [
             e.raw_text for e in result.enhancement_recommendations
         ]
@@ -328,7 +381,19 @@ def _analysis_to_legacy_dict(result) -> dict:
             "confidence": result.location.confidence,
         }
 
-    if result.slide_profile:
+    # Populate slide_profiles from raw_response (full array) or from slide_profile (single best)
+    if result.raw_response and isinstance(result.raw_response, dict):
+        slide_profiles = result.raw_response.get("slide_profiles")
+        if isinstance(slide_profiles, list):  # Check type, not truthiness (empty lists are falsy)
+            payload["slide_profiles"] = slide_profiles
+        elif result.slide_profile:
+            payload["slide_profiles"] = [
+                {
+                    "profile": result.slide_profile.profile_name,
+                    "confidence": result.slide_profile.confidence,
+                }
+            ]
+    elif result.slide_profile:
         payload["slide_profiles"] = [
             {
                 "profile": result.slide_profile.profile_name,
@@ -450,6 +515,11 @@ def _single_analyze(
 
     analysis_result = _analyze_with_provider(image_path, provider, pipeline_mode)
     analysis = _analysis_to_legacy_dict(analysis_result)
+    
+    # Translate to configured language if not English
+    settings = get_settings()
+    if settings.metadata.language != "en":
+        analysis = translate_analysis_dict(analysis, settings.metadata.language)
 
     analyzed_target = Path(output_path) if output_path else Path("output") / f"{image_path.stem}_analyzed.jpg"
     analyzed_target.parent.mkdir(parents=True, exist_ok=True)
@@ -465,7 +535,10 @@ def _single_analyze(
 
     if not no_json:
         json_path = analyzed_target.with_suffix(".json")
-        json_path.write_text(json.dumps(analysis, indent=2), encoding="utf-8")
+        json_path.write_text(
+            json.dumps({k: v for k, v in analysis.items() if k not in ("source_description", "raw_response")}, indent=2),
+            encoding="utf-8"
+        )
 
     click.echo("\nAnalysis Results:")
     click.echo(json.dumps(analysis, indent=2))
@@ -530,7 +603,7 @@ def _batch_analyze(
     enhancer = SmartEnhancer() if do_enhance else None
     if output is None:
         output = _default_output_from_description(directory)
-    output_dir = output or "output"
+    output_dir = output or _fallback_output(directory.name)
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     # Collect image files
@@ -577,6 +650,11 @@ def _batch_analyze(
             analyzed_path = str(Path(output_dir) / f"{img.stem}_analyzed.jpg")
             analysis_result = _analyze_with_provider(img, provider, pipeline_mode, pipeline=shared_pipeline)
             analysis = _analysis_to_legacy_dict(analysis_result)
+            
+            # Translate to configured language if not English
+            if settings.metadata.language != "en":
+                analysis = translate_analysis_dict(analysis, settings.metadata.language)
+            
             del analysis_result  # release model result immediately
             shutil.copy2(img, analyzed_path)  # copy without loading into Python memory
 
@@ -590,7 +668,7 @@ def _batch_analyze(
                 click.echo(f"  ⚠ Could not embed EXIF metadata: {exc}", err=True)
 
             Path(analyzed_path).with_suffix(".json").write_text(
-                json.dumps({k: v for k, v in analysis.items() if k != "source_description"}, indent=2), encoding="utf-8"
+                json.dumps({k: v for k, v in analysis.items() if k not in ("source_description", "raw_response")}, indent=2), encoding="utf-8"
             )
 
             if enhancer and "enhancement" in analysis:
@@ -673,8 +751,8 @@ def process(image: str, output: str | None, provider: str | None, restore_slide:
 
     if provider:
         click.echo(f"Using analyzer provider: {provider.lower()}")
-    output_dir = output or "output"
-    Path(output_dir).mkdir(exist_ok=True)
+    output_dir = output or _fallback_output(image_path.stem)
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     analyzed_path = f"{output_dir}/{image_path.stem}_analyzed.jpg"
     enhanced_path = f"{output_dir}/{image_path.stem}_enhanced.jpg"
@@ -684,6 +762,12 @@ def process(image: str, output: str | None, provider: str | None, restore_slide:
     click.echo(f"[1/{step_total}] Analyzing: {image}")
     analysis_result = _analyze_with_provider(image_path, provider)
     analysis = _analysis_to_legacy_dict(analysis_result)
+    
+    # Translate to configured language if not English
+    settings = get_settings()
+    if settings.metadata.language != "en":
+        analysis = translate_analysis_dict(analysis, settings.metadata.language)
+    
     Path(analyzed_path).write_bytes(image_path.read_bytes())
     # Embed EXIF metadata (includes GPS when geocoding resolved coordinates)
     try:

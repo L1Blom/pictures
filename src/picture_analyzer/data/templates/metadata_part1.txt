@@ -1,0 +1,9 @@
+=== METADATA PART 1 of 2 - RESPOND IN ENGLISH ===
+Describe ONLY these 6 aspects in rich detail (1–2 sentences each is fine):
+
+1. **Objects**: ALL visible objects (e.g. "vintage Citroën 2CV, cobblestone road, elm trees, Dutch brick townhouses, bicycle leaning against wall").
+2. **Persons**: Everyone visible (e.g. "no persons visible" or "elderly woman in floral dress and hat walking with a cane; young man on bicycle in background").
+3. **Weather**: Full weather description (e.g. "bright sunny afternoon with a few high cirrus clouds, warm south-westerly light" or "overcast with flat grey cloud cover, no shadows").
+4. **Mood/Atmosphere**: Rich mood description (e.g. "quiet, nostalgic residential street scene — Sunday afternoon stillness, timeless Dutch townscape atmosphere").
+5. **Time of Day**: Time estimate with light cues (e.g. "mid-afternoon, strong direct sunlight casting short shadows southward" or "early morning, soft warm golden-hour light").
+6. **Season/Date**: Season and estimated year or decade only. Base it on visual clues in the image (vegetation, clothing, lighting). Do NOT include place names, country names or city names. Examples: "summer, 2000", "winter, early 1980s", "autumn, late 1970s".

@@ -1,0 +1,4 @@
+Format your response as JSON with EXACTLY these 5 fields in the metadata object:
+{{"metadata": {{"scene_type": "...", "location_setting": "...", "activity_action": "...", "photography_style": "...", "composition_quality": "..."}}}}
+
+MANDATORY: All 5 fields MUST be present. Include ONLY these 5 keys inside metadata.

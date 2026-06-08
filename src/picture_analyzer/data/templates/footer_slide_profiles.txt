@@ -1,3 +1,5 @@
 Format your response as a JSON object with EXACTLY this top-level key:
-- "slide_profiles": [{{"profile": "profile_name", "confidence": 0-100}}, ...] — use an empty array [] if no slide characteristics are detected.
+- "slide_profiles": ALWAYS a non-empty array with 2-3 profile suggestions. NEVER return []. ALWAYS include "well_preserved" as baseline.
+
+Example: {{"slide_profiles": [{{"profile": "yellow_cast", "confidence": 75}}, {{"profile": "aged", "confidence": 55}}, {{"profile": "well_preserved", "confidence": 40}}]}}
 

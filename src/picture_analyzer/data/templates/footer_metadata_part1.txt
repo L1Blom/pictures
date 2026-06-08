@@ -1,0 +1,6 @@
+Format your response as JSON with EXACTLY these 6 fields in the metadata object:
+{{"metadata": {{"objects": "...", "persons": "...", "weather": "...", "mood_atmosphere": "...", "time_of_day": "...", "season_date": "..."}}}}
+
+MANDATORY: All 6 fields MUST be present. Include ONLY these 6 keys inside metadata.
+
+Note: the "objects" value must be a plain comma-separated string, NOT a JSON array.

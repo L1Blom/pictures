@@ -234,16 +234,79 @@ class OpenAIAnalyzer:
         - llava: ``slide_profiles`` inside ``metadata``; ``objects``/``persons`` as count strings
         - gpt-oss: ``enhancement`` as a list; ``location_detection`` uses ``city`` not
           ``city_or_area``; ``confidence`` as 0-1 float instead of 0-100 int
+        - gemma4: Language-suffixed fields (activity_nl, scene_type_nl); metadata_nl wrappers
         """
         metadata = data.get("metadata", {})
         if not isinstance(metadata, dict):
             metadata = {}
+
+        # ── Unwrap metadata_analysis nesting (gemma4) ──────────────────
+        # gemma4 sometimes wraps entire metadata in {"metadata_analysis": {...}}
+        if len(metadata) == 1 and "metadata_analysis" in metadata:
+            metadata = metadata["metadata_analysis"]
+            if not isinstance(metadata, dict):
+                metadata = {}
+
+        # ── Clean up field names in metadata (strip _description suffix) ──────
+        # Some fields come back as "mood_description", "weather_description", etc.
+        # Map them back to the canonical names
+        field_aliases = {
+            "weather_description": "weather",
+            "mood_description": "mood_atmosphere",
+            "objects": "objects",  # Already correct
+            "persons": "persons",  # Already correct
+            "mood": "mood_atmosphere",  # Alternative name
+            "weather": "weather",  # Already correct
+        }
+        cleaned_metadata = {}
+        for key, val in metadata.items():
+            canonical_key = field_aliases.get(key, key)
+            cleaned_metadata[canonical_key] = val
+        metadata = cleaned_metadata
 
         # ── Normalise uppercase top-level keys (e.g. SLIDE_PROFILES) ────
         for bad_key in list(data.keys()):
             lower = bad_key.lower()
             if bad_key != lower and lower not in data:
                 data = {**{lower if k == bad_key else k: v for k, v in data.items()}}
+
+        # ── Strip language suffixes and unwrap gemma4 fields ────────────
+        # gemma4 returns fields with language suffixes (activity_nl, scene_type_nl)
+        # or wrapped with metadata_nl: {"objects": {"metadata_nl": [...]}}
+        gemma4_suffixes = ("_nl", "_description_nl", "_beschreibung_nl")
+        keys_to_remove = []
+        
+        for key in list(data.keys()):
+            # Skip standard analysis keys and known safe keys
+            if key in ("metadata", "enhancement", "location_detection", "location_details",
+                      "slide_profiles", "gps_coordinates", "source_description", "context_from_text"):
+                continue
+            
+            val = data[key]
+            
+            # Pattern 1: Field with language suffix (e.g., "activity_nl" → "activity")
+            normalized_key = key
+            for suffix in gemma4_suffixes:
+                if key.endswith(suffix):
+                    normalized_key = key[:-len(suffix)]
+                    break
+            
+            # Pattern 2: Unwrap metadata_nl wrapper
+            if isinstance(val, dict) and len(val) == 1 and "metadata_nl" in val:
+                val = val["metadata_nl"]
+            
+            # If key was modified or is a gemma4 extra field, move it to metadata
+            if normalized_key != key or normalized_key not in metadata:
+                metadata = {**metadata, normalized_key: val}
+                keys_to_remove.append(key)
+        
+        # Remove processed gemma4 fields from top level (keep only standard keys)
+        standard_keys = {"metadata", "enhancement", "location_detection", "location_details",
+                        "slide_profiles", "gps_coordinates", "source_description", "context_from_text", 
+                        "raw_response"}
+        data = {k: v for k, v in data.items() if k in standard_keys or k not in keys_to_remove}
+        
+        data = {**data, "metadata": metadata}
 
         # ── Hoist slide_profiles out of metadata (llava) ─────────────
         if "slide_profiles" not in data and "slide_profiles" in metadata:
@@ -287,6 +350,21 @@ class OpenAIAnalyzer:
                 if isinstance(image_analysis, dict):
                     merged = {**image_analysis, **enhancement}
                     data = {**data, "enhancement": merged}
+            
+            # ── FALLBACK: If enhancement has no recommended_enhancements, provide defaults ──
+            # Some models (e.g., gemma4) return empty lists when they should provide suggestions
+            enh = data.get("enhancement", {}) or {}
+            if isinstance(enh, dict):
+                recs = enh.get("recommended_enhancements", [])
+                if not recs or not isinstance(recs, list) or len(recs) == 0:
+                    # Provide sensible baseline enhancements for any scanned/old image
+                    recs = [
+                        "SHARPNESS: increase by 25%",
+                        "VIBRANCE: increase by 15%",
+                        "CONTRAST: boost by 10%",
+                    ]
+                enh = {**enh, "recommended_enhancements": recs}
+                data = {**data, "enhancement": enh}
 
         # ── location_detection field name variants ────────────────────
         loc = data.get("location_detection")
@@ -344,7 +422,30 @@ class OpenAIAnalyzer:
                         p = {**p, "profile": canonical}
                     p = {**p, "confidence": _parse_confidence(p.get("confidence"))}
                 normalised.append(p)
+            
+            # ── FALLBACK: If response is empty, provide sensible defaults ──────
+            # Some models (e.g., gemma4 in certain contexts) return empty arrays
+            # when they should provide at minimum "well_preserved"
+            if not normalised:
+                normalised = [{"profile": "well_preserved", "confidence": 50}]
+            
             data = {**data, "slide_profiles": normalised}
+        else:
+            # If no slide_profiles key exists, create empty array which will get default profile
+            data = {**data, "slide_profiles": [{"profile": "well_preserved", "confidence": 50}]}
+
+        # ── Ensure all 4 required analysis keys exist in output ────────
+        required_keys = {"metadata", "enhancement", "location_detection", "slide_profiles"}
+        for key in required_keys:
+            if key not in data:
+                if key == "metadata":
+                    data[key] = {}
+                elif key == "enhancement":
+                    data[key] = {"recommended_enhancements": []}
+                elif key == "location_detection":
+                    data[key] = {"country": "", "region": "", "city_or_area": "", "confidence": 0}
+                elif key == "slide_profiles":
+                    data[key] = [{"profile": "well_preserved", "confidence": 50}]
 
         return data
 

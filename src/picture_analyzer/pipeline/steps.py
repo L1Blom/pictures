@@ -67,21 +67,29 @@ class MetadataStep:
     ) -> AnalysisResult:
         if not self._enabled:
             return partial
-        result = self._analyzer.analyze_section(image, context, self._sections)
+        # Two-pass: part1 = fields 1-6 (objects/persons/weather/mood/time/season)
+        #           part2 = fields 7-11 (scene_type/location/activity/style/composition)
+        # Each pass has fewer fields so the LLM can provide rich detail without truncation.
+        r1 = self._analyzer.analyze_section(image, context, ["metadata_part1"])
+        r2 = self._analyzer.analyze_section(image, context, ["metadata_part2"])
+        raw1 = r1.raw_response if isinstance(r1.raw_response, dict) else {}
+        raw2 = r2.raw_response if isinstance(r2.raw_response, dict) else {}
+        merged_meta = {**raw1.get("metadata", {}), **raw2.get("metadata", {})}
+        merged_raw = {**raw1, **raw2, "metadata": merged_meta}
         return partial.model_copy(
             update={
-                "title": result.title or partial.title,
-                "description": result.description or partial.description,
-                "keywords": result.keywords or partial.keywords,
-                "people": result.people or partial.people,
-                "people_count": result.people_count or partial.people_count,
-                "objects": result.objects or partial.objects,
-                "scene_type": result.scene_type or partial.scene_type,
-                "mood": result.mood or partial.mood,
-                "photography_style": result.photography_style or partial.photography_style,
-                "composition_quality": result.composition_quality or partial.composition_quality,
-                "era": result.era or partial.era,
-                "raw_response": {**partial.raw_response, "metadata": result.raw_response.get("metadata", {})},
+                "title": r2.title or r1.title or partial.title,
+                "description": r2.description or r1.description or partial.description,
+                "keywords": r1.keywords or r2.keywords or partial.keywords,
+                "people": r1.people or r2.people or partial.people,
+                "people_count": r1.people_count or r2.people_count or partial.people_count,
+                "objects": r1.objects or r2.objects or partial.objects,
+                "scene_type": r2.scene_type or r1.scene_type or partial.scene_type,
+                "mood": r1.mood or r2.mood or partial.mood,
+                "photography_style": r2.photography_style or r1.photography_style or partial.photography_style,
+                "composition_quality": r2.composition_quality or r1.composition_quality or partial.composition_quality,
+                "era": r1.era or r2.era or partial.era,
+                "raw_response": {**partial.raw_response, **merged_raw},
             }
         )
 
@@ -106,10 +114,19 @@ class LocationStep:
         if not self._enabled or not context.detect_location:
             return partial
         result = self._analyzer.analyze_section(image, context, self._sections)
+        # Only merge non-empty sections (avoid overwriting metadata with empty dict)
+        # IMPORTANT: Never merge metadata from location step (only metadata step should set it)
+        merged = {**partial.raw_response}
+        for key, val in result.raw_response.items():
+            if key == "metadata":
+                # Skip metadata — it comes only from MetadataStep
+                continue
+            if val or key not in merged:  # Update if non-empty OR if it's a new key
+                merged[key] = val
         return partial.model_copy(
             update={
                 "location": result.location or partial.location,
-                "raw_response": {**partial.raw_response, "location_detection": result.raw_response.get("location_detection", {})},
+                "raw_response": merged,
             }
         )
 
@@ -153,12 +170,21 @@ class EnhancementStep:
             active_context = context.model_copy(update={"description_text": augmented})
 
         result = self._analyzer.analyze_section(image, active_context, self._sections)
+        # Only merge non-empty sections (avoid overwriting metadata with empty dict)
+        # IMPORTANT: Never merge metadata from enhancement step (only metadata step should set it)
+        merged = {**partial.raw_response}
+        for key, val in result.raw_response.items():
+            if key == "metadata":
+                # Skip metadata — it comes only from MetadataStep, not enhancement
+                continue
+            if val or key not in merged:  # Update if non-empty OR if it's a new key
+                merged[key] = val
         return partial.model_copy(
             update={
                 "enhancement_recommendations": result.enhancement_recommendations or partial.enhancement_recommendations,
                 "lighting_quality": result.lighting_quality or partial.lighting_quality,
                 "dominant_colors": result.dominant_colors or partial.dominant_colors,
-                "raw_response": {**partial.raw_response, "enhancement": result.raw_response.get("enhancement", {})},
+                "raw_response": merged,
             }
         )
 
@@ -183,10 +209,27 @@ class SlideProfileStep:
         if not self._enabled or not context.detect_slide_profiles:
             return partial
         result = self._analyzer.analyze_section(image, context, self._sections)
+        # Only merge non-empty sections (avoid overwriting metadata with empty dict)
+        # IMPORTANT: Never merge metadata from slide_profiles step (only metadata step should set it)
+        merged = {**partial.raw_response}
+        for key, val in result.raw_response.items():
+            if key == "metadata":
+                # Skip metadata — it comes only from MetadataStep
+                continue
+            if val or key not in merged:  # Update if non-empty OR if it's a new key
+                merged[key] = val
+
+        # Ensure well_preserved is always present as a baseline option
+        profiles = merged.get("slide_profiles", [])
+        if isinstance(profiles, list) and profiles:
+            if not any(p.get("profile") == "well_preserved" for p in profiles):
+                profiles.append({"profile": "well_preserved", "confidence": 20})
+                merged["slide_profiles"] = profiles
+
         return partial.model_copy(
             update={
                 "slide_profile": result.slide_profile or partial.slide_profile,
-                "raw_response": {**partial.raw_response, "slide_profiles": result.raw_response.get("slide_profiles", [])},
+                "raw_response": merged,
             }
         )
 

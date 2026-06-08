@@ -58,10 +58,10 @@ class PromptLoader:
                 f"Prompt template '{name}' not found at {path}"
             )
         text = path.read_text(encoding="utf-8")
-        if kwargs:
-            # Use str.format_map with a fallback so unknown placeholders in
-            # enhancement/slide_profiles templates are left unchanged.
-            text = _safe_format(text, kwargs)
+        # Always apply format_map to handle escaped braces {{ }} → { }
+        # even if kwargs is empty. This ensures JSON examples are properly
+        # unescaped and Python format strings are processed.
+        text = _safe_format(text, kwargs)
         return text
 
     def combined(

@@ -10,19 +10,19 @@ ollama:
   #host: "http://192.168.2.66:11434"
   max_tokens: 16384
   timeout: 1200                           # seconds per step; CPU inference + cold reload can take 15+ min
-  num_ctx: 16384                          # KV-cache context window; mllama images use ~8000 tokens alone
+  num_ctx: 4096                          # KV-cache context window; mllama images use ~8000 tokens alone
 
 pipeline:
   mode: stepped
   metadata:
-    model: "gemma3:12b"   # needs strong visual + language understanding
+    model: "llava:34b"         # Large vision model with better visual reasoning
   location:
-    model: "gemma3:12b"   # same — geographic reasoning from visual clues
+    model: "llava:34b"         # vision model; geographic reasoning from visual clues
   enhancement:
-    model: "llama3.2-vision:11b"   # simpler structured task, smaller model is fine
+    model: "llava:34b"         # vision model; analyzes image quality for enhancement recommendations
     max_tokens: 1024               # enhancement JSON is small; cap to prevent runaway loops
   slide_profiles:
-    model: "llama3.2-vision:11b"   # same
+    model: "llava:34b"         # vision model; detects scan/slide degradation patterns
     max_tokens: 512                # slide profile JSON is tiny
 
 openai:
