@@ -500,7 +500,8 @@
 
         function encodePath(p) {
             // Encode each segment individually, preserving slashes
-            return p.split('/').map(s => encodeURIComponent(s)).join('/');
+            // Also encode apostrophes which encodeURIComponent leaves unencoded
+            return p.split('/').map(s => encodeURIComponent(s).replace(/'/g, '%27')).join('/');
         }
         
         // Modal functions
