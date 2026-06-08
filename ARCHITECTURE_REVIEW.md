@@ -161,7 +161,56 @@ graph TB
 - No final summary of success/failure counts. Must grep logs.
 - *Fix*: Print `✓ 18 succeeded, ⚠ 2 timed out, ✗ 1 failed` at end of batch. Optionally write `errors.csv`.
 
-### 🟠 Medium
+---
+
+## 4b. Feature Requirements
+
+### 🟢 Step Re-run & Image Regeneration
+
+**Requirement**: It must be possible to re-run one or more specific pipeline steps on already-processed images, update the existing `*_analyzed.json` in place, and optionally regenerate the output images from the updated JSON.
+
+**Use cases**:
+- Re-run only `slide_profiles` after improving the prompt, without re-running metadata
+- Re-run `metadata` on a subset of images that had blank fields
+- After manually editing a JSON, regenerate the enhanced/restored images without re-analyzing
+
+**Architectural implications**:
+
+1. **JSON must be the source of truth for image generation**
+   - The enhancement and restoration pipeline must be callable with only a JSON file as input (no re-analysis required).
+   - Currently `EnhancementStep` and `SlideRestoreStep` are tightly coupled to the analysis pipeline run. They need to be callable standalone: `picture-analyzer regenerate --from-json image_analyzed.json`.
+
+2. **Steps must be selectively runnable**
+   - The pipeline needs a `--steps` flag: `picture-analyzer analyze image.jpg --steps metadata,slide_profiles`
+   - Each step reads from the existing JSON (if present) as its `partial` input, runs only the requested steps, then merges results back into the JSON.
+   - This is an extension of item #7 (per-step enable/disable).
+
+3. **JSON merge strategy must be well-defined**
+   - Re-running a step should update only that step's keys in the JSON, leaving all other keys untouched.
+   - Currently the pipeline always starts from a fresh `AnalysisResult`. It needs a `load_partial(json_path)` function that initialises the pipeline state from an existing JSON.
+
+4. **Batch re-run support**
+   - `picture-analyzer analyze /folder --steps slide_profiles --batch` should re-run only `slide_profiles` on all images that already have a JSON in the output folder.
+
+**Proposed CLI design**:
+```
+# Re-run specific steps on a single image, update JSON in place
+picture-analyzer analyze image.jpg --steps metadata,slide_profiles --update-existing
+
+# Re-run specific steps on a whole batch
+picture-analyzer analyze /folder --batch --steps slide_profiles --update-existing
+
+# Regenerate enhanced/restored images from existing JSON (no LLM call)
+picture-analyzer regenerate image_analyzed.json
+picture-analyzer regenerate /folder --batch
+```
+
+**Implementation approach**:
+- `load_partial_from_json(path)` → `AnalysisResult`: deserialise existing JSON into `AnalysisResult`
+- `pipeline.run(image, partial=load_partial_from_json(...), steps=[...])`: skip steps not in the list
+- `regenerate_images(analysis_result, output_dir)`: standalone function that applies enhancement/restoration from a populated `AnalysisResult`, no LLM needed
+
+### 🟡 Medium
 
 **9. Tight Coupling to External API Clients**
 - `OllamaAnalyzer` directly instantiates `ollama.Client(host=...)`. Hard to mock for testing.
@@ -175,9 +224,10 @@ graph TB
 - 20+ optional fields; many never populated. `raw_response` is an untyped catch-all dict.
 - *Fix*: Split into `CoreAnalysisResult` + `ExtendedFields`. Remove rarely-used fields from the main model.
 
-**12. Translation Incomplete**
-- Enhancement recommendations and slide profile names left in English, creating mixed-language metadata.
-- *Fix*: Add profile/recommendation name translation to `translate_analysis_dict()`.
+**12. Translation Scope (by design)**
+- `metadata.*` fields are translated to the target language (Dutch) for human-readable EXIF output.
+- `slide_profiles` and enhancement recommendations intentionally stay in English — they are consumed by the enhancement pipeline and translating them would break downstream processing.
+- This is a deliberate design boundary: translate for humans, keep English for machines.
 
 ---
 
@@ -196,10 +246,12 @@ graph TB
 
 | Priority | Task | Effort |
 |----------|------|--------|
-| 5 | Checkpoint/resume for batches | 3–5 days |
-| 6 | Prompt versioning | 1–2 days |
-| 7 | Per-step enable/disable in config | 1 day |
-| 8 | Format-specific metadata writers | 2–3 days |
+| 5 | **Step re-run: `--steps` flag + `--update-existing`** | 2–3 days |
+| 6 | **Standalone image regeneration from JSON** | 1–2 days |
+| 7 | Checkpoint/resume for batches | 1 day (simplified by #5) |
+| 8 | Prompt versioning | 1–2 days |
+| 9 | Per-step enable/disable in config | 1 day |
+| 10 | Format-specific metadata writers | 2–3 days |
 
 ### Low Impact
 
@@ -208,7 +260,6 @@ graph TB
 | 9 | API client abstraction (testability) | 2–3 days |
 | 10 | Circuit breaker for API failures | 2 days |
 | 11 | Comprehensive test suite (80%+ coverage) | 5–10 days |
-| 12 | Translate slide_profiles and enhancement fields | 1 day |
 
 ---
 

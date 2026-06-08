@@ -43,6 +43,7 @@ class OllamaConfig(BaseModel):
     docker_host: Optional[str] = Field(default=None, description="Ollama host URL override used automatically when running inside Docker")
     timeout: int = Field(default=d.DEFAULT_OLLAMA_TIMEOUT, ge=10, le=3600, description="Request timeout in seconds")
     num_ctx: int = Field(default=d.DEFAULT_OLLAMA_NUM_CTX, ge=512, description="KV-cache context window size (tokens); lower = less VRAM")
+    keep_alive: int = Field(default=d.DEFAULT_OLLAMA_KEEP_ALIVE, ge=0, description="Seconds to keep model loaded between calls (0 = unload immediately after each call)")
 
 
 class GeoConfig(BaseModel):
@@ -391,4 +392,5 @@ def resolve_step_config(step: StepConfig, settings: "Settings") -> dict:
         "timeout": getattr(base, "timeout", None),
         "num_ctx": getattr(base, "num_ctx", None),
         "host": getattr(base, "host", None),
+        "keep_alive": getattr(base, "keep_alive", None),
     }

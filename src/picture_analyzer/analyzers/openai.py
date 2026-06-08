@@ -8,10 +8,13 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 from openai import OpenAI
 
@@ -179,7 +182,7 @@ class OpenAIAnalyzer:
             print("\n[DEBUG] Raw OpenAI response:\n", text, "\n", file=sys.stderr)
         return text
 
-    def _parse_json(self, response: str) -> dict[str, Any]:
+    def _parse_json(self, response: str, sections: list[str] | None = None) -> dict[str, Any]:
         """Extract JSON from the AI response text."""
         # Strip DeepSeek-R1 style <think>...</think> reasoning blocks before parsing
         import re as _re
@@ -212,19 +215,76 @@ class OpenAIAnalyzer:
             try:
                 data = json.loads(cleaned)
                 if isinstance(data, dict):
-                    return self._normalise_response(data)
+                    normalised = self._normalise_response(data)
+                    self._validate_response(normalised, sections)
+                    return normalised
             except json.JSONDecodeError:
                 pass
             # Try original (unmodified) string as fallback
             try:
                 data = json.loads(json_str)
                 if isinstance(data, dict):
-                    return self._normalise_response(data)
+                    normalised = self._normalise_response(data)
+                    self._validate_response(normalised, sections)
+                    return normalised
             except json.JSONDecodeError:
                 pass
 
         # If all parsing fails, return a minimal dict with raw text
+        logger.warning("LLM response could not be parsed as JSON — returning raw text fallback")
         return {"raw_response": response}
+
+    # Sections that are expected to populate all 11 metadata fields
+    _METADATA_SECTIONS = frozenset({"metadata", "metadata_part1", "metadata_part2"})
+    # Fields expected per metadata section (part1=fields 1-6, part2=fields 7-11)
+    _METADATA_PART1_FIELDS = frozenset({
+        "objects", "persons", "weather", "mood_atmosphere", "time_of_day", "season_date",
+    })
+    _METADATA_PART2_FIELDS = frozenset({
+        "scene_type", "location_setting", "activity_action", "photography_style", "composition_quality",
+    })
+    # Top-level key expected per section type
+    _SECTION_KEYS: dict[str, str] = {
+        "location": "location_detection",
+        "slide_profiles": "slide_profiles",
+        "enhancement": "enhancement",
+    }
+
+    def _validate_response(self, data: dict[str, Any], sections: list[str] | None = None) -> None:
+        """Log a warning when the normalised response is missing expected fields.
+
+        Only checks fields relevant to the requested *sections* — e.g. the
+        location step response is not expected to contain metadata fields.
+        Does NOT raise — a partial response is better than a hard failure.
+        """
+        missing: list[str] = []
+        secs = set(sections or [])
+
+        # Validate metadata fields only for metadata sections
+        if secs & self._METADATA_SECTIONS:
+            metadata = data.get("metadata", {})
+            if not isinstance(metadata, dict):
+                missing.append("metadata")
+            else:
+                if "metadata_part1" in secs or "metadata" in secs:
+                    missing += [f"metadata.{f}" for f in self._METADATA_PART1_FIELDS
+                                if f not in metadata or metadata[f] is None]
+                if "metadata_part2" in secs or "metadata" in secs:
+                    missing += [f"metadata.{f}" for f in self._METADATA_PART2_FIELDS
+                                if f not in metadata or metadata[f] is None]
+
+        # Validate the top-level key for each non-metadata section
+        for sec in secs:
+            expected_key = self._SECTION_KEYS.get(sec)
+            if expected_key and expected_key not in data:
+                missing.append(expected_key)
+
+        if missing:
+            logger.warning(
+                "LLM response validation: %d field(s) missing or null: %s",
+                len(missing),
+                ", ".join(missing),
+            )
 
     @staticmethod
     def _normalise_response(data: dict[str, Any]) -> dict[str, Any]:

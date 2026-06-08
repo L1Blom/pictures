@@ -40,6 +40,7 @@ def _format_tok_stats(step) -> str:
     return f"  ({', '.join(parts)})" if parts else ""
 
 from ..core.models import AnalysisContext, AnalysisResult, ImageData
+from ..core.exceptions import AnalysisError
 from ..config.settings import Settings
 from .steps import build_steps
 from .geo_step import GeocodingStep
@@ -58,20 +59,39 @@ class AnalysisPipeline:
     def __init__(self, steps: list) -> None:
         self._steps = steps
 
-    def run(self, image: ImageData, context: AnalysisContext) -> AnalysisResult:
+    def run(
+        self,
+        image: ImageData,
+        context: AnalysisContext,
+        partial: AnalysisResult | None = None,
+        only_steps: list[str] | None = None,
+    ) -> AnalysisResult:
         """Execute all steps, accumulating a single ``AnalysisResult``.
 
         Args:
             image: Image to analyse (base64 encoding handled by each step).
             context: Flags and language settings for the analysis.
+            partial: Optional existing result to use as starting state.
+                     When provided, steps merge into it rather than starting fresh.
+                     Pass the output of :func:`~picture_analyzer.pipeline.load_partial_from_json`
+                     to re-run only specific steps on an already-analyzed image.
+            only_steps: If given, only steps whose ``name`` is in this list are
+                        executed.  All other steps are skipped (their partial
+                        result passes through unchanged).  Example::
+
+                            pipeline.run(image, ctx, only_steps=["metadata", "slide_profiles"])
 
         Returns:
             Merged ``AnalysisResult`` with all available fields populated.
         """
-        partial = AnalysisResult(analyzed_at=datetime.now())
+        if partial is None:
+            partial = AnalysisResult(analyzed_at=datetime.now())
         total_start = time.perf_counter()
         for step in self._steps:
             step_name = getattr(step, "name", repr(step))
+            if only_steps is not None and step_name not in only_steps:
+                logger.debug("Pipeline: skipping step '%s' (not in only_steps)", step_name)
+                continue
             logger.debug("Pipeline: running step '%s'", step_name)
             _print(f"  → [{step_name}] starting at {time.strftime('%H:%M:%S')}")
             t0 = time.perf_counter()
@@ -100,13 +120,16 @@ class AnalysisPipeline:
                         logger.info("Pipeline: step '%s' completed on retry in %.3fs", step_name, elapsed)
                         _print(f"  ✓ [{step_name}] done on retry in {elapsed:.1f}s{_format_tok_stats(step)}")
                         continue
-                    except Exception:
+                    except Exception as retry_exc:
                         elapsed = time.perf_counter() - t0
                         _print(f"  ✗ [{step_name}] failed on retry after {elapsed:.0f}s — skipping")
                         logger.exception(
                             "Pipeline: step '%s' failed on retry after %.3fs — skipping",
                             step_name, elapsed,
                         )
+                        raise AnalysisError(
+                            f"Step '{step_name}' timed out and failed on retry"
+                        ) from retry_exc
                 else:
                     _print(f"  ✗ [{step_name}] error after {elapsed:.1f}s — skipping")
                     logger.exception(
@@ -114,6 +137,7 @@ class AnalysisPipeline:
                         step_name,
                         elapsed,
                     )
+                    raise AnalysisError(f"Step '{step_name}' failed: {exc}") from exc
         total_elapsed = time.perf_counter() - total_start
         _print(f"  Pipeline total: {total_elapsed:.1f}s")
         # Carry description_text through so callers can embed it in EXIF

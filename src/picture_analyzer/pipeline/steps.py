@@ -45,6 +45,8 @@ def _build_analyzer(resolved: dict[str, Any]):
             kwargs["num_ctx"] = resolved["num_ctx"]
         if resolved.get("host") is not None:
             kwargs["host"] = resolved["host"]
+        if resolved.get("keep_alive") is not None:
+            kwargs["keep_alive"] = resolved["keep_alive"]
         return OllamaAnalyzer(**kwargs)
 
 

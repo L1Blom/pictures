@@ -9,3 +9,4 @@ Public API::
 """
 from .pipeline import AnalysisPipeline, build_pipeline  # noqa: F401
 from .protocols import AnalysisStep  # noqa: F401
+from .partial import load_partial_from_json  # noqa: F401

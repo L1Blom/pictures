@@ -16,6 +16,7 @@ DEFAULT_OLLAMA_MODEL = "llava"
 DEFAULT_OLLAMA_HOST = "http://127.0.0.1:11434"
 DEFAULT_OLLAMA_TIMEOUT = 1200  # 20 minutes per step; CPU inference + cold model reload can exceed 10 min
 DEFAULT_OLLAMA_NUM_CTX = 16384  # mllama image tiles use ~8000 tokens; 16384 leaves room for prompt+output
+DEFAULT_OLLAMA_KEEP_ALIVE = 3600  # seconds to keep model loaded between steps (0 = unload immediately)
 DEFAULT_MAX_TOKENS = 16384
 DEFAULT_DETAIL_LEVEL = "auto"  # "auto" | "low" | "high"
 

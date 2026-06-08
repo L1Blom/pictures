@@ -38,11 +38,13 @@ class OllamaAnalyzer(OpenAIAnalyzer):
         host: str | None = None,
         timeout: int = 300,
         num_ctx: int | None = None,
+        keep_alive: int = 3600,
     ):
         self.model = model
         self.max_tokens = max_tokens
         self.timeout = timeout
         self.num_ctx = num_ctx
+        self.keep_alive = keep_alive
         self.client = ollama.Client(host=host, timeout=timeout) if host else ollama.Client(timeout=timeout)
 
     def _encode(self, path: Path) -> str:
@@ -119,7 +121,7 @@ class OllamaAnalyzer(OpenAIAnalyzer):
                     model=self.model,
                     format="json",  # Force the model to emit valid JSON directly
                     options=options,
-                    keep_alive=0,  # Unload model after inference to free memory
+                    keep_alive=self.keep_alive,
                     messages=messages,
                 )
                 break
@@ -234,7 +236,7 @@ class OllamaAnalyzer(OpenAIAnalyzer):
         if not image.base64_data:
             image = image.model_copy(update={"base64_data": self._encode(image.path)})
         raw_text = self._call_api(image, context, prompt_override=prompt_override)
-        raw_dict = self._parse_json(raw_text)
+        raw_dict = self._parse_json(raw_text, sections=sections)
 
         if context.description_text and "location" in sections:
             raw_dict = self._enforce_location_from_description(raw_dict, context.description_text)

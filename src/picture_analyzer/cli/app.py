@@ -206,6 +206,8 @@ def _analyze_with_provider(
     provider: str | None = None,
     pipeline_mode: str | None = None,
     pipeline=None,
+    partial=None,
+    only_steps: list[str] | None = None,
 ):
     settings = get_settings()
     effective_mode = pipeline_mode or settings.pipeline.mode
@@ -229,7 +231,7 @@ def _analyze_with_provider(
     if effective_mode == "stepped":
         from ..pipeline import build_pipeline
         active_pipeline = pipeline or build_pipeline(settings)
-        return active_pipeline.run(image, context)
+        return active_pipeline.run(image, context, partial=partial, only_steps=only_steps)
 
     analyzer = _build_analyzer(provider)
     result = analyzer.analyze(image, context)
@@ -454,9 +456,16 @@ def cli(ctx: click.Context):
               help="Analysis pipeline mode override (single or stepped).")
 @click.option("--skip-existing", "skip_existing", is_flag=True,
               help="Skip images that already have a completed analysis JSON in the output dir.")
+@click.option("--steps", "only_steps", default=None,
+              help="Comma-separated list of steps to run, e.g. 'metadata,slide_profiles'. "
+                   "All other steps are skipped. Valid values: metadata, location, slide_profiles, enhancement, geocoding.")
+@click.option("--update-existing", "update_existing", is_flag=True,
+              help="Load existing JSON as starting point and merge new step results into it. "
+                   "Use with --steps to re-run only specific steps without re-analyzing everything.")
 def analyze(image: str, output: str | None, provider: str | None, batch: bool,
             do_enhance: bool, restore_slide: str | None, no_json: bool, debug: bool,
-            pipeline_mode: str | None, skip_existing: bool):
+            pipeline_mode: str | None, skip_existing: bool,
+            only_steps: str | None, update_existing: bool):
     """Analyze a single image or batch-process a directory.
 
     IMAGE is a path to an image file, or a directory when --batch is used.
@@ -469,6 +478,9 @@ def analyze(image: str, output: str | None, provider: str | None, batch: bool,
 
     Batch-analyze a directory with enhancement:
         picture-analyzer analyze photos/ --batch --enhance
+
+    Re-run only slide_profiles on existing analyses:
+        picture-analyzer analyze photos/ --batch --steps slide_profiles --update-existing
 
     Analyze + restore a scanned slide:
         picture-analyzer analyze scan.jpg --restore-slide auto
@@ -484,10 +496,48 @@ def analyze(image: str, output: str | None, provider: str | None, batch: bool,
     if debug:
         import os; os.environ["PA_ANALYZER_DEBUG"] = "1"
 
+    steps_list = [s.strip() for s in only_steps.split(",")] if only_steps else None
+
     if batch or image_path.is_dir():
-        _batch_analyze(image_path, output, do_enhance, restore_slide, provider, pipeline_mode, skip_existing=skip_existing)
+        _batch_analyze(image_path, output, do_enhance, restore_slide, provider, pipeline_mode,
+                       skip_existing=skip_existing, only_steps=steps_list,
+                       update_existing=update_existing)
     else:
-        _single_analyze(image_path, output, do_enhance, restore_slide, no_json, provider, pipeline_mode)
+        _single_analyze(image_path, output, do_enhance, restore_slide, no_json, provider,
+                        pipeline_mode, only_steps=steps_list, update_existing=update_existing)
+
+
+def _load_partial_if_requested(
+    update_existing: bool,
+    only_steps: list[str] | None,
+    image_path: Path,
+    output_dir: str | None,
+):
+    """Return a partial AnalysisResult loaded from an existing JSON, or None.
+
+    Only loads when ``update_existing`` is True and an existing JSON is found.
+    The JSON is looked up next to the image or inside output_dir.
+    """
+    if not update_existing and not only_steps:
+        return None
+    # Try output dir first, then alongside the image
+    candidates = []
+    if output_dir:
+        candidates.append(Path(output_dir) / f"{image_path.stem}_analyzed.json")
+    candidates.append(image_path.parent / f"{image_path.stem}_analyzed.json")
+    for candidate in candidates:
+        if candidate.exists():
+            try:
+                from ..pipeline import load_partial_from_json
+                partial = load_partial_from_json(candidate)
+                click.echo(f"  ↺ Loaded existing analysis from {candidate.name}")
+                return partial
+            except Exception as exc:
+                click.echo(f"  ⚠ Could not load existing JSON ({exc}), starting fresh", err=True)
+                return None
+    if update_existing:
+        click.echo("  ⚠ --update-existing set but no existing JSON found — starting fresh", err=True)
+    return None
 
 
 def _single_analyze(
@@ -498,6 +548,8 @@ def _single_analyze(
     no_json: bool,
     provider: str | None = None,
     pipeline_mode: str | None = None,
+    only_steps: list[str] | None = None,
+    update_existing: bool = False,
 ) -> None:
     """Analyze a single image."""
     _, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
@@ -513,7 +565,11 @@ def _single_analyze(
         if Path(output_path).is_dir() or _raw.endswith("/") or _raw.endswith("\\"):
             output_path = str(Path(output_path) / f"{image_path.stem}_analyzed.jpg")
 
-    analysis_result = _analyze_with_provider(image_path, provider, pipeline_mode)
+    analysis_result = _analyze_with_provider(
+        image_path, provider, pipeline_mode,
+        partial=_load_partial_if_requested(update_existing, only_steps, image_path, output),
+        only_steps=only_steps,
+    )
     analysis = _analysis_to_legacy_dict(analysis_result)
     
     # Translate to configured language if not English
@@ -593,6 +649,8 @@ def _batch_analyze(
     provider: str | None = None,
     pipeline_mode: str | None = None,
     skip_existing: bool = False,
+    only_steps: list[str] | None = None,
+    update_existing: bool = False,
 ) -> None:
     """Batch-analyze all images in a directory."""
     _, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
@@ -631,6 +689,7 @@ def _batch_analyze(
 
     success_count = 0
     skipped_count = 0
+    errors: list[tuple[str, str]] = []  # (filename, error_message)
 
     # Build the pipeline once — reusing the same 4 OllamaClient instances for all images
     settings = get_settings()
@@ -648,7 +707,11 @@ def _batch_analyze(
         click.echo(f"[{idx}/{total}] Processing: {img.name}")
         try:
             analyzed_path = str(Path(output_dir) / f"{img.stem}_analyzed.jpg")
-            analysis_result = _analyze_with_provider(img, provider, pipeline_mode, pipeline=shared_pipeline)
+            analysis_result = _analyze_with_provider(
+                img, provider, pipeline_mode, pipeline=shared_pipeline,
+                partial=_load_partial_if_requested(update_existing, only_steps, img, output_dir),
+                only_steps=only_steps,
+            )
             analysis = _analysis_to_legacy_dict(analysis_result)
             
             # Translate to configured language if not English
@@ -693,7 +756,15 @@ def _batch_analyze(
             success_count += 1
             click.echo("  ✓ Complete")
         except Exception as exc:
-            click.echo(f"  ✗ Error: {exc}", err=True)
+            from ..core.exceptions import AnalysisError, ValidationError
+            if isinstance(exc, ValidationError):
+                msg = f"Validation: {exc}"
+            elif isinstance(exc, AnalysisError):
+                msg = f"Analysis failed: {exc}"
+            else:
+                msg = str(exc)
+            errors.append((img.name, msg))
+            click.echo(f"  ✗ Error: {msg}", err=True)
         finally:
             # Free analysis data and force GC to reclaim image buffers
             analysis = None  # type: ignore[assignment]
@@ -710,8 +781,136 @@ def _batch_analyze(
                 pass  # non-fatal: cache flush is best-effort
 
     click.echo(f"\n{'=' * 50}")
-    click.echo(f"Batch complete: {success_count}/{total} successful" + (f" ({skipped_count} skipped)" if skipped_count else ""))
+    failed_count = len(errors)
+    parts = [f"✓ {success_count} succeeded"]
+    if skipped_count:
+        parts.append(f"⏭ {skipped_count} skipped")
+    if failed_count:
+        parts.append(f"✗ {failed_count} failed")
+    click.echo("Batch complete: " + ", ".join(parts))
     click.echo(f"Output directory: {output_dir}")
+
+    if errors:
+        import csv
+        errors_csv = Path(output_dir) / "errors.csv"
+        with errors_csv.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.writer(fh)
+            writer.writerow(["filename", "error"])
+            writer.writerows(errors)
+        click.echo(f"Error details written to: {errors_csv}", err=True)
+
+
+# ══════════════════════════════════════════════════════════════════════
+# REGENERATE  (rebuild images from existing JSON — no LLM calls)
+# ══════════════════════════════════════════════════════════════════════
+
+
+@cli.command()
+@click.argument("source", type=click.Path(exists=True))
+@click.option("-o", "--output", type=click.Path(), default=None,
+              help="Output directory. Defaults to the same directory as SOURCE.")
+@click.option("-b", "--batch", is_flag=True,
+              help="Treat SOURCE as a directory and regenerate all images that have an *_analyzed.json.")
+@click.option("--restore-slide",
+              type=click.Choice(PROFILE_CHOICES, case_sensitive=False),
+              default=None,
+              help="Slide restoration profile to apply (or 'auto' to use the detected profile).")
+def regenerate(source: str, output: str | None, batch: bool, restore_slide: str | None):
+    """Regenerate enhanced/restored images from existing analysis JSON files.
+
+    No LLM calls are made — the existing JSON is used as-is.
+    Use this after manually editing a JSON or after re-running specific steps.
+
+    \b
+    Examples
+    --------
+    Regenerate images from a single JSON:
+        picture-analyzer regenerate output/photo_analyzed.json
+
+    Regenerate all images in a folder:
+        picture-analyzer regenerate output/ --batch
+
+    Regenerate with slide restoration:
+        picture-analyzer regenerate output/ --batch --restore-slide auto
+    """
+    _, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
+    source_path = Path(source)
+
+    if batch or source_path.is_dir():
+        json_files = sorted(source_path.glob("*_analyzed.json"))
+        if not json_files:
+            raise click.ClickException(f"No *_analyzed.json files found in {source_path}")
+        click.echo(f"Found {len(json_files)} analysis file(s) to regenerate")
+        success, failed = 0, 0
+        for json_file in json_files:
+            try:
+                _regenerate_from_json(json_file, output or str(source_path),
+                                      SmartEnhancer, SlideRestoration, MetadataManager,
+                                      restore_slide)
+                success += 1
+            except Exception as exc:
+                click.echo(f"  ✗ {json_file.name}: {exc}", err=True)
+                failed += 1
+        click.echo(f"\nRegenerate complete: ✓ {success} succeeded" + (f", ✗ {failed} failed" if failed else ""))
+    else:
+        # Single JSON file
+        if source_path.suffix != ".json":
+            raise click.ClickException("SOURCE must be a *_analyzed.json file or a directory with --batch")
+        out_dir = output or str(source_path.parent)
+        _regenerate_from_json(source_path, out_dir,
+                              SmartEnhancer, SlideRestoration, MetadataManager,
+                              restore_slide)
+
+
+def _regenerate_from_json(
+    json_path: Path,
+    output_dir: str,
+    SmartEnhancer,
+    SlideRestoration,
+    MetadataManager,
+    restore_slide: str | None,
+) -> None:
+    """Regenerate enhanced/restored images for one JSON file."""
+    import json as _json
+
+    analysis = _json.loads(json_path.read_text(encoding="utf-8"))
+
+    # The source image is expected alongside the JSON (e.g. *_analyzed.jpg)
+    stem = json_path.stem.replace("_analyzed", "")
+    analyzed_jpg = json_path.with_name(f"{stem}_analyzed.jpg")
+    if not analyzed_jpg.exists():
+        # Fall back to original image in same dir
+        for ext in (".jpg", ".jpeg", ".JPG", ".JPEG", ".png", ".PNG"):
+            candidate = json_path.with_name(stem + ext)
+            if candidate.exists():
+                analyzed_jpg = candidate
+                break
+        else:
+            raise FileNotFoundError(f"No source image found for {json_path.name}")
+
+    click.echo(f"  Regenerating: {stem}")
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    settings = get_settings()
+
+    # Enhancement
+    if "enhancement" in analysis:
+        enhanced_path = str(Path(output_dir) / f"{stem}_enhanced.jpg")
+        enhancer = SmartEnhancer()
+        result = enhancer.enhance_from_analysis(str(analyzed_jpg), analysis["enhancement"], enhanced_path)
+        if result:
+            MetadataManager().copy_exif(str(analyzed_jpg), enhanced_path, enhanced_path)
+            click.echo(f"    ✓ Enhanced: {Path(enhanced_path).name}")
+
+    # Slide restoration
+    if restore_slide:
+        _restore_from_analysis(
+            SlideRestoration, MetadataManager,
+            source_path=str(analyzed_jpg),
+            analysis=analysis,
+            restore_slide=restore_slide,
+            output_dir=output_dir,
+            image_stem=stem,
+        )
 
 
 # ══════════════════════════════════════════════════════════════════════
