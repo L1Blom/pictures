@@ -9,8 +9,8 @@ openai==2.14.0
 # Ollama local model integration
 ollama==0.6.0
 
-# Image processing and format support
-Pillow==12.1.0
+# Image processing and format support (updated to resolve conflicts)
+Pillow==11.1.0
 pillow_heif==1.1.1
 
 # EXIF metadata handling
@@ -19,8 +19,10 @@ piexif==1.1.3
 # YAML configuration parsing
 PyYAML==6.0.1
 
-# HTTP requests library
-requests==2.32.5
+# HTTP requests library (updated to avoid indirect vulnerabilities)
+requests==2.32.3
+
+# Let pip resolve urllib3 version automatically
 
 # REST API service
 flask>=3.0
