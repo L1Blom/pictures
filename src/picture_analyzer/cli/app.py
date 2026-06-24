@@ -17,6 +17,7 @@ import mimetypes
 import re
 import shutil
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -27,6 +28,12 @@ from ..analyzers.openai import OpenAIAnalyzer
 from ..config.defaults import DEFAULT_SUPPORTED_FORMATS
 from ..config.settings import get_settings
 from ..core.models import AnalysisContext, ImageData
+from ..description import (
+    extract_date,
+    extract_location,
+    parse_date,
+    parse_location_parts,
+)
 from ..utils.translator import translate_analysis_dict
 
 
@@ -208,6 +215,7 @@ def _analyze_with_provider(
     pipeline=None,
     partial=None,
     only_steps: list[str] | None = None,
+    detect_location: bool | None = None,
 ):
     settings = get_settings()
     effective_mode = pipeline_mode or settings.pipeline.mode
@@ -221,7 +229,7 @@ def _analyze_with_provider(
         language=settings.metadata.language,
         detect_slide_profiles=settings.prompt.detect_slide_profiles,
         recommend_enhancements=settings.prompt.recommend_enhancements,
-        detect_location=settings.prompt.detect_location,
+        detect_location=settings.prompt.detect_location if detect_location is None else detect_location,
         custom_instructions=settings.prompt.custom_instructions,
         description_text=description_text,
     )
@@ -263,6 +271,137 @@ def _analyze_with_provider(
             click.echo(f"  ⚠ Geocoding failed: {exc}", err=True)
 
     return result
+
+
+# ── description.txt ground-truth (location/date) ─────────────────────
+
+
+def _geocode_location_str(location_str: str, settings) -> dict | None:
+    """Geocode a description.txt location string to {lat, lon, display_name}.
+
+    Uses the configured geocoder with confidence_threshold=0 because the
+    location comes from description.txt (ground truth, not an AI guess).
+    Returns None if geocoding is disabled or the location cannot be resolved.
+    """
+    if settings.geo.provider == "none":
+        return None
+    try:
+        from ..geo.nominatim import NominatimGeocoder
+        geocoder = NominatimGeocoder(
+            cache_path=settings.geo.cache_path,
+            confidence_threshold=0,
+            user_agent=settings.geo.user_agent,
+            timeout=settings.geo.timeout_seconds,
+            max_results=settings.geo.max_results,
+        )
+        result = geocoder.geocode(location_str)
+        if result:
+            return {
+                "latitude": result.latitude,
+                "longitude": result.longitude,
+                "display_name": result.display_name or location_str,
+            }
+    except Exception as exc:
+        click.echo(f"  ⚠ Geocoding error: {exc}", err=True)
+    return None
+
+
+def _load_description_ground_truth(directory: Path, settings) -> dict:
+    """Read location/date ground truth from a folder's description.txt.
+
+    Returns a dict describing the outcome:
+
+    - ``{"status": "absent"}`` — no description.txt; the batch should proceed
+      with the normal LLM flow (no override, no skip).
+    - ``{"status": "failed", "reason": ...}`` — description.txt exists but
+      location/date could not be extracted/parsed; the folder should be
+      skipped after reporting the failure.
+    - ``{"status": "ok", ...}`` — extraction succeeded; the returned fields
+      (``location_str``, ``parsed_date``, ``coords``, ``description_text``)
+      are used to override the LLM analysis with ground truth.
+    """
+    desc_path = directory / "description.txt"
+    if not desc_path.is_file():
+        return {"status": "absent"}
+
+    description_text = desc_path.read_text(encoding="utf-8").strip()
+    if not description_text:
+        return {"status": "failed", "reason": "description.txt is empty"}
+
+    location_str = extract_location(desc_path)
+    if not location_str:
+        return {
+            "status": "failed",
+            "reason": "no 'Locatie:'/'Location:' line in description.txt",
+        }
+
+    date_str = extract_date(desc_path)
+    if not date_str:
+        return {
+            "status": "failed",
+            "reason": "no 'Datum:'/'Date:' line in description.txt",
+        }
+
+    parsed_date = parse_date(date_str)
+    if not parsed_date:
+        return {"status": "failed", "reason": f"could not parse date '{date_str}'"}
+
+    coords = _geocode_location_str(location_str, settings)
+    return {
+        "status": "ok",
+        "description_text": description_text,
+        "location_str": location_str,
+        "date_str": date_str,
+        "parsed_date": parsed_date,
+        "coords": coords,
+    }
+
+
+def _apply_description_ground_truth(
+    analysis: dict, ground_truth: dict, timestamp: datetime
+) -> None:
+    """Override an analysis dict with description.txt location/date/GPS.
+
+    Mutates ``analysis`` in place so EXIF/JSON writers embed the ground-truth
+    values instead of the LLM's location guess.  ``timestamp`` is written as
+    ``date_taken`` (matching update_location.py's per-image format).
+    """
+    analysis["location_detection"] = parse_location_parts(ground_truth["location_str"])
+    coords = ground_truth.get("coords")
+    if coords:
+        analysis["gps_coordinates"] = coords
+    elif "gps_coordinates" in analysis:
+        del analysis["gps_coordinates"]
+    description_text = ground_truth.get("description_text")
+    if description_text:
+        analysis["source_description"] = description_text
+    analysis["date_taken"] = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _max_existing_date_taken(output_dir: str, base: datetime) -> datetime | None:
+    """Return the max ``date_taken`` in output_dir JSONs on the same day as base.
+
+    Used to continue the per-image timestamp sequence on a ``--skip-existing``
+    resume so newly-processed images don't collide with already-stored
+    ``DateTimeOriginal`` values.  Only same-day timestamps are considered so
+    older LLM-set dates on other days don't skew the sequence.
+    """
+    max_ts: datetime | None = None
+    for json_path in Path(output_dir).glob("*_analyzed.json"):
+        try:
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        value = data.get("date_taken")
+        if not isinstance(value, str):
+            continue
+        try:
+            ts = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            continue
+        if ts.date() == base.date() and (max_ts is None or ts > max_ts):
+            max_ts = ts
+    return max_ts
 
 
 _ANALYSIS_KEYS = frozenset({"metadata", "enhancement", "location_detection", "slide_profiles"})
@@ -677,6 +816,44 @@ def _batch_analyze(
             f"Supported formats: {', '.join(sorted(DEFAULT_SUPPORTED_FORMATS))}"
         )
 
+    # ── description.txt ground-truth gate (location + date) ──────────────
+    # When a folder has a description.txt, location/date are read from it using
+    # the same proven methods as update_location.py and used as ground truth
+    # (overriding the LLM). If extraction fails, the folder is skipped.
+    settings = get_settings()
+    ground_truth = _load_description_ground_truth(directory, settings)
+    if ground_truth["status"] == "failed":
+        click.echo(f"\n📁 {directory.name}")
+        click.echo(f"  ⚠ {ground_truth['reason']}")
+        click.echo("  ⏭ Skipping folder (description.txt location/date incomplete)")
+        return
+    gt_timestamp: datetime | None = None
+    if ground_truth["status"] == "ok":
+        click.echo(f"\n📁 {directory.name}")
+        click.echo(f"  Location (description.txt): {ground_truth['location_str']}")
+        click.echo(
+            f"  Date: {ground_truth['date_str']} → {ground_truth['parsed_date']}"
+        )
+        coords = ground_truth.get("coords")
+        if coords:
+            click.echo(
+                f"  ✓ GPS: {coords['latitude']:.6f}, {coords['longitude']:.6f}"
+                f" ({coords['display_name']})"
+            )
+        else:
+            click.echo("  ⚠ Could not geocode location (too vague or not found)")
+        gt_timestamp = datetime.strptime(ground_truth["parsed_date"], "%Y-%m-%d")
+        # On a --skip-existing resume, continue after the last stored date_taken
+        # so new images don't collide with already-written timestamps.
+        if skip_existing:
+            max_existing = _max_existing_date_taken(output_dir, gt_timestamp)
+            if max_existing is not None:
+                gt_timestamp = max_existing + timedelta(seconds=1)
+                click.echo(
+                    f"  ↺ Resuming: date_taken continues from "
+                    f"{gt_timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+
     total = len(image_files)
     click.echo(f"Found {total} image(s) to process")
     if skip_existing:
@@ -692,7 +869,6 @@ def _batch_analyze(
     errors: list[tuple[str, str]] = []  # (filename, error_message)
 
     # Build the pipeline once — reusing the same 4 OllamaClient instances for all images
-    settings = get_settings()
     shared_pipeline = None
     if (pipeline_mode or settings.pipeline.mode) == "stepped":
         from ..pipeline import build_pipeline
@@ -711,13 +887,21 @@ def _batch_analyze(
                 img, provider, pipeline_mode, pipeline=shared_pipeline,
                 partial=_load_partial_if_requested(update_existing, only_steps, img, output_dir),
                 only_steps=only_steps,
+                # Ground truth overrides location/GPS/date, so skip the LLM
+                # location step (and per-image geocoding) to avoid wasted inference.
+                detect_location=False if ground_truth["status"] == "ok" else None,
             )
             analysis = _analysis_to_legacy_dict(analysis_result)
             
             # Translate to configured language if not English
             if settings.metadata.language != "en":
                 analysis = translate_analysis_dict(analysis, settings.metadata.language)
-            
+
+            # Override LLM location/date with description.txt ground truth
+            if ground_truth["status"] == "ok":
+                _apply_description_ground_truth(analysis, ground_truth, gt_timestamp)
+                gt_timestamp += timedelta(seconds=1)
+
             del analysis_result  # release model result immediately
             shutil.copy2(img, analyzed_path)  # copy without loading into Python memory
 

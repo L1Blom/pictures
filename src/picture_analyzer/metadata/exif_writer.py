@@ -363,14 +363,35 @@ class ExifWriter:
         if coordinates:
             self._add_gps_to_exif(exif_dict, coordinates)
 
-        # DateTime — parse from source_description "Date:" line
-        date_str = self._extract_date_from_description(source_description)
+        # DateTime — prefer an explicit date_taken (ground truth from
+        # description.txt), otherwise parse the "Date:" line from source_description
+        date_str = self._format_exif_datetime(analysis_data.get("date_taken")) or \
+            self._extract_date_from_description(source_description)
         if date_str:
             exif_dict["0th"][piexif.ImageIFD.DateTime] = date_str.encode("utf-8")
             exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = date_str.encode("utf-8")
             exif_dict["Exif"][piexif.ExifIFD.DateTimeDigitized] = date_str.encode("utf-8")
 
         return exif_dict
+
+    @staticmethod
+    def _format_exif_datetime(date_taken: str | None) -> str | None:
+        """Convert a ``date_taken`` string to EXIF ``YYYY:MM:DD HH:MM:SS``.
+
+        Accepts ``YYYY-MM-DD`` or ``YYYY-MM-DD HH:MM:SS`` (the formats written by
+        update_location.py / the description.txt ground-truth override).  Returns
+        None when the value is absent or does not match so the caller can fall
+        back to parsing the description's "Date:" line.
+        """
+        if not date_taken:
+            return None
+        pattern = r"^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}:\d{2}:\d{2}))?$"
+        match = re.match(pattern, date_taken.strip())
+        if not match:
+            return None
+        date_part = f"{match.group(1)}:{match.group(2)}:{match.group(3)}"
+        time_part = match.group(4) or "00:00:00"
+        return f"{date_part} {time_part}"
 
     @staticmethod
     def _extract_date_from_description(source_description: str | None) -> str | None:

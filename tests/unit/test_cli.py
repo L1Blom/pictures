@@ -438,3 +438,183 @@ class TestResolveProfiles:
             ]
         }
         assert _resolve_profiles("auto", analysis) == ["faded"]
+
+
+# ── description.txt ground-truth gate (batch mode) ────────────────────
+
+
+class TestAnalyzeDescriptionGate:
+    """Folder-level description.txt location/date gate in batch mode.
+
+    When a folder has a description.txt, location/date are read with the same
+    methods as update_location.py and used as ground truth (overriding the
+    LLM). Folders whose description.txt lacks a parseable location/date are
+    skipped.
+    """
+
+    @staticmethod
+    def _make_album(tmp_path: Path, desc_text: str, n_images: int = 2) -> Path:
+        d = tmp_path / "album"
+        d.mkdir()
+        (d / "description.txt").write_text(desc_text, encoding="utf-8")
+        for i in range(n_images):
+            (d / f"img{i + 1}.jpg").write_bytes(b"\xff\xd8\xff\xe0" + b"\x00" * 50)
+        return d
+
+    def test_skips_folder_when_location_missing(
+        self, runner, tmp_path, mock_legacy, mock_provider_analysis
+    ):
+        d = self._make_album(tmp_path, "Albumnaam: 1984-06 Test\nDatum: Juni 1984\n")
+        out = tmp_path / "out"
+        out.mkdir()
+        result = runner.invoke(cli, ["analyze", str(d), "--batch", "-o", str(out)])
+        assert result.exit_code == 0
+        assert "Skipping folder" in result.output
+        assert "description.txt location/date incomplete" in result.output
+        assert list(out.glob("*_analyzed.json")) == []
+
+    def test_skips_folder_when_date_unparseable(
+        self, runner, tmp_path, mock_legacy, mock_provider_analysis
+    ):
+        d = self._make_album(tmp_path, "Locatie: Wien, Austria\nDatum: zomer 1984\n")
+        out = tmp_path / "out"
+        out.mkdir()
+        result = runner.invoke(cli, ["analyze", str(d), "--batch", "-o", str(out)])
+        assert result.exit_code == 0
+        assert "Skipping folder" in result.output
+        assert "could not parse date" in result.output
+        assert list(out.glob("*_analyzed.json")) == []
+
+    def test_override_location_and_date_without_gps(
+        self, runner, tmp_path, mock_legacy, mock_provider_analysis
+    ):
+        d = self._make_album(
+            tmp_path,
+            "Albumnaam: 1984-06 Test\nLocatie: Pruggern, Steiermark, Austria\nDatum: Juni 1984\n",
+        )
+        out = tmp_path / "out"
+        out.mkdir()
+        with patch("picture_analyzer.cli.app._geocode_location_str", return_value=None):
+            result = runner.invoke(cli, ["analyze", str(d), "--batch", "-o", str(out)])
+        assert result.exit_code == 0
+        assert "Batch complete" in result.output
+
+        jsons = sorted(out.glob("*_analyzed.json"))
+        assert len(jsons) == 2
+
+        first = json.loads(jsons[0].read_text())
+        assert first["location_detection"] == {
+            "country": "Austria",
+            "region": "Steiermark",
+            "city_or_area": "Pruggern",
+            "confidence": 100,
+            "reasoning": "Set from description.txt",
+        }
+        assert first["date_taken"] == "1984-06-01 00:00:00"
+        assert "gps_coordinates" not in first
+
+        second = json.loads(jsons[1].read_text())
+        # date_taken increments by 1 second per image (same as update_location.py)
+        assert second["date_taken"] == "1984-06-01 00:00:01"
+
+    def test_override_includes_gps_when_geocoded(
+        self, runner, tmp_path, mock_legacy, mock_provider_analysis
+    ):
+        d = self._make_album(
+            tmp_path, "Locatie: Wien, Austria\nDatum: 13 mei 1991\n", n_images=1
+        )
+        out = tmp_path / "out"
+        out.mkdir()
+        coords = {
+            "latitude": 48.2082,
+            "longitude": 16.3738,
+            "display_name": "Wien, Austria",
+        }
+        with patch("picture_analyzer.cli.app._geocode_location_str", return_value=coords):
+            result = runner.invoke(cli, ["analyze", str(d), "--batch", "-o", str(out)])
+        assert result.exit_code == 0
+        jsons = list(out.glob("*_analyzed.json"))
+        assert len(jsons) == 1
+        data = json.loads(jsons[0].read_text())
+        assert data["gps_coordinates"]["latitude"] == 48.2082
+        assert data["gps_coordinates"]["longitude"] == 16.3738
+        assert data["date_taken"] == "1991-05-13 00:00:00"
+        assert data["location_detection"]["city_or_area"] == "Wien"
+
+    def test_no_description_txt_proceeds_normally(
+        self, runner, tmp_path, mock_legacy, mock_provider_analysis
+    ):
+        """A folder without description.txt is not gated (normal LLM flow)."""
+        d = tmp_path / "plain"
+        d.mkdir()
+        (d / "photo.jpg").write_bytes(b"\xff\xd8\xff\xe0" + b"\x00" * 50)
+        out = tmp_path / "out"
+        out.mkdir()
+        result = runner.invoke(cli, ["analyze", str(d), "--batch", "-o", str(out)])
+        assert result.exit_code == 0
+        assert "Batch complete" in result.output
+        assert list(out.glob("*_analyzed.json"))
+
+    def test_disables_llm_location_when_ground_truth_ok(
+        self, runner, tmp_path, mock_legacy, mock_provider_analysis
+    ):
+        """When description.txt provides location/date, the LLM location step is skipped."""
+        d = self._make_album(
+            tmp_path, "Locatie: Wien, Austria\nDatum: Juni 1984\n", n_images=1
+        )
+        out = tmp_path / "out"
+        out.mkdir()
+        with patch("picture_analyzer.cli.app._geocode_location_str", return_value=None):
+            result = runner.invoke(cli, ["analyze", str(d), "--batch", "-o", str(out)])
+        assert result.exit_code == 0
+        analyze_mock = mock_provider_analysis["analyze"]
+        assert analyze_mock.call_args.kwargs.get("detect_location") is False
+
+    def test_keeps_llm_location_when_no_description_txt(
+        self, runner, tmp_path, mock_legacy, mock_provider_analysis
+    ):
+        """Without description.txt the LLM location step is not disabled."""
+        d = tmp_path / "plain"
+        d.mkdir()
+        (d / "photo.jpg").write_bytes(b"\xff\xd8\xff\xe0" + b"\x00" * 50)
+        out = tmp_path / "out"
+        out.mkdir()
+        result = runner.invoke(cli, ["analyze", str(d), "--batch", "-o", str(out)])
+        assert result.exit_code == 0
+        analyze_mock = mock_provider_analysis["analyze"]
+        # detect_location left at None → settings default applies (LLM location runs)
+        assert analyze_mock.call_args.kwargs.get("detect_location") is None
+
+    def test_skip_existing_resumes_date_taken_sequence(
+        self, runner, tmp_path, mock_legacy, mock_provider_analysis
+    ):
+        """--skip-existing continues date_taken after the last stored timestamp."""
+        d = self._make_album(
+            tmp_path, "Locatie: Wien, Austria\nDatum: Juni 1984\n", n_images=2
+        )
+        out = tmp_path / "out"
+        out.mkdir()
+        # Pretend img1 was already processed with date_taken 00:00:05 (must be a
+        # "complete" analysis: >=200 bytes with non-empty metadata)
+        existing = {
+            "metadata": {
+                "scene_type": "already processed",
+                "objects": ["tree", "building", "person"],
+                "persons": "Not detected",
+                "weather": "sunny",
+                "mood_atmosphere": "calm",
+            },
+            "enhancement": {"recommended_enhancements": []},
+            "location_detection": {"city_or_area": "Wien", "country": "Austria"},
+            "date_taken": "1984-06-01 00:00:05",
+        }
+        (out / "img1_analyzed.json").write_text(json.dumps(existing), encoding="utf-8")
+        with patch("picture_analyzer.cli.app._geocode_location_str", return_value=None):
+            result = runner.invoke(
+                cli, ["analyze", str(d), "--batch", "--skip-existing", "-o", str(out)]
+            )
+        assert result.exit_code == 0
+        assert "Resuming" in result.output
+        # img1 skipped; img2 continues from 00:00:06 (not 00:00:00)
+        img2 = json.loads((out / "img2_analyzed.json").read_text())
+        assert img2["date_taken"] == "1984-06-01 00:00:06"

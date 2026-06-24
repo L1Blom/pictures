@@ -29,7 +29,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -54,6 +53,14 @@ try:
 except ImportError:
     PIL_AVAILABLE = False
     print("⚠ Pillow not installed. Image processing will be disabled.", file=sys.stderr)
+
+from src.picture_analyzer.description import (
+    extract_album_name,
+    extract_date,
+    extract_location,
+    parse_date,
+    parse_location_parts,
+)
 
 
 # ── Config helpers ───────────────────────────────────────────────────────────
@@ -80,29 +87,10 @@ def _default_enhanced_root() -> Path | None:
 
 
 # ── Description parsing ──────────────────────────────────────────────────────
-
-def _read_description_field(desc_path: Path, *labels: str) -> str | None:
-    """Return the first non-empty value for any of the given field labels."""
-    pattern = r"(?im)^(?:" + "|".join(re.escape(l) for l in labels) + r")\s*:\s*(.+)$"
-    text = desc_path.read_text(encoding="utf-8")
-    m = re.search(pattern, text)
-    if m:
-        v = m.group(1).strip()
-        return v if v else None
-    return None
-
-
-def extract_album_name(desc_path: Path) -> str | None:
-    return _read_description_field(desc_path, "Albumnaam", "Album name")
-
-
-def extract_location(desc_path: Path) -> str | None:
-    return _read_description_field(desc_path, "Locatie", "Location")
-
-
-def extract_date(desc_path: Path) -> str | None:
-    """Extract the date from description.txt (e.g., 'Juni 1984')."""
-    return _read_description_field(desc_path, "Datum", "Date")
+# extract_album_name / extract_location / extract_date / parse_date /
+# parse_location_parts live in src.picture_analyzer.description and are
+# imported above so this script shares the exact same parsing logic as the
+# picture-analyzer pipeline.
 
 
 # ── Enhanced folder lookup ───────────────────────────────────────────────────
@@ -111,83 +99,46 @@ def find_enhanced_folder(source_folder: Path, enhanced_root: Path | None) -> Pat
     """Return the enhanced output folder for a source folder.
 
     Uses Albumnaam from description.txt as the subfolder name under enhanced_root.
+    If Albumnaam is missing, falls back to the source folder name.
+    If enhanced_root is explicitly provided and is a directory, checks for:
+    - enhanced_root/Albumnaam
+    - enhanced_root/source_folder.name
+    - enhanced_root (flat structure)
     """
+    if enhanced_root and enhanced_root.is_dir():
+        # Check if the enhanced_root itself contains the JSON files (flat structure)
+        json_files = list(enhanced_root.glob("*_analyzed.json"))
+        if json_files:
+            return enhanced_root
+        
+        # Check for enhanced_root/Albumnaam
+        desc = source_folder / "description.txt"
+        if desc.exists():
+            album = extract_album_name(desc)
+            if album:
+                candidate = enhanced_root / album
+                if candidate.is_dir():
+                    return candidate
+        
+        # Fall back to enhanced_root/source_folder.name
+        candidate = enhanced_root / source_folder.name
+        if candidate.is_dir():
+            return candidate
+        
+        # If no subfolder found, return enhanced_root as a flat directory
+        return enhanced_root
+    
     desc = source_folder / "description.txt"
     if not desc.exists():
         return None
+    
     album = extract_album_name(desc)
     if not album:
         return None
+    
     if enhanced_root:
         candidate = enhanced_root / album
         return candidate if candidate.is_dir() else None
-    return None
-
-
-# ── Date parsing ───────────────────────────────────────────────────────────────
-
-def parse_date(date_str: str) -> str | None:
-    """Parse a date string into 'YYYY-MM-DD'. Supports:
-    - 'Juni 1984' → '1984-06-01'
-    - 'juni 1984' → '1984-06-01'
-    - '1984' → '1984-01-01'
-    - '1984-06' → '1984-06-01'
-    - '1984-06-01' → '1984-06-01'
-    - '03-01-1991' → '1991-01-03'
-    - '29 september 1970' → '1970-09-29'
-    - '20 maart 1998' → '1998-03-20'
-    - '13 mei 1991' → '1991-05-13'
-    - '6 september 1985' → '1985-09-06'
-    """
-    month_map = {
-        "januari": 1, "februari": 2, "maart": 3, "april": 4, "mei": 5, "juni": 6,
-        "juli": 7, "augustus": 8, "september": 9, "oktober": 10, "november": 11, "december": 12,
-        "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
-        "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
-    }
-    
-    date_str = date_str.strip().lower()
-    
-    # Try to match "DD-MM-YYYY" (e.g., "03-01-1991")
-    match = re.match(r"^(\d{2})-(\d{2})-(\d{4})$", date_str)
-    if match:
-        day, month, year = match.groups()
-        return f"{year}-{month}-{day}"
-    
-    # Try to match "YYYY-MM-DD" (e.g., "1991-01-03")
-    match = re.match(r"^(\d{4})-(\d{2})-(\d{2})$", date_str)
-    if match:
-        year, month, day = match.groups()
-        return f"{year}-{month}-{day}"
-    
-    # Try to match patterns like "29 september 1970" or "20 maart 1998"
-    match = re.match(r"^(\d{1,2})\s+([a-z]+)\s+(\d{4})$", date_str)
-    if match:
-        day, month_name, year = match.groups()
-        month = month_map.get(month_name)
-        if month:
-            return f"{year}-{month:02d}-{int(day):02d}"
-    
-    # Try to match patterns like "Juni 1984" or "juni 1984"
-    match = re.match(r"^([a-z]+)\s+(\d{4})$", date_str)
-    if match:
-        month_name, year = match.groups()
-        month = month_map.get(month_name)
-        if month:
-            return f"{year}-{month:02d}-01"
-    
-    # Try to match "YYYY" (year only)
-    match = re.match(r"^(\d{4})$", date_str)
-    if match:
-        year = match.group(1)
-        return f"{year}-01-01"
-    
-    # Try to match "YYYY-MM" (year and month)
-    match = re.match(r"^(\d{4})-(\d{2})$", date_str)
-    if match:
-        year, month = match.groups()
-        return f"{year}-{month}-01"
-    
     return None
 
 
@@ -206,24 +157,6 @@ def geocode(location_str: str) -> dict | None:
     except Exception as exc:
         print(f"  ⚠ Geocoding error: {exc}", file=sys.stderr)
     return None
-
-
-def parse_location_parts(location_str: str) -> dict:
-    """Split 'city, region, country' into location_detection fields."""
-    if "/" in location_str:
-        country = " / ".join(p.strip() for p in location_str.split("/") if p.strip())
-        return {"country": country, "region": "", "city_or_area": "", "confidence": 100,
-                "reasoning": "Set from description.txt"}
-    parts = [p.strip() for p in location_str.split(",") if p.strip()]
-    result = {"country": "", "region": "", "city_or_area": "", "confidence": 100,
-              "reasoning": "Set from description.txt"}
-    if len(parts) >= 1:
-        result["city_or_area"] = parts[0]
-    if len(parts) >= 2:
-        result["region"] = parts[1]
-    if len(parts) >= 3:
-        result["country"] = parts[2]
-    return result
 
 
 # ── EXIF GPS writing ─────────────────────────────────────────────────────────
@@ -344,18 +277,19 @@ def process_source_folder(
 
     location_det = parse_location_parts(location_str)
 
-    for json_path in json_files:
-        # Initialize the timestamp for the first image in EACH folder
-        if parsed_date:
-            from datetime import datetime, timedelta
-            try:
-                # Parse the date into a datetime object (e.g., "1984-06-01" → "1984-06-01 00:00:00")
-                timestamp = datetime.strptime(parsed_date, "%Y-%m-%d")
-            except ValueError:
-                # Fallback to the original date if parsing fails
-                timestamp = datetime.strptime("1970-01-01", "%Y-%m-%d")
-        else:
+# Initialize the timestamp ONCE for the entire folder
+    if parsed_date:
+        from datetime import datetime, timedelta
+        try:
+            # Parse the date into a datetime object (e.g., "1984-06-01" → "1984-06-01 00:00:00")
+            timestamp = datetime.strptime(parsed_date, "%Y-%m-%d")
+        except ValueError:
+            # Fallback to the original date if parsing fails
             timestamp = datetime.strptime("1970-01-01", "%Y-%m-%d")
+    else:
+        timestamp = datetime.strptime("1970-01-01", "%Y-%m-%d")
+
+    for json_path in json_files:
         stem = json_path.stem.replace("_analyzed", "")
         data = json.loads(json_path.read_text(encoding="utf-8"))
         data["location_detection"] = location_det
@@ -363,21 +297,29 @@ def process_source_folder(
             data["gps_coordinates"] = coords
         elif "gps_coordinates" in data:
             del data["gps_coordinates"]
-        
+
         # Set the incremented timestamp for this image
         incremented_timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
         data["date_taken"] = incremented_timestamp
-        if "date_taken" not in data:
-            del data["date_taken"]  # This line is redundant, removing it
         
         json_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"  ✓ JSON: {json_path.name}")
 
         if coords:
+            # Try to find ALL images matching <stem>_*.jpg in the enhanced folder
             for suffix in IMAGE_SUFFIXES:
-                for pattern in (f"{stem}_analyzed", f"{stem}_enhanced", f"{stem}_restored", stem):
-                    img = enhanced_folder / (pattern + suffix)
-                    if img.exists():
+                # Match any file starting with <stem>_ and ending with .jpg/.jpeg
+                for img in enhanced_folder.glob(f"{stem}_*{suffix}"):
+                    if write_gps_and_date_to_image(img, coords["latitude"], coords["longitude"],
+                                                   coords["display_name"], incremented_timestamp):
+                        print(f"    ✓ GPS and Date: {img.name}")
+            
+            # If no images found in enhanced folder, try the output folder (e.g., dia-goesXXX_analyzed.jpg)
+            output_folder = Path("/home/leen/projects/pictures/output")
+            if output_folder.exists():
+                for suffix in IMAGE_SUFFIXES:
+                    # Match any file starting with <stem>_ and ending with .jpg/.jpeg
+                    for img in output_folder.glob(f"{stem}_*{suffix}"):
                         if write_gps_and_date_to_image(img, coords["latitude"], coords["longitude"],
                                                        coords["display_name"], incremented_timestamp):
                             print(f"    ✓ GPS and Date: {img.name}")
@@ -436,4 +378,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
