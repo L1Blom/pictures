@@ -357,6 +357,34 @@ def _load_description_ground_truth(directory: Path, settings) -> dict:
     }
 
 
+def _read_image_exif_date(image_path: Path) -> datetime | None:
+    """Return the DateTimeOriginal from an image's EXIF, or None.
+
+    Uses piexif when available; silently returns None on any error
+    (missing tag, corrupt EXIF, piexif not installed, etc.).
+    """
+    try:
+        import piexif
+        raw = piexif.load(str(image_path))
+        tag = raw.get("Exif", {}).get(piexif.ExifIFD.DateTimeOriginal)
+        if not tag:
+            tag = raw.get("0th", {}).get(piexif.ImageIFD.DateTime)
+        if isinstance(tag, bytes):
+            tag = tag.decode("utf-8", errors="ignore")
+        if tag:
+            return datetime.strptime(tag.strip(), "%Y:%m:%d %H:%M:%S")
+    except Exception:
+        pass
+    return None
+
+
+def _exif_date_within_months(exif_dt: datetime, base_dt: datetime, months: int = 6) -> bool:
+    """Return True if *exif_dt* is within *months* calendar months of *base_dt*."""
+    from dateutil.relativedelta import relativedelta  # type: ignore[import]
+    window = relativedelta(months=months)
+    return (base_dt - window) <= exif_dt <= (base_dt + window)
+
+
 def _apply_description_ground_truth(
     analysis: dict, ground_truth: dict, timestamp: datetime
 ) -> None:
@@ -899,8 +927,32 @@ def _batch_analyze(
 
             # Override LLM location/date with description.txt ground truth
             if ground_truth["status"] == "ok":
-                _apply_description_ground_truth(analysis, ground_truth, gt_timestamp)
-                gt_timestamp += timedelta(seconds=1)
+                # If the image already carries an EXIF date that falls within
+                # 6 months of the description date, preserve it instead of
+                # overwriting with a sequential synthetic timestamp.
+                exif_dt = _read_image_exif_date(img)
+                use_timestamp: datetime
+                if exif_dt is not None:
+                    try:
+                        in_range = _exif_date_within_months(
+                            exif_dt,
+                            datetime.strptime(ground_truth["parsed_date"], "%Y-%m-%d"),
+                        )
+                    except Exception:
+                        in_range = False
+                    if in_range:
+                        use_timestamp = exif_dt
+                        click.echo(
+                            f"  ↩ Keeping original EXIF date: "
+                            f"{exif_dt.strftime('%Y-%m-%d %H:%M:%S')}"
+                        )
+                    else:
+                        use_timestamp = gt_timestamp
+                        gt_timestamp += timedelta(seconds=1)
+                else:
+                    use_timestamp = gt_timestamp
+                    gt_timestamp += timedelta(seconds=1)
+                _apply_description_ground_truth(analysis, ground_truth, use_timestamp)
 
             del analysis_result  # release model result immediately
             shutil.copy2(img, analyzed_path)  # copy without loading into Python memory
@@ -1351,8 +1403,14 @@ def _update_exif_for_json(
     source_description: str | None,
     language: str,
     geocode: bool = True,
+    source_dir: Path | None = None,
 ) -> None:
-    """Re-write EXIF for one analyzed image from its JSON + current description.txt."""
+    """Re-write EXIF for one analyzed image from its JSON + current description.txt.
+
+    If *source_dir* is given and contains the original image, the image's
+    original EXIF ``DateTimeOriginal`` is preserved when it falls within
+    6 months of the description.txt date (same logic as the batch flow).
+    """
     from ..metadata.exif_writer import ExifWriter
 
     analyzed_jpg = json_path.with_suffix(".jpg")
@@ -1415,6 +1473,43 @@ def _update_exif_for_json(
                             )
                     except Exception as exc:
                         click.echo(f"    ⚠ Geocoding failed: {exc}", err=True)
+
+    # ── Preserve original EXIF date when it's within 6 months of description.txt ──
+    # The analyzed JPG was copied from the source image, so its EXIF may
+    # already have been overwritten by a previous run.  Read the date from
+    # the *original* source image instead.
+    if source_dir is not None and source_description:
+        desc_path = source_dir / "description.txt"
+        if desc_path.is_file():
+            date_str_desc = extract_date(desc_path)
+            if date_str_desc:
+                parsed_desc = parse_date(date_str_desc)
+                if parsed_desc:
+                    base_dt = datetime.strptime(parsed_desc, "%Y-%m-%d")
+                    # Find the original source image (same stem, any supported ext)
+                    stem = json_path.stem.removesuffix("_analyzed")
+                    src_img: Path | None = None
+                    for ext in (".jpg", ".jpeg", ".png", ".heic",
+                                ".JPG", ".JPEG", ".PNG", ".HEIC"):
+                        candidate = source_dir / f"{stem}{ext}"
+                        if candidate.is_file():
+                            src_img = candidate
+                            break
+                    if src_img is not None:
+                        exif_dt = _read_image_exif_date(src_img)
+                        if exif_dt is not None:
+                            try:
+                                in_range = _exif_date_within_months(exif_dt, base_dt)
+                            except Exception:
+                                in_range = False
+                            if in_range:
+                                analysis["date_taken"] = exif_dt.strftime(
+                                    "%Y-%m-%d %H:%M:%S"
+                                )
+                                click.echo(
+                                    f"    ↩ Keeping original EXIF date: "
+                                    f"{exif_dt.strftime('%Y-%m-%d %H:%M:%S')}"
+                                )
 
     # Write updated analysis (GPS coordinates, location_detection) back to JSON
     json_path.write_text(json.dumps(analysis, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -1487,7 +1582,8 @@ def update_exif(output_dir: str, source_dir: str, language: str | None, no_geoco
     for json_path in json_files:
         click.echo(f"  {json_path.stem} …")
         try:
-            _update_exif_for_json(json_path, source_description, lang, geocode=not no_geocode)
+            _update_exif_for_json(json_path, source_description, lang,
+                                  geocode=not no_geocode, source_dir=src_path)
             click.echo("    ✓ EXIF updated")
             updated += 1
         except Exception as exc:

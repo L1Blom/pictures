@@ -161,6 +161,38 @@ def geocode(location_str: str) -> dict | None:
 
 # ── EXIF GPS writing ─────────────────────────────────────────────────────────
 
+def _read_source_exif_date(source_folder: Path, stem: str) -> datetime | None:
+    """Return DateTimeOriginal from the source image matching *stem*, or None."""
+    if not PIEXIF_AVAILABLE:
+        return None
+    for ext in (".jpg", ".jpeg", ".JPG", ".JPEG", ".png", ".PNG"):
+        candidate = source_folder / f"{stem}{ext}"
+        if candidate.is_file():
+            try:
+                raw = piexif.load(str(candidate))
+                tag = raw.get("Exif", {}).get(piexif.ExifIFD.DateTimeOriginal)
+                if not tag:
+                    tag = raw.get("0th", {}).get(piexif.ImageIFD.DateTime)
+                if isinstance(tag, bytes):
+                    tag = tag.decode("utf-8", errors="ignore")
+                if tag:
+                    return datetime.strptime(tag.strip(), "%Y:%m:%d %H:%M:%S")
+            except Exception:
+                pass
+    return None
+
+
+def _exif_date_within_months(exif_dt: datetime, base_dt: datetime, months: int = 6) -> bool:
+    """Return True if *exif_dt* is within *months* calendar months of *base_dt*."""
+    try:
+        from dateutil.relativedelta import relativedelta
+        window = relativedelta(months=months)
+        return (base_dt - window) <= exif_dt <= (base_dt + window)
+    except ImportError:
+        # Fallback: approximate with 180 days
+        return abs((exif_dt - base_dt).days) <= 180
+
+
 def write_gps_and_date_to_image(image_path: Path, lat: float, lon: float, display_name: str, date_taken: str | None) -> bool:
     if not PIEXIF_AVAILABLE or not PIL_AVAILABLE:
         print("⚠ piexif or Pillow not available. EXIF writing disabled.", file=sys.stderr)
@@ -298,8 +330,25 @@ def process_source_folder(
         elif "gps_coordinates" in data:
             del data["gps_coordinates"]
 
-        # Set the incremented timestamp for this image
-        incremented_timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        # Set the timestamp for this image — preserve original EXIF date
+        # when it falls within 6 months of the description.txt date.
+        exif_dt = _read_source_exif_date(source_folder, stem)
+        if exif_dt is not None:
+            try:
+                in_range = _exif_date_within_months(exif_dt, timestamp)
+            except Exception:
+                in_range = False
+            if in_range:
+                use_timestamp = exif_dt
+                print(f"    ↩ Keeping original EXIF date: {exif_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+            else:
+                use_timestamp = timestamp
+                timestamp += timedelta(seconds=1)
+        else:
+            use_timestamp = timestamp
+            timestamp += timedelta(seconds=1)
+
+        incremented_timestamp = use_timestamp.strftime("%Y-%m-%d %H:%M:%S")
         data["date_taken"] = incremented_timestamp
         
         json_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -323,9 +372,6 @@ def process_source_folder(
                         if write_gps_and_date_to_image(img, coords["latitude"], coords["longitude"],
                                                        coords["display_name"], incremented_timestamp):
                             print(f"    ✓ GPS and Date: {img.name}")
-        
-        # Increment the timestamp by 1 second for the next image
-        timestamp += timedelta(seconds=1)
 
     return True
 
