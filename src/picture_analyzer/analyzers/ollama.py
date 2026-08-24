@@ -230,9 +230,20 @@ class OllamaAnalyzer(OpenAIAnalyzer):
         """Override to apply post-processing normalisations after JSON parse."""
         from ..data.prompt_loader import PromptLoader
         from ..config.defaults import DEFAULT_METADATA_LANGUAGE
+        from .openai import _resolve_section_overrides
 
         lang = context.language or DEFAULT_METADATA_LANGUAGE
-        prompt_override = PromptLoader().combined(sections=sections, language=lang)
+        all_overrides = _resolve_section_overrides(context)
+        # Only apply overrides for sections being analyzed in this step
+        section_overrides = {k: v for k, v in all_overrides.items() if k in sections}
+        if section_overrides:
+            print(
+                "  → Using specialised prompt template(s): "
+                + ", ".join(f"{s}-{v}" for s, v in section_overrides.items())
+            )
+        prompt_override = PromptLoader().combined(
+            sections=sections, section_overrides=section_overrides, language=lang,
+        )
         if not image.base64_data:
             image = image.model_copy(update={"base64_data": self._encode(image.path)})
         raw_text = self._call_api(image, context, prompt_override=prompt_override)

@@ -25,6 +25,8 @@ class GeocodingStep:
     """Resolves a location name from a prior step to GPS coordinates."""
 
     name = "geocoding"
+    # Needs the location step's result to know what to geocode.
+    depends_on: list[str] = ["location"]
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings

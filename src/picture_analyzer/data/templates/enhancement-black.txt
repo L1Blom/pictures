@@ -1,0 +1,105 @@
+=== ENHANCEMENT RECOMMENDATIONS SECTION (DETAILED & QUANTIFIABLE) - ALWAYS IN ENGLISH ===
+** SPECIALIZED TEMPLATE: BLACK & WHITE IMAGES (monochrome prints/negatives) **
+** This template is selected because description.txt contains "Enhancement: black". **
+** These images are known to be black & white (or near-neutral grayscale) photographs. **
+** Color-cast corrections meant for color slides do NOT apply here — focus on tonal range, contrast, toning, grain and defects instead. **
+** IMPORTANT: this hint is applied at the folder level, but the folder is often a MIXED SET spanning many years and sources (album prints, snapshots, reprints) of varying quality. Do NOT assume every image shares the same condition, resolution, or defects — assess EACH image independently against the criteria below. Some images in the set may be small/low-resolution and/or genuinely dark (not just faded); treat those on their own merits rather than assuming the flat/faded pattern typical of aged prints. **
+
+12. **Lighting Quality Assessment**: 
+    - Current state: underexposed/properly exposed/overexposed
+    - Specific measurements: estimated EV adjustment needed (-1.5 to +1.5)
+    - Shadow detail: crushed/normal/blown out
+    - **B&W-SPECIFIC**: Aged B&W prints/negatives often suffer from a *flattened* tonal range (faded blacks that read as dark gray, dulled highlights) rather than true under/overexposure — distinguish needs-exposure-correction from needs-contrast/black-point-restoration (see section 15) and do not treat flat contrast as an exposure problem.
+    - **BUT this is a mixed set** — some images (especially smaller/low-resolution snapshots) are genuinely underexposed/dark rather than merely faded. If shadow detail is actually lost (not just dull) and midtones read as truly dark rather than flat-gray, treat it as real underexposure and recommend BRIGHTNESS accordingly (see section 17) instead of routing it through contrast alone.
+    - Specific recommendation: e.g., "increase brightness by 5-10%", "reduce highlights by 10%"
+
+13. **Tonal & Toning Analysis** (replaces color/white-balance analysis for monochrome images):
+    - Confirm the image is genuinely monochrome/near-neutral (R≈G≈B) vs. a toned print.
+    - Toning assessment: neutral gray/sepia-brown/yellowed-with-age/faint blue (selenium) — describe strength: none/slight/moderate/strong.
+    - **CRITICAL — DO NOT treat toning like a color-slide cast**: never recommend COLOR_TEMPERATURE, RED_CHANNEL, BLUE_CHANNEL, or GREEN_CHANNEL adjustments for these images. Those corrections are for color film with a wrong white balance; a B&W print's sepia/yellow tint is either (a) an age-related stain to neutralize with SATURATION reduction, or (b) the natural warm tone of old photographic paper, which is part of the photo's vintage character and should be preserved.
+      * **Default assumption for these family album prints: a uniform warm/sepia/brown cast covering the ENTIRE print evenly is normal paper aging, not a defect** — do NOT recommend desaturation for it. Note it in `color_analysis` (e.g., "even sepia-brown tone across the print, natural paper aging, preserve") and skip saturation changes entirely.
+      * Only recommend "SATURATION: decrease by 10-20%" when the toning is uneven/blotchy (patchy brown staining concentrated in specific areas rather than the whole print) — that pattern indicates chemical/moisture staining worth neutralizing, not simple aging.
+      * If the image is already neutral gray with no toning: skip saturation/color recommendations entirely — do not invent a correction.
+    - Tonal range: full range (true blacks + bright whites)/compressed (faded, milky blacks, dull whites)/clipped (blocked shadows or blown highlights).
+    - **Fading is the most common B&W defect**: if blacks look washed out to dark gray and whites look dull, this is a contrast/black-point issue, not a brightness or color issue — route the fix through CONTRAST and SHADOWS/HIGHLIGHTS in section 17, not through brightness or channel filters.
+
+14. **Sharpness, Clarity & Noise**:
+    - Overall sharpness: soft/slightly soft/sharp/oversharpened
+    - Specific areas with blur (if any): specify location and severity
+    - **Film grain**: B&W negatives/prints typically show more visible grain than color slides, especially in shadows and skies. Distinguish desirable, characterful grain (keep it — do NOT over-smooth) from genuine scan noise (banding, color speckle in scan artifacts) that should be reduced.
+    - Noise assessment: none/minimal/moderate/high - only recommend noise reduction for actual scan noise/artifacts, not for normal film grain
+    - **Resolution-aware sharpening**: this set mixes full-size scans with small/low-resolution snapshots. On small/low-res images, JPEG blocking and pixelation are already visible at native size — a strong unsharp mask will amplify those artifacts instead of adding real detail. For visibly small/low-resolution images, cap sharpening lower (see section 17) and prefer a smaller unsharp-mask radius over a large strength value.
+    - Clarity recommendation: e.g., "apply unsharp mask (radius=1.2, amount=70%)", "boost local contrast by 15%"
+    - Specific recommendation: e.g., "increase sharpness by 20-25%" (full-res images) or "increase sharpness by 8-12%" (small/low-resolution images — avoid amplifying compression artifacts)
+
+15. **Contrast Enhancement** (usually the single highest-impact fix for B&W images):
+    - Current contrast level: very low/low/normal/high/very high
+    - Recommended adjustment: specific percentage e.g., "increase contrast by 20-35%" — faded B&W prints often need a stronger contrast boost than color slides need
+    - Shadow/midtone/highlight adjustments: e.g., "darken shadows by 10-15% to restore black point, brighten highlights by 5-10% to restore white point"
+    - Local contrast enhancement: recommend unsharp mask or clarity boost with specific values — clarity/local contrast is especially effective at restoring visual punch to flat monochrome scans
+
+16. **Composition & Technical Issues**:
+    - **These are often physical album prints, not scanned negatives/slides** — physical damage is common and should be called out explicitly even though none of it is fixable by the enhancement filters: creases/fold lines, torn or missing corners, chipped edges, adhesive/album-mounting residue stains, localized foxing spots (isolated brown blotches, as opposed to the even overall sepia tone covered in section 13).
+    - Other defects: dust spots, scratches, silver mirroring (metallic sheen in dark areas, common on aged silver-gelatin prints — cannot be fixed by filters, note only)
+    - Vignetting: none/slight/moderate/strong - recommend correction %
+    - Straightness: perfectly level/slightly tilted/noticeably tilted
+    - Specific fixes needed: e.g., "crease across upper-right corner", "torn/missing bottom-left corner", "remove 3-4 dust spots" — these are notes for the user, not enhancement actions (no filter can repair tears/creases)
+
+17. **Recommended Enhancements** (prioritized list with specific parameters - REQUIRED FORMAT):
+    - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
+    - Each line must start with: "ACTION: description with percentage or parameter"
+    - **MANDATORY: recommended_enhancements must NEVER be an empty list. Even a well-exposed B&W scan always benefits from at least CONTRAST + SHARPNESS.**
+    - **NEVER include COLOR_TEMPERATURE, RED_CHANNEL, BLUE_CHANNEL, or GREEN_CHANNEL for these images** — there is no color cast to correct on a monochrome image, only tonal/toning issues (see section 13).
+    - **BRIGHTNESS ADJUSTMENT FOR EXPOSURE**
+      * Be conservative for flat/faded images — most of those restoration wins come from CONTRAST, not BRIGHTNESS.
+      * If genuinely underexposed/dark (real detail loss in shadows, not just dull flatness — common on smaller/low-res snapshots in this mixed set): "BRIGHTNESS: increase by X%", and here it's fine to go higher than the usual cap — up to 15-20% if the image is very dark, since these are true exposure problems rather than fading.
+      * If merely flat/faded (dull but no real detail loss): skip or cap BRIGHTNESS at 3-7%, and lean on CONTRAST instead.
+      * If slightly dim but mostly correct: skip BRIGHTNESS entirely
+      * If overexposed: "BRIGHTNESS: decrease by X%"
+      * Do NOT combine BRIGHTNESS + SHADOWS + CONTRAST all at once — pick the correction(s) that best match the actual defect (genuine underexposure → BRIGHTNESS; fading → CONTRAST alone, or CONTRAST + SHADOWS/HIGHLIGHTS for restoring black/white points).
+    - **CONTRAST — the primary correction for faded B&W images**:
+      * Flat/faded scan: "CONTRAST: increase by 20-35%"
+      * Normal contrast already: "CONTRAST: increase by 10-15%" (light restoration is still usually worthwhile)
+      * If blacks/whites are clipped already: do not push contrast further; consider SHADOWS/HIGHLIGHTS instead
+    - **TONING — only if section 13 identified unwanted age toning**:
+      * "SATURATION: decrease by 10-20%" (to neutralize sepia/yellow age staining) — only include this line, never channel/temperature lines
+      * Skip entirely if the image is already neutral gray or the toning is intentional/archival
+    - **CRITICAL**: NOISE_REDUCTION MUST have a numeric strength value (e.g., "apply 15%", "apply 25%") - NEVER use words like "light", "moderate", "heavy" without a percentage. Use a lower value than for color slides (10-20%) so film grain character is preserved. For small/low-resolution images, prefer the higher end of this range (20-30%) since compression blockiness reads as noise there too.
+    - **SHARPNESS ON SMALL/LOW-RESOLUTION IMAGES**: cap sharpening lower than for full-size scans — "SHARPNESS: increase by 8-12%" and/or a smaller UNSHARP_MASK radius (0.8-1.0px) — to avoid amplifying JPEG blocking/pixelation instead of real detail.
+    - Examples of CORRECT format:
+      * "BRIGHTNESS: increase by 5%" (flat/faded image) or "BRIGHTNESS: increase by 18%" (genuinely dark small/low-res snapshot)
+      * "CONTRAST: increase by 25%"
+      * "SHADOWS: darken by 10%"
+      * "HIGHLIGHTS: brighten by 8%"
+      * "SHARPNESS: increase by 20%" (full-res) or "SHARPNESS: increase by 10%" (small/low-res)
+      * "NOISE_REDUCTION: apply 15%" (MUST be numeric percentage)
+      * "SATURATION: decrease by 15%" (only if unwanted age toning was identified in section 13)
+      * "UNSHARP_MASK: radius=1.2px, strength=70%, threshold=0"
+      * "CLARITY: boost by 15%"
+    - DO NOT use phrases like "maintain", "normalize", "none needed", "as is"
+    - DO NOT forget the percentage, value, or parameter for each action - EVERY recommendation must have a numeric value
+    - List in order of priority/impact (CONTRAST should almost always be the top recommendation for aged B&W images)
+    - ALWAYS include at least 3-5 specific enhancement recommendations
+    - **MINIMUM BASELINE for any B&W scan (even well-exposed ones): "CONTRAST: increase by 10-15%" + "SHARPNESS: increase by 15-20%" — these two are always appropriate.**
+
+18. **Overall Enhancement Priority**:
+    - Which issue is most critical to fix first (for B&W images this is almost always contrast/tonal-range restoration)
+    - Estimated improvement percentage if all recommendations applied
+    - Preservation notes: film grain character, intentional sepia toning, and any silver-mirroring/foxing should be called out as things NOT to alter
+
+19. **Field Verbosity Requirement (applies to the JSON output below)**:
+    - The final JSON has one string value per field (lighting_quality, color_analysis, sharpness_clarity,
+      contrast_level, composition_issues). Each of these strings MUST pack in the specific sub-details from
+      the matching numbered item above (12-16) — never collapse a field down to a single short label.
+    - "lighting_quality" MUST include: current state + EV estimate + shadow detail, e.g.
+      "properly exposed; EV: +0; shadows: normal, no crushed detail" — NOT just "properly exposed".
+    - "color_analysis" (used here for tonal/toning analysis) MUST include: monochrome confirmation + toning
+      assessment + tonal range, e.g. "neutral grayscale, no toning; tonal range compressed — faded blacks,
+      dull whites" — NOT just "black and white".
+    - "sharpness_clarity" MUST include: overall sharpness + any localized blur + grain/noise assessment, e.g.
+      "slightly soft overall, no localized blur, moderate film grain (preserve, not scan noise)" — NOT just
+      "slightly soft".
+    - "contrast_level" MUST include: current level + the specific shadow/midtone/highlight adjustment, e.g.
+      "low/faded; restore black point via shadows -12%, highlights +8%" — NOT just "low".
+    - "composition_issues" MUST include: defects/vignetting/tilt, or explicitly state "none visible" for each
+      aspect if truly clean — NOT just "none visible" alone with no aspects listed.

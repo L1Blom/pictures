@@ -17,6 +17,7 @@ import mimetypes
 import re
 import shutil
 import sys
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
@@ -909,8 +910,10 @@ def _batch_analyze(
             skipped_count += 1
             continue
         click.echo(f"[{idx}/{total}] Processing: {img.name}")
+        _t_img_start = time.perf_counter()
         try:
             analyzed_path = str(Path(output_dir) / f"{img.stem}_analyzed.jpg")
+            _t_llm_start = time.perf_counter()
             analysis_result = _analyze_with_provider(
                 img, provider, pipeline_mode, pipeline=shared_pipeline,
                 partial=_load_partial_if_requested(update_existing, only_steps, img, output_dir),
@@ -919,6 +922,7 @@ def _batch_analyze(
                 # location step (and per-image geocoding) to avoid wasted inference.
                 detect_location=False if ground_truth["status"] == "ok" else None,
             )
+            _t_llm = time.perf_counter() - _t_llm_start
             analysis = _analysis_to_legacy_dict(analysis_result)
             
             # Translate to configured language if not English
@@ -955,9 +959,12 @@ def _batch_analyze(
                 _apply_description_ground_truth(analysis, ground_truth, use_timestamp)
 
             del analysis_result  # release model result immediately
+            _t_copy_start = time.perf_counter()
             shutil.copy2(img, analyzed_path)  # copy without loading into Python memory
+            _t_copy = time.perf_counter() - _t_copy_start
 
             # Embed EXIF metadata into the analyzed image copy
+            _t_exif_start = time.perf_counter()
             try:
                 from ..metadata.exif_writer import ExifWriter
                 ExifWriter(language=get_settings().metadata.language).write_from_dict(
@@ -965,21 +972,29 @@ def _batch_analyze(
                 )
             except Exception as exc:
                 click.echo(f"  ⚠ Could not embed EXIF metadata: {exc}", err=True)
+            _t_exif = time.perf_counter() - _t_exif_start
 
+            _t_json_start = time.perf_counter()
             Path(analyzed_path).with_suffix(".json").write_text(
                 json.dumps({k: v for k, v in analysis.items() if k not in ("source_description", "raw_response")}, indent=2), encoding="utf-8"
             )
+            _t_json = time.perf_counter() - _t_json_start
 
+            _t_enhance = 0.0
             if enhancer and "enhancement" in analysis:
                 enhanced_path = str(Path(output_dir) / f"{img.stem}_enhanced.jpg")
+                _t_enh_start = time.perf_counter()
                 result = enhancer.enhance_from_analysis(
                     analyzed_path, analysis["enhancement"], enhanced_path,
                 )
                 if result:
                     MetadataManager().copy_exif(analyzed_path, enhanced_path, enhanced_path)
                     click.echo(f"  ✓ Enhanced: {enhanced_path}")
+                _t_enhance = time.perf_counter() - _t_enh_start
 
+            _t_restore = 0.0
             if restore_slide:
+                _t_restore_start = time.perf_counter()
                 _restore_from_analysis(
                     SlideRestoration, MetadataManager,
                     source_path=analyzed_path,
@@ -988,7 +1003,17 @@ def _batch_analyze(
                     output_dir=output_dir,
                     image_stem=img.stem,
                 )
+                _t_restore = time.perf_counter() - _t_restore_start
 
+            _t_total = time.perf_counter() - _t_img_start
+            _t_post = _t_copy + _t_exif + _t_json + _t_enhance + _t_restore
+            _post_pct = (_t_post / _t_total * 100) if _t_total > 0 else 0
+            click.echo(
+                f"  ⏱  LLM {_t_llm:.1f}s | "
+                f"copy {_t_copy:.1f}s | exif {_t_exif:.1f}s | json {_t_json:.1f}s | "
+                f"enhance {_t_enhance:.1f}s | restore {_t_restore:.1f}s | "
+                f"total {_t_total:.1f}s (post-LLM {_t_post:.1f}s, {_post_pct:.0f}%)"
+            )
             success_count += 1
             click.echo("  ✓ Complete")
         except Exception as exc:
@@ -1005,16 +1030,34 @@ def _batch_analyze(
             # Free analysis data and force GC to reclaim image buffers
             analysis = None  # type: ignore[assignment]
             gc.collect()
-            # "ollama stop" ensures the model is unloaded on the Ollama side too
-            try:
-                import subprocess as _sub
-                _sub.run(
-                    ["ollama", "stop", settings.ollama.model],
-                    timeout=30,
-                    capture_output=True,
-                )
-            except Exception:
-                pass  # non-fatal: cache flush is best-effort
+            # NOTE: Per-image "ollama stop" was removed to avoid cold model
+            # reloads between images.  The model now stays loaded per
+            # ``keep_alive`` (config.yaml, default 3600s).  To revert to the
+            # old per-image unload behaviour, uncomment the block below:
+            #
+            # try:
+            #     import subprocess as _sub
+            #     _sub.run(
+            #         ["ollama", "stop", settings.ollama.model],
+            #         timeout=30,
+            #         capture_output=True,
+            #     )
+            # except Exception:
+            #     pass
+
+    # Unload the model once after the entire batch completes (best-effort).
+    # This frees VRAM when processing is done, while keeping the model hot
+    # between images for throughput.  Remove if you want the model to stay
+    # loaded indefinitely (controlled by keep_alive).
+    try:
+        import subprocess as _sub
+        _sub.run(
+            ["ollama", "stop", settings.ollama.model],
+            timeout=30,
+            capture_output=True,
+        )
+    except Exception:
+        pass
 
     click.echo(f"\n{'=' * 50}")
     failed_count = len(errors)
@@ -1760,23 +1803,25 @@ def describe(directory: str, port: int | None):
     Opens a browser-based editor for writing description.txt files
     that provide context to the AI analyzer.
     """
-    _inject_project_root()
-
     from ..config.settings import get_settings
 
     settings = get_settings()
     web_port = port or settings.web.port
 
     try:
-        from run_description_editor import main as run_editor  # type: ignore[import-untyped]
-        sys.argv = ["describe", directory]
-        run_editor()
-    except ImportError:
+        from ..web.editor_app import create_app
+
+        click.echo(f"Starting description editor on port {web_port}...")
+        click.echo(f"Photos directory: {directory}")
+        app = create_app(photos_dir=directory)
+        app.run(debug=settings.web.debug, host=settings.web.host, port=web_port)
+    except ImportError as exc:
         click.echo(f"Starting description editor on port {web_port}...")
         click.echo(f"Photos directory: {directory}")
         click.echo(
             "Description editor not found.  Install with: pip install picture-analyzer[web]"
         )
+        raise click.ClickException(f"Could not import web editor: {exc}") from exc
 
 
 # ── Entry point ──────────────────────────────────────────────────────

@@ -1,35 +1,37 @@
 === ENHANCEMENT RECOMMENDATIONS SECTION (DETAILED & QUANTIFIABLE) - ALWAYS IN ENGLISH ===
+** SPECIALIZED TEMPLATE: RED-DEFICIENT, DARK IMAGES (cyan/cool-shifted and underexposed) **
+** This template is selected because description.txt contains "Enhancement: red". **
+** These images are known to have a cool/cyan color cast with deficient red channel AND are dark/underexposed. **
+
 12. **Lighting Quality Assessment**: 
     - Current state: underexposed/properly exposed/overexposed
     - Specific measurements: estimated EV adjustment needed (-1.5 to +1.5)
     - Shadow detail: crushed/normal/blown out
     - **CRITICAL**: If underexposed, MUST recommend specific brightness increase percentage in recommendations (see section 17)
     - **CRITICAL**: If overexposed, MUST recommend specific brightness decrease or highlight reduction in recommendations
-    - Specific recommendation: e.g., "increase brightness by 25-30%", "reduce highlights by 15%"
+    - **These images are known to be dark.** Assess actual shadow detail loss — if shadows are crushed (not just dim), treat as genuine underexposure and recommend a stronger BRIGHTNESS increase (see section 17).
+    - Specific recommendation: e.g., "increase brightness by 10-15%", "reduce highlights by 10%"
 
 13. **Color & White Balance Analysis**:
     - Dominant colors and their intensity
     - Color temperature assessment: warm (K), neutral (K), cool (K) - estimate Kelvin temperature
     - Detected color casts: none/slight warm/strong warm/slight cool/strong cool
     - Saturation level: desaturated (recommend +15-30%)/normal/oversaturated (recommend -10-20%)
-    - **Only recommend color channel adjustments if you actually see a color cast in the image.**
-    - If a STRONG warm/orange/yellow cast is clearly visible:
-      * COLOR_TEMPERATURE: cool by 300-600K (proportional to cast severity)
-      * RED_CHANNEL: reduce by 5-12% (only if reds/oranges are visibly dominant)
-      * BLUE_CHANNEL: increase by 5-10% (only if blues are visibly deficient)
-      * GREEN_CHANNEL: increase by 3-8% (only if greens are visibly muted)
+    - **These images are known to be cool/cyan-shifted with red deficiency.** Assess the severity of the cool cast and recommend corrections accordingly.
+    - **ALWAYS recommend red channel correction for these images** — the cool/cyan cast is expected:
+      * COLOR_TEMPERATURE: warm by 600-1000K (these images need a strong warm shift)
+      * RED_CHANNEL: increase by 15-25% (these images are known to be red-deficient — this is the primary correction)
+      * BLUE_CHANNEL: reduce by 10-20% (proportional to visible cyan/blue dominance)
+      * GREEN_CHANNEL: reduce by 5-12% (only if greens are visibly cyan-shifted)
       * VIBRANCE: increase by 10-20%
-      * **IMPORTANT**: COLOR_TEMPERATURE cool shift and BLUE_CHANNEL increase both push the image cooler. Do NOT use both at full strength — if you apply a COLOR_TEMPERATURE cool shift of 400K+, either omit BLUE_CHANNEL entirely or cap it at 3-5%.
-    - If only a SLIGHT warm cast or the image looks well-balanced: recommend only BRIGHTNESS and VIBRANCE. Skip channel corrections entirely.
-    - If the image already looks color-neutral or cool: do NOT recommend any channel or temperature corrections.
-    - **CRITICAL — COOL CAST IMAGES**: If the color analysis detects a COOL cast (bluish, blue-gray bias, or estimated Kelvin above ~4700K with cool description), you MUST NOT recommend BLUE_CHANNEL increase or COLOR_TEMPERATURE cool shift. Increasing blue on an already-cool image makes it worse. Instead:
-      * If the cool cast is slight: skip all channel/temperature corrections
-      * If the cool cast is strong: recommend COLOR_TEMPERATURE: warm by 200-400K and/or BLUE_CHANNEL: reduce by 3-8%
+    - **COMPOUNDING AWARENESS**: COLOR_TEMPERATURE warm shift and RED_CHANNEL increase both push warmer. For these red-deficient images, using both is acceptable because the deficiency is known to be severe. However, if the image looks only slightly cool (not strongly cyan), reduce RED_CHANNEL to 5-8% and COLOR_TEMPERATURE to 300K.
+    - If the image looks surprisingly neutral or warm despite the "red" hint (rare but possible): fall back to the standard enhancement rules — do NOT force red increases on a warm image.
 
 14. **Sharpness, Clarity & Noise**:
     - Overall sharpness: soft/slightly soft/sharp/oversharpened
     - Specific areas with blur (if any): specify location and severity
     - Noise assessment: none/minimal/moderate/high - recommend noise reduction if needed
+    - **DARK IMAGE AWARENESS**: underexposed images often hide noise in shadows that becomes visible after brightness increase. If recommending BRIGHTNESS increase above 8%, also recommend NOISE_REDUCTION (see section 17).
     - Clarity recommendation: e.g., "apply unsharp mask (radius=1.5, amount=80%)", "boost local contrast by 20%"
     - Specific recommendation: e.g., "increase sharpness by 30%", "apply moderate noise reduction"
 
@@ -50,43 +52,44 @@
     - IMPORTANT: Always use this EXACT format for EVERY enhancement recommendation
     - Each line must start with: "ACTION: description with percentage or parameter"
     - **MANDATORY: recommended_enhancements must NEVER be an empty list. Even for well-exposed images, scanned slides always benefit from at least SHARPNESS + VIBRANCE.**
-    - **BRIGHTNESS ADJUSTMENT FOR EXPOSURE**
-      * These are scanned slides — they often look slightly dim but are NOT underexposed. Be very conservative.
-      * If image is clearly underexposed (very dark): include "BRIGHTNESS: increase by X%" (maximum 10%; typically 3-7%)
-      * If image looks slightly dim but mostly correct: skip BRIGHTNESS entirely or use 3-5% at most
-      * If image is overexposed: include "BRIGHTNESS: decrease by X%"
+    - **BRIGHTNESS ADJUSTMENT FOR EXPOSURE — these images are known to be dark**:
+      * These images are known to be dark/underexposed — recommend a BRIGHTNESS increase more generously than the default template.
+      * If image is clearly underexposed (very dark, crushed shadows): include "BRIGHTNESS: increase by X%" (10-15%; higher than the default 10% cap because the darkness is a known condition of this set)
+      * If image is slightly dim but mostly correct: include "BRIGHTNESS: increase by 5-8%"
+      * If image is overexposed (rare for this set): include "BRIGHTNESS: decrease by X%"
       * WARNING: Do NOT combine BRIGHTNESS + SHADOWS + CONTRAST all at once — this will massively overbrighten. Choose ONE exposure correction only.
-      * NEVER exceed 10% brightness increase for scanned slides.
-    - **COLOR CORRECTIONS — only include if the cast is clearly visible in the image**:
-      * Do NOT add RED_CHANNEL, BLUE_CHANNEL, GREEN_CHANNEL, or COLOR_TEMPERATURE corrections unless you can actually see an imbalance
-      * If you see a clear warm/orange cast: see section 13 for appropriate ranges
-      * If the image looks color-neutral or well-balanced: skip all channel corrections entirely
-      * If the image has a COOL cast (bluish): NEVER increase BLUE_CHANNEL — this compounds the problem. See section 13 for cool-cast handling.
-      * **COMPOUNDING WARNING**: COLOR_TEMPERATURE cool shift + BLUE_CHANNEL increase are NOT additive — they compound. If you recommend COLOR_TEMPERATURE cool by 400K or more, do NOT also recommend BLUE_CHANNEL increase (or cap at 3%).
+      * If BRIGHTNESS increase is above 8%, also include NOISE_REDUCTION (dark images reveal noise when brightened).
+    - **COLOR CORRECTIONS — these images are known to be red-deficient**:
+      * ALWAYS include COLOR_TEMPERATURE warm shift + RED_CHANNEL increase + BLUE_CHANNEL reduce for these images
+      * Typical ranges for red-deficient slides:
+        - COLOR_TEMPERATURE: warm by 600-1000K
+        - RED_CHANNEL: increase by 15-25%
+        - BLUE_CHANNEL: reduce by 10-20%
+        - GREEN_CHANNEL: reduce by 5-12% (if greens look cyan-shifted)
+      * If the cool cast is only slight (not strongly cyan): reduce all values to the lower end of the ranges
+      * If the image looks neutral or warm despite the hint: skip channel corrections (the hint may not apply to every image in the set)
     - **CRITICAL**: NOISE_REDUCTION MUST have a numeric strength value (e.g., "apply 20%", "apply 35%") - NEVER use words like "light", "moderate", "heavy" without a percentage
     - Examples of CORRECT format: 
-      * "BRIGHTNESS: increase by 7%"
+      * "BRIGHTNESS: increase by 12%"
       * "CONTRAST: boost by 20%"
       * "SATURATION: increase by 15%"
-      * "COLOR_TEMPERATURE: warm by 500K" (or "COLOR_TEMPERATURE: cool by 800K" for removing orange)
+      * "COLOR_TEMPERATURE: warm by 800K"
       * "SHARPNESS: increase by 30%"
       * "NOISE_REDUCTION: apply 25%" (MUST be numeric percentage)
-      * "RED_CHANNEL: reduce by 8%" (only if a warm/orange cast is clearly visible)
-      * "BLUE_CHANNEL: increase by 8%" (only if blues are visibly deficient)
-      * "GREEN_CHANNEL: increase by 5%" (only if greens are visibly muted)
+      * "RED_CHANNEL: increase by 18%"
+      * "BLUE_CHANNEL: reduce by 12%"
+      * "GREEN_CHANNEL: reduce by 8%"
       * "GREEN_SATURATION: increase by 20%" (to restore green vibrancy)
       * "UNSHARP_MASK: radius=1.5px, strength=80%, threshold=0"
       * "SHADOWS: brighten by 8%"
       * "HIGHLIGHTS: reduce by 10%"
       * "VIBRANCE: increase by 20%"
       * "CLARITY: boost by 20%"
-      * "YELLOW_CAST_REMOVAL: shift to neutral" (alternative for extreme cases)
     - DO NOT use phrases like "maintain", "normalize", "none needed", "as is"
     - DO NOT forget the percentage, value, or parameter for each action - EVERY recommendation must have a numeric value
-    - List in order of priority/impact (COLOR_TEMPERATURE + RED_CHANNEL + BLUE_CHANNEL + GREEN_CHANNEL should ALWAYS be top 4 for warm/orange casts)
+    - List in order of priority/impact (BRIGHTNESS + COLOR_TEMPERATURE + RED_CHANNEL + BLUE_CHANNEL should ALWAYS be top 4 for these dark, red-deficient images)
     - ALWAYS include at least 3-5 specific enhancement recommendations
     - **MINIMUM BASELINE for any scanned slide (even well-exposed ones): "SHARPNESS: increase by 20%" + "VIBRANCE: increase by 15%" — these two are always appropriate.**
-    - **REMINDER: For images that look like they're from 1950-2000 AND have a visible WARM/orange cast, recommend COLOR_TEMPERATURE cool shift + RED_CHANNEL reduce. BLUE_CHANNEL increase is OPTIONAL and should only be included if the warm cast is strong AND blues are visibly deficient. If the image already has a neutral or cool color balance, skip channel corrections entirely.**
 
 18. **Overall Enhancement Priority**:
     - Which issue is most critical to fix first
@@ -98,13 +101,14 @@
       contrast_level, composition_issues). Each of these strings MUST pack in the specific sub-details from
       the matching numbered item above (12-16) — never collapse a field down to a single short label.
     - "lighting_quality" MUST include: current state + EV estimate + shadow detail, e.g.
-      "properly exposed; EV: +0; shadows: normal, no crushed detail" — NOT just "properly exposed".
+      "underexposed; EV: +1.0; shadows: crushed in dark areas" — NOT just "underexposed".
     - "color_analysis" MUST include: dominant colors + estimated Kelvin temperature + cast severity + saturation
-      assessment, e.g. "warm cast (~4200K), moderate; saturation normal, slight boost recommended" — NOT just
-      "warm cast detected, saturation normal".
+      assessment, e.g. "cool cyan cast (~6200K), moderate; reds deficient, saturation low, boost recommended" — NOT just
+      "cool cast detected, saturation low".
     - "sharpness_clarity" MUST include: overall sharpness + any localized blur + noise level, e.g.
-      "slightly soft overall, no localized blur, noise minimal" — NOT just "slightly soft".
+      "slightly soft overall, no localized blur, noise minimal but may increase after brightening" — NOT just
+      "slightly soft".
     - "contrast_level" MUST include: current level + the specific shadow/midtone/highlight adjustment, e.g.
-      "normal; boost shadows 10%, highlights unchanged" — NOT just "normal".
+      "low; brighten shadows 12%, highlights unchanged" — NOT just "low".
     - "composition_issues" MUST include: defects/vignetting/chromatic aberration/tilt, or explicitly state
       "none visible" for each aspect if truly clean — NOT just "none visible" alone with no aspects listed.

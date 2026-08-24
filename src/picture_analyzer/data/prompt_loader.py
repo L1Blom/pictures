@@ -67,6 +67,7 @@ class PromptLoader:
     def combined(
         self,
         sections: list[str] | None = None,
+        section_overrides: dict[str, str] | None = None,
         **kwargs: str,
     ) -> str:
         """Concatenate multiple section templates into one prompt string.
@@ -77,6 +78,10 @@ class PromptLoader:
         Args:
             sections: Section names to include, in order.  Defaults to
                 ``["metadata", "location", "enhancement", "slide_profiles"]``.
+            section_overrides: Map of section name → suffix.  When a section
+                ``"enhancement"`` has override ``"blue"``, the loader looks
+                for ``enhancement-blue.txt`` first, falling back to
+                ``enhancement.txt`` if the specialised template doesn't exist.
             **kwargs: Substitution tokens passed to each section.
 
         Returns:
@@ -84,6 +89,7 @@ class PromptLoader:
         """
         if sections is None:
             sections = _DEFAULT_SECTIONS
+        section_overrides = section_overrides or {}
 
         # Section name → JSON schema key for the dynamic footer
         _SECTION_KEY_MAP = {
@@ -94,7 +100,15 @@ class PromptLoader:
         }
 
         parts = [self.load("preamble", **kwargs)]
-        parts += [self.load(s, **kwargs) for s in sections]
+        for s in sections:
+            suffix = section_overrides.get(s)
+            if suffix:
+                specialised = f"{s}-{suffix}"
+                specialised_path = self._dir / f"{specialised}.txt"
+                if specialised_path.exists():
+                    parts.append(self.load(specialised, **kwargs))
+                    continue
+            parts.append(self.load(s, **kwargs))
 
         # Build a focused footer: one schema line per requested section,
         # then the shared structural rules.

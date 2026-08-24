@@ -4,5 +4,6 @@ CRITICAL JSON STRUCTURE RULES (violations will break the pipeline):
 3. Inside `slide_profiles`, fields MUST be exactly `"profile"` and `"confidence"`. NEVER add extra fields.
 4. Inside `enhancement.recommended_enhancements`, every item MUST be a string with a numeric value (e.g. `"BRIGHTNESS: increase by 15%"`). Omit anything that cannot be quantified.
 5. `enhancement.recommended_enhancements` MUST be a flat list of strings inside `enhancement`. NEVER place it at the top level.
+6. NEVER use literal double-quote characters (") inside a JSON string VALUE — this breaks JSON parsing. If you want to emphasize or quote a word/phrase within a field's text, use single quotes ('like this') instead, or no quotes at all.
 
 CRITICAL REMINDER: You MUST respond in ENGLISH for METADATA fields. All technical fields and location detection MUST be in ENGLISH.

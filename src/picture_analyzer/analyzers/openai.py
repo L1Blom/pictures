@@ -37,6 +37,22 @@ from ..core.models import (
 )
 
 
+def _resolve_section_overrides(context: AnalysisContext) -> dict[str, str]:
+    """Parse ``Enhancement: <suffix>`` from description.txt text.
+
+    Returns a dict like ``{"enhancement": "blue"}`` that
+    ``PromptLoader.combined`` uses to load ``enhancement-blue.txt``.
+    """
+    if not context.description_text:
+        return {}
+    from ..description import extract_enhancement_hint_from_text
+
+    hint = extract_enhancement_hint_from_text(context.description_text)
+    if hint:
+        return {"enhancement": hint}
+    return {}
+
+
 class OpenAIAnalyzer:
     """Analyzes images using OpenAI Vision API.
 
@@ -109,7 +125,17 @@ class OpenAIAnalyzer:
         from ..data.prompt_loader import PromptLoader
 
         lang = context.language or DEFAULT_METADATA_LANGUAGE
-        prompt_override = PromptLoader().combined(sections=sections, language=lang)
+        all_overrides = _resolve_section_overrides(context)
+        # Only apply overrides for sections being analyzed in this step
+        section_overrides = {k: v for k, v in all_overrides.items() if k in sections}
+        if section_overrides:
+            print(
+                "  → Using specialised prompt template(s): "
+                + ", ".join(f"{s}-{v}" for s, v in section_overrides.items())
+            )
+        prompt_override = PromptLoader().combined(
+            sections=sections, section_overrides=section_overrides, language=lang,
+        )
         if not image.base64_data:
             image = image.model_copy(update={"base64_data": self._encode(image.path)})
         raw_text = self._call_api(image, context, prompt_override=prompt_override)
@@ -190,49 +216,105 @@ class OpenAIAnalyzer:
 
         json_str = None
 
-        # Try ```json code fence first
-        if "```json" in response:
-            start = response.find("```json") + 7
-            end = response.find("```", start)
-            if end > start:
-                json_str = response[start:end].strip()
-        elif "```" in response:
-            start = response.find("```") + 3
-            end = response.find("```", start)
-            if end > start:
-                json_str = response[start:end].strip()
+        # Try ```json / ```JSON / ``` code fence (case-insensitive)
+        fence_match = _re.search(r"```(?:json|JSON|Json)?\s*\n?(.*?)```", response, _re.DOTALL)
+        if fence_match:
+            json_str = fence_match.group(1).strip()
 
-        # Fallback: raw JSON braces
+        # Fallback: raw JSON braces — extract only the FIRST balanced object.
+        # Some models append a second, unrelated hallucinated JSON blob after
+        # the real answer; spanning first-{ to last-} would swallow both.
         if not json_str:
-            json_start = response.find("{")
-            json_end = response.rfind("}") + 1
-            if json_start != -1 and json_end > json_start:
-                json_str = response[json_start:json_end]
+            json_str = self._extract_first_json_object(response)
 
         if json_str:
             # Some models (e.g. llava) escape underscores in JSON keys: \_ → _
             cleaned = json_str.replace("\\_", "_")
-            try:
-                data = json.loads(cleaned)
-                if isinstance(data, dict):
-                    normalised = self._normalise_response(data)
-                    self._validate_response(normalised, sections)
-                    return normalised
-            except json.JSONDecodeError:
-                pass
-            # Try original (unmodified) string as fallback
-            try:
-                data = json.loads(json_str)
-                if isinstance(data, dict):
-                    normalised = self._normalise_response(data)
-                    self._validate_response(normalised, sections)
-                    return normalised
-            except json.JSONDecodeError:
-                pass
+            for candidate in (cleaned, json_str, self._repair_json(cleaned), self._repair_json(json_str)):
+                try:
+                    data = json.loads(candidate)
+                    if isinstance(data, dict):
+                        normalised = self._normalise_response(data)
+                        self._validate_response(normalised, sections)
+                        return normalised
+                except json.JSONDecodeError:
+                    continue
 
         # If all parsing fails, return a minimal dict with raw text
         logger.warning("LLM response could not be parsed as JSON — returning raw text fallback")
+        logger.warning("Unparseable response (first 800 chars): %s", response[:800])
         return {"raw_response": response}
+
+    @staticmethod
+    def _extract_first_json_object(text: str) -> str | None:
+        """Return the first balanced {...} object in text, ignoring braces inside strings.
+
+        Guards against trailing hallucinated content (e.g. a second, unrelated
+        JSON blob some models append after a complete, correct answer).
+        """
+        start = text.find("{")
+        if start == -1:
+            return None
+
+        depth = 0
+        in_string = False
+        escaped = False
+        for i in range(start, len(text)):
+            ch = text[i]
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif ch == "\\":
+                    escaped = True
+                elif ch == '"':
+                    in_string = False
+                continue
+            if ch == '"':
+                in_string = True
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[start : i + 1]
+        return text[start:]  # unbalanced/truncated — let _repair_json auto-close it
+
+    @staticmethod
+    def _repair_json(text: str) -> str:
+        """Attempt to fix common JSON issues from smaller models (MiniCPM, etc.).
+
+        Handles:
+        - Trailing commas before } or ]
+        - Single-quoted strings → double-quoted
+        - Truncated JSON (auto-close missing braces/brackets)
+        - Markdown bold/italic markers inside string values
+        """
+        import re as _re
+
+        # Remove trailing commas before closing braces/brackets
+        text = _re.sub(r",\s*([}\]])", r"\1", text)
+
+        # Convert single-quoted strings to double-quoted (naive but effective)
+        # Only applies to keys and values that use single quotes
+        text = _re.sub(r"'([^']*)'", r'"\1"', text)
+
+        # Remove markdown bold/italic markers that some models inject
+        text = text.replace("**", "").replace("__", "")
+
+        # Auto-close truncated JSON — count unmatched braces/brackets
+        opens_braces = text.count("{") - text.count("}")
+        opens_brackets = text.count("[") - text.count("]")
+        if opens_braces > 0 or opens_brackets > 0:
+            # If there's an odd number of double quotes, a string is still open.
+            # Append a closing quote (preserving the partial content) rather
+            # than truncating back to the last quote.
+            if text.count('"') % 2 == 1:
+                text += '"'
+            # Remove any trailing comma that would now precede a closing bracket
+            text = _re.sub(r",\s*$", "", text)
+            text += "]" * max(opens_brackets, 0) + "}" * max(opens_braces, 0)
+
+        return text
 
     # Sections that are expected to populate all 11 metadata fields
     _METADATA_SECTIONS = frozenset({"metadata", "metadata_part1", "metadata_part2"})
@@ -424,6 +506,23 @@ class OpenAIAnalyzer:
                         "CONTRAST: boost by 10%",
                     ]
                 enh = {**enh, "recommended_enhancements": recs}
+                data = {**data, "enhancement": enh}
+
+        # ── Flatten nested-dict enhancement fields that some models return ──
+        # ministral-3:3b returns composition_issues and overall_priority as
+        # nested dicts instead of flat strings. Coerce to a packed string so
+        # downstream consumers (which expect str) don't break.
+        enh = data.get("enhancement")
+        if isinstance(enh, dict):
+            flattened = False
+            for _field in ("composition_issues", "overall_priority"):
+                val = enh.get(_field)
+                if isinstance(val, dict):
+                    # Pack key: value pairs into a single descriptive string
+                    parts = [f"{k}: {v}" for k, v in val.items() if v]
+                    enh = {**enh, _field: "; ".join(parts) if parts else "none visible"}
+                    flattened = True
+            if flattened:
                 data = {**data, "enhancement": enh}
 
         # ── location_detection field name variants ────────────────────

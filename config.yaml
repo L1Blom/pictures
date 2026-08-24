@@ -4,25 +4,31 @@
 analyzer_provider: "ollama"
 
 ollama:
-  model: "llama3.2-vision:11b"           # fallback when no per-step model is set
+  model: "ministral-3:3b"           # fallback when no per-step model is set
   host: "http://127.0.0.1:11434"
   docker_host: "http://127.0.0.1:11434"  # same as host because container uses network_mode: host
   #host: "http://192.168.2.66:11434"
-  max_tokens: 16384
+  max_tokens: 8192
   timeout: 1200                           # seconds per step; CPU inference + cold reload can take 15+ min
-  num_ctx: 4096                          # KV-cache context window; mllama images use ~8000 tokens alone
+  num_ctx: 8192                          # KV-cache context window; mllama images use ~8000 tokens alone
+  keep_alive: 3600                       # seconds to keep model loaded between images (0 = unload after each call)
 
 pipeline:
   mode: stepped
+  # Max concurrent LLM steps within one image. Steps with no unmet dependencies
+  # run in parallel via a ThreadPoolExecutor. Should match Ollama's
+  # OLLAMA_NUM_PARALLEL (set in the ollama.service unit) for best throughput.
+  parallel_workers: 4
   metadata:
-    model: "llava:34b"         # Large vision model with better visual reasoning
+    model: "ministral-3:3b"         # Large vision model with better visual reasoning
   location:
-    model: "llava:34b"         # vision model; geographic reasoning from visual clues
+    model: "ministral-3:3b"         # vision model; geographic reasoning from visual clues
   enhancement:
-    model: "llava:34b"         # vision model; analyzes image quality for enhancement recommendations
+    model: "ministral-3:3b"         # vision model; analyzes image quality for enhancement recommendations
     max_tokens: 1024               # enhancement JSON is small; cap to prevent runaway loops
+    num_ctx: 8192                  # prompt is ~3800 tokens; 4096 leaves only ~300 for response → truncation
   slide_profiles:
-    model: "llava:34b"         # vision model; detects scan/slide degradation patterns
+    model: "ministral-3:3b"         # vision model; detects scan/slide degradation patterns
     max_tokens: 512                # slide profile JSON is tiny
 
 openai:

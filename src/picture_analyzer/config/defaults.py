@@ -8,6 +8,10 @@ from __future__ import annotations
 
 # ── Pipeline ────────────────────────────────────────────────────────
 DEFAULT_PIPELINE_MODE = "single"  # "single" | "stepped"
+# Max concurrent LLM steps within one image. Steps with no unmet dependencies
+# run in parallel via a ThreadPoolExecutor. Set to 1 for the old sequential
+# behaviour. Should match Ollama's OLLAMA_NUM_PARALLEL for best throughput.
+DEFAULT_PIPELINE_PARALLEL_WORKERS = 1
 
 # ── AI / OpenAI ──────────────────────────────────────────────────────
 DEFAULT_ANALYZER_PROVIDER = "openai"  # "openai" | "ollama"

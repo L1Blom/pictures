@@ -163,6 +163,7 @@ class StepConfig(BaseModel):
     provider: Optional[str] = None        # "openai" | "ollama"
     model: Optional[str] = None           # falls back to openai.model / ollama.model
     max_tokens: Optional[int] = Field(default=None, ge=1, le=16384)
+    num_ctx: Optional[int] = Field(default=None, ge=512, description="KV-cache context window; overrides global ollama.num_ctx for this step")
     prompt_template: Optional[str] = None  # falls back to built-in template
 
 
@@ -170,6 +171,10 @@ class PipelineConfig(BaseModel):
     """Pipeline execution and per-step configuration."""
 
     mode: str = Field(default=d.DEFAULT_PIPELINE_MODE, pattern="^(single|stepped)$")
+    # Max concurrent LLM steps within one image. Steps with no unmet dependencies
+    # run in parallel via a ThreadPoolExecutor. Set to 1 for sequential behaviour.
+    # Should match Ollama's OLLAMA_NUM_PARALLEL for best throughput.
+    parallel_workers: int = Field(default=d.DEFAULT_PIPELINE_PARALLEL_WORKERS, ge=1, le=8)
     metadata: StepConfig = Field(default_factory=StepConfig)
     location: StepConfig = Field(default_factory=StepConfig)
     enhancement: StepConfig = Field(default_factory=StepConfig)
@@ -390,7 +395,7 @@ def resolve_step_config(step: StepConfig, settings: "Settings") -> dict:
         "max_tokens": step.max_tokens or getattr(base, "max_tokens", None),
         "prompt_template": step.prompt_template,
         "timeout": getattr(base, "timeout", None),
-        "num_ctx": getattr(base, "num_ctx", None),
+        "num_ctx": step.num_ctx or getattr(base, "num_ctx", None),
         "host": getattr(base, "host", None),
         "keep_alive": getattr(base, "keep_alive", None),
     }

@@ -496,13 +496,15 @@ class SmartEnhancer:
             
             # ===== COLOR CHANNEL ADJUSTMENTS =====
             elif 'red_channel' in rec_lower or 'blue_channel' in rec_lower or 'green_channel' in rec_lower:
-                # Determine which channel
+                # Determine which channel — match on *_channel keyword, not bare
+                # substring, because "reduce" contains "red" and would misclassify
+                # BLUE_CHANNEL: reduce as RED_CHANNEL.
                 channel = None
-                if 'red' in rec_lower:
+                if 'red_channel' in rec_lower:
                     channel = 'red'
-                elif 'blue' in rec_lower:
+                elif 'blue_channel' in rec_lower:
                     channel = 'blue'
-                elif 'green' in rec_lower:
+                elif 'green_channel' in rec_lower:
                     channel = 'green'
                 
                 # Extract percentage and direction
@@ -617,6 +619,21 @@ class SmartEnhancer:
                     print(f"  → Sharpness: {percent:+d}% (factor: {factor:.2f})")
         
         # Return both basic and advanced adjustments
+        # Deduplicate channel ops — models sometimes emit conflicting operations
+        # for the same channel (e.g. RED_CHANNEL: +20% and RED_CHANNEL: -15%).
+        # Keep the FIRST occurrence: the template lists recommendations in
+        # priority order, so the first is the intended one.
+        seen_channels: set[str] = set()
+        deduped_ops: list = []
+        for op in advanced_ops:
+            ch = op.get('channel') if isinstance(op, dict) else None
+            if ch is not None:
+                if ch in seen_channels:
+                    continue
+                seen_channels.add(ch)
+            deduped_ops.append(op)
+        advanced_ops = deduped_ops
+
         return {
             'basic': adjustments,
             'advanced': advanced_ops
@@ -684,10 +701,14 @@ class SmartEnhancer:
                     return image_path
             
             # Create temporary directory for intermediate results
+            # Use the same filesystem as the output to avoid filling up /tmp
             import tempfile
             import os
-            temp_dir = tempfile.gettempdir()
-            temp_image = os.path.join(temp_dir, 'intermediate_enhancement.jpg')
+            if output_path:
+                temp_dir = os.path.dirname(os.path.abspath(output_path))
+            else:
+                temp_dir = os.path.dirname(os.path.abspath(image_path))
+            temp_image = os.path.join(temp_dir, '.intermediate_enhancement.jpg')
             image.save(temp_image, quality=95)
             current_path = temp_image
             

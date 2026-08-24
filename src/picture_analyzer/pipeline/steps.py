@@ -54,6 +54,7 @@ class MetadataStep:
     """Runs sections 1–11: scene description, objects, people, mood, era, …"""
 
     name = "metadata"
+    depends_on: list[str] = []
     _sections = ["metadata"]
 
     def __init__(self, config: dict[str, Any], enabled: bool = True) -> None:
@@ -100,6 +101,7 @@ class LocationStep:
     """Runs section 12: geographic location detection."""
 
     name = "location"
+    depends_on: list[str] = []
     _sections = ["location"]
 
     def __init__(self, config: dict[str, Any], enabled: bool = True) -> None:
@@ -137,6 +139,8 @@ class EnhancementStep:
     """Runs sections 13–18: lighting, color, sharpness, contrast recommendations."""
 
     name = "enhancement"
+    # Needs slide_profile to inject slide-scan context into the prompt.
+    depends_on: list[str] = ["slide_profiles"]
     _sections = ["enhancement"]
 
     def __init__(self, config: dict[str, Any], enabled: bool = True) -> None:
@@ -195,6 +199,7 @@ class SlideProfileStep:
     """Runs section 19: slide/dia restoration profile detection."""
 
     name = "slide_profiles"
+    depends_on: list[str] = []
     _sections = ["slide_profiles"]
 
     def __init__(self, config: dict[str, Any], enabled: bool = True) -> None:

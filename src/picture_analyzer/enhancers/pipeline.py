@@ -135,6 +135,21 @@ class RecommendationParser:
 
             self._parse_one(text, text_lower, basic_filters, advanced_filters)
 
+        # Deduplicate advanced filters — models sometimes emit conflicting
+        # operations for the same channel (e.g. RED_CHANNEL: +20% followed by
+        # RED_CHANNEL: -15%). Keep the FIRST occurrence: the template lists
+        # recommendations in priority order, so the first is the intended one.
+        seen_channels: set[str] = set()
+        deduped: list = []
+        for f in advanced_filters:
+            ch = getattr(f, "channel", None)
+            if ch is not None:
+                if ch in seen_channels:
+                    continue  # skip contradicting duplicate
+                seen_channels.add(ch)
+            deduped.append(f)
+        advanced_filters = deduped
+
         # Build pipeline in optimal order
         pipeline = FilterPipeline()
 
@@ -223,11 +238,13 @@ class RecommendationParser:
         # ── COLOR CHANNELS ─────────────────────────────────────────
         elif any(ch in text_lower for ch in ("red_channel", "blue_channel", "green_channel")):
             channel = None
-            if "red" in text_lower:
+            # Match the channel from the *_channel keyword, not by bare substring —
+            # "reduce" contains "red", which would misclassify BLUE_CHANNEL: reduce.
+            if "red_channel" in text_lower:
                 channel = "red"
-            elif "blue" in text_lower:
+            elif "blue_channel" in text_lower:
                 channel = "blue"
-            elif "green" in text_lower:
+            elif "green_channel" in text_lower:
                 channel = "green"
 
             match = re.search(r"([+-]?\d+)\s*%", text_lower)

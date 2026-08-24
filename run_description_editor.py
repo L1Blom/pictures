@@ -5,7 +5,7 @@ import sys
 import os
 from pathlib import Path
 
-from description_editor_app import create_app
+from src.picture_analyzer.web.editor_app import create_app
 
 if __name__ == '__main__':
     # Change to project root if needed

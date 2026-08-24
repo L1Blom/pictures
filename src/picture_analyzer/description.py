@@ -47,6 +47,31 @@ def extract_date(desc_path: Path) -> str | None:
     return read_description_field(desc_path, "Datum", "Date")
 
 
+def extract_enhancement_hint(desc_path: Path) -> str | None:
+    """Return the ``Enhancement``/``Enhancement template`` value, or None.
+
+    Used to select a specialised enhancement prompt template.
+    Example: ``Enhancement: blue`` → returns ``"blue"``, which causes the
+    loader to use ``enhancement-blue.txt`` instead of ``enhancement.txt``.
+    """
+    return read_description_field(desc_path, "Enhancement", "Enhancement template")
+
+
+def extract_enhancement_hint_from_text(text: str) -> str | None:
+    """Like ``extract_enhancement_hint`` but works on raw description text.
+
+    This avoids re-reading the file when the text is already available
+    (e.g. from ``AnalysisContext.description_text``).
+    """
+    import re
+    pattern = r"(?im)^(?:Enhancement|Enhancement template)\s*:\s*(.+)$"
+    match = re.search(pattern, text)
+    if match:
+        value = match.group(1).strip().lower()
+        return value if value else None
+    return None
+
+
 _MONTH_MAP = {
     "januari": 1, "februari": 2, "maart": 3, "april": 4, "mei": 5, "juni": 6,
     "juli": 7, "augustus": 8, "september": 9, "oktober": 10,

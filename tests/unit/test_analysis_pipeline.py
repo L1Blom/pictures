@@ -306,7 +306,7 @@ class TestBuildPipeline:
     def test_canonical_step_order(self, settings_stepped):
         pipeline = build_pipeline(settings_stepped)
         names = [s.name for s in pipeline._steps]
-        assert names == ["metadata", "location", "enhancement", "slide_profiles", "geocoding"]
+        assert names == ["metadata", "location", "slide_profiles", "enhancement", "geocoding"]
 
     def test_disabled_slide_profiles_step(self):
         s = Settings(
