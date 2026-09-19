@@ -69,7 +69,18 @@ class GeocodingStep:
                 )
                 return partial
 
-            coords = geocoder.geocode(location_name)
+            # Build a location_data dict for geocode_from_location_info,
+            # which supports landmark_name for precise geocoding.
+            location_data = {
+                "country": partial.location.country or "",
+                "region": partial.location.region or "",
+                "city_or_area": partial.location.city or "",
+                "landmark_name": partial.location.landmark_name or "",
+                "confidence": partial.location.confidence,
+            }
+            coords = geocoder.geocode_from_location_info(
+                location_data, confidence_threshold=0  # threshold already checked above
+            )
             if coords is None:
                 logger.debug("GeocodingStep: geocoder returned None for '%s'", location_name)
                 return partial

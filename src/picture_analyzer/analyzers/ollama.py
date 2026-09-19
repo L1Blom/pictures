@@ -76,8 +76,11 @@ class OllamaAnalyzer(OpenAIAnalyzer):
             prompt += (
                 f"\n\n=== CONTEXT FROM DESCRIPTION.TXT ===\n"
                 f"Use this context as follows:\n"
-                f"- GROUND TRUTH (use exactly as given, do not override with visual inference):\n"
-                f"  Location (city, region, country) and Date.\n"
+                f"- GENERAL AREA: The location in the context is the general area (e.g. 'Paris, France').\n"
+                f"  Try to find a MORE SPECIFIC location within it — identify landmarks, read signs,\n"
+                f"  recognize architecture. Only fall back to the context location if you cannot\n"
+                f"  identify anything more specific.\n"
+                f"- GROUND TRUTH (use exactly as given): Date.\n"
                 f"- VISUAL CONFIRMATION REQUIRED (only use if you can confirm it in the image):\n"
                 f"  Activity, Weather, Mood. Describe ONLY what you can SEE in the image for these fields.\n"
                 f"  If the image contradicts the description, trust the image.\n"
@@ -162,12 +165,12 @@ class OllamaAnalyzer(OpenAIAnalyzer):
 
     @staticmethod
     def _enforce_location_from_description(raw_dict: dict, description_text: str) -> dict:
-        """Override location fields with ground truth from description.txt.
+        """Use description.txt location as a fallback when the LLM didn't
+        produce a confident, specific result.
 
-        If the description has an explicit ``Location:`` line, parse
-        city/region/country from it and write them directly into
-        ``location_detection``, ignoring whatever the model produced.
-        This handles truncation, misspelling, and empty responses alike.
+        If the LLM identified a landmark (confidence ≥ 70 or has a
+        landmark_name), keep its result. Otherwise, fall back to the
+        description.txt location.
         """
         import re
 
@@ -178,6 +181,16 @@ class OllamaAnalyzer(OpenAIAnalyzer):
 
         raw_location = match.group(1).strip()
 
+        # Check if the LLM produced a confident result we should keep
+        loc = dict(raw_dict.get("location_detection") or {})
+        llm_confidence = int(loc.get("confidence", 0) or 0)
+        llm_landmark = (loc.get("landmark_name") or "").strip()
+        llm_country = (loc.get("country") or "").strip()
+
+        # If the LLM identified a landmark or is confident, keep its result
+        if llm_landmark or llm_confidence >= 70:
+            return raw_dict
+
         # Slash-separated value means multiple countries at the same level
         # (e.g. "Duitsland / Oostenrijk / Frankrijk").  Store the whole
         # string as the country field and leave region/city empty.
@@ -187,11 +200,10 @@ class OllamaAnalyzer(OpenAIAnalyzer):
                 "region": "",
                 "city_or_area": "",
             }
-            loc = dict(raw_dict.get("location_detection") or {})
             loc.update(field_map)
             loc.setdefault("location_type", "country")
             loc["confidence"] = 100
-            loc["reasoning"] = "Explicitly named in the description"
+            loc["reasoning"] = "Fallback from description (LLM confidence was low)"
             raw_dict = {**raw_dict, "location_detection": loc}
             return raw_dict
 
@@ -213,10 +225,10 @@ class OllamaAnalyzer(OpenAIAnalyzer):
         for field, value in field_map.items():
             loc[field] = value
 
-        # Ensure confidence and reasoning reflect ground truth
+        # Ensure confidence and reasoning reflect ground truth fallback
         loc.setdefault("location_type", "city")
         loc["confidence"] = 100
-        loc["reasoning"] = "Explicitly named in the description"
+        loc["reasoning"] = "Fallback from description (LLM confidence was low)"
 
         raw_dict = {**raw_dict, "location_detection": loc}
         return raw_dict

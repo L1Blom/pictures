@@ -69,7 +69,14 @@ def _merge_results(base: AnalysisResult, overlay: AnalysisResult) -> AnalysisRes
         if field_name == "raw_response":
             merged_raw = dict(base_val) if isinstance(base_val, dict) else {}
             if isinstance(overlay_val, dict):
-                merged_raw.update(overlay_val)
+                for k, v in overlay_val.items():
+                    if k in merged_raw and isinstance(merged_raw[k], dict) and isinstance(v, dict):
+                        # Deep merge: only update with non-empty values
+                        for sk, sv in v.items():
+                            if sv or sk not in merged_raw[k]:
+                                merged_raw[k][sk] = sv
+                    elif v or k not in merged_raw:
+                        merged_raw[k] = v
             updates[field_name] = merged_raw
         elif isinstance(overlay_val, list) and overlay_val:
             updates[field_name] = overlay_val

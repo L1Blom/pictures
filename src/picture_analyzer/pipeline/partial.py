@@ -53,6 +53,7 @@ def load_partial_from_json(json_path: Path) -> AnalysisResult:
             country=loc_data.get("country"),
             region=loc_data.get("region"),
             city=loc_data.get("city_or_area") or loc_data.get("city"),
+            landmark_name=loc_data.get("landmark_name"),
             confidence=loc_data.get("confidence", 0),
         )
 

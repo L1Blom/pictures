@@ -9,6 +9,7 @@ SOURCE_DESCRIPTION_HEADER: "SOURCE DESCRIPTION (from description.txt)"
 # Location-related
 Confidence: "Confidence"
 Location uncertain: "Location uncertain"
+Landmark: "Landmark"
 
 # Metadata field labels  (key = JSON field name from AI response)
 Objects: "Objects"

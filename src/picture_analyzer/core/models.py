@@ -81,6 +81,7 @@ class LocationInfo(BaseModel, frozen=True):
     country: Optional[str] = None
     region: Optional[str] = None
     city: Optional[str] = None
+    landmark_name: Optional[str] = Field(default=None, description="Specific landmark identified by the LLM, e.g. 'Eiffel Tower'")
     coordinates: Optional[GeoLocation] = None
     confidence: int = Field(default=0, ge=0, le=100, description="Confidence in location accuracy")
     source: str = Field(default="ai", description="How location was determined: ai, description, gps")

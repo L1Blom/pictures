@@ -8,6 +8,7 @@ SOURCE_DESCRIPTION_HEADER: "BRONBESCHRIJVING (uit description.txt)"
 # Locatie-gerelateerd
 Confidence: "Betrouwbaarheid"
 Location uncertain: "Locatie onzeker"
+Landmark: "Herkenningsteken"
 
 # Metadata-veldlabels  (sleutel = JSON-veldnaam uit AI-antwoord)
 Objects: "Objecten"

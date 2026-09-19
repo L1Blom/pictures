@@ -636,6 +636,7 @@ class OpenAIAnalyzer:
                 country=location_det.get("country"),
                 region=location_det.get("region"),
                 city=location_det.get("city_or_area"),
+                landmark_name=location_det.get("landmark_name"),
                 confidence=_parse_confidence(location_det.get("confidence")),
                 source="ai",
             )

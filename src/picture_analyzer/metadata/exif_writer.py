@@ -246,6 +246,11 @@ class ExifWriter:
             city = location_detection.get("city_or_area", "")
             region = location_detection.get("region", "")
             confidence = location_detection.get("confidence", "")
+            landmark = location_detection.get("landmark_name", "")
+
+            # Filter out "no landmark" responses
+            if landmark and any(landmark.lower().startswith(p) for p in ("geen ", "no ", "not ", "none", "unknown")):
+                landmark = ""
 
             parts = [
                 p
@@ -257,6 +262,8 @@ class ExifWriter:
                     f" ({lang_trans['Confidence']}: {confidence}%)" if confidence else ""
                 )
                 lines.append(f"{lang_trans['LOCATION']}: {', '.join(parts)}{conf_str}")
+                if landmark:
+                    lines.append(f"{lang_trans.get('Landmark', 'Landmark')}: {landmark}")
             elif confidence:
                 lines.append(
                     f"{lang_trans['Location uncertain']} "

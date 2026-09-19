@@ -6,6 +6,8 @@ the free Nominatim geocoding service.
 from __future__ import annotations
 
 import json
+import logging
+import math
 import re
 import time
 from pathlib import Path
@@ -22,6 +24,8 @@ from ..config.defaults import (
     DEFAULT_VAGUE_LOCATION_TERMS,
 )
 from ..core.models import GeoLocation, LocationInfo
+
+logger = logging.getLogger(__name__)
 
 
 class NominatimGeocoder:
@@ -126,7 +130,8 @@ class NominatimGeocoder:
         ``location_detection`` structure from the AI response.
 
         Args:
-            location_data: Dict with country, region, city_or_area, confidence.
+            location_data: Dict with country, region, city_or_area, confidence,
+                and optionally landmark_name.
             confidence_threshold: Override instance threshold.
 
         Returns:
@@ -140,6 +145,57 @@ class NominatimGeocoder:
         country = self._normalize_country((location_data.get("country") or "").strip())
         region = self._strip_noise((location_data.get("region") or "").strip())
         city = self._strip_noise((location_data.get("city_or_area") or "").strip())
+        landmark = self._strip_noise((location_data.get("landmark_name") or "").strip())
+
+        # Filter out "no landmark" responses in various languages
+        _NO_LANDMARK_PATTERNS = ("geen ", "no ", "not ", "none", "unknown", "n/a")
+        if landmark and any(landmark.lower().startswith(p) for p in _NO_LANDMARK_PATTERNS):
+            landmark = ""
+
+        # If a landmark is identified, try geocoding it first (most precise).
+        # e.g. "Centre Pompidou, Paris, France" → exact GPS
+        # The result is validated against the city/region location: if the
+        # landmark geocodes far away (> 50 km) from the expected area, the
+        # LLM likely invented a non-standard name and we fall back to
+        # city-level geocoding instead of trusting a wrong POI match.
+        if landmark:
+            landmark_candidates: list[str] = []
+            if city and country:
+                landmark_candidates.append(f"{landmark}, {city}, {country}")
+            if city:
+                landmark_candidates.append(f"{landmark}, {city}")
+            if country:
+                landmark_candidates.append(f"{landmark}, {country}")
+            landmark_candidates.append(landmark)  # bare name as last resort
+
+            # Reference point for validation: geocode the city/region first
+            reference_geo = None
+            for ref_parts in ([city, region, country], [city, country], [region, country], [city]):
+                ref_query = ", ".join(p for p in ref_parts if p)
+                if not ref_query:
+                    continue
+                reference_geo = self.geocode(ref_query)
+                if reference_geo:
+                    break
+
+            for query in landmark_candidates:
+                result = self.geocode(query)
+                if result is None:
+                    continue
+                # Validate: landmark must be within 50 km of the reference
+                if reference_geo is not None:
+                    dist = self._haversine_km(
+                        result.latitude, result.longitude,
+                        reference_geo.latitude, reference_geo.longitude,
+                    )
+                    if dist > 50:
+                        logger.debug(
+                            "Landmark geocode for %r is %.0f km from %r — "
+                            "rejecting (likely a wrong POI match)",
+                            query, dist, ref_query,
+                        )
+                        continue
+                return result
 
         # Try progressively less specific queries until one succeeds.
         # Order: most geographic precision first, skipping POI-as-city candidates
@@ -284,6 +340,18 @@ class NominatimGeocoder:
         re.IGNORECASE,
     )
 
+    @staticmethod
+    def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """Great-circle distance between two points in kilometres."""
+        r = 6371.0
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+        )
+        return 2 * r * math.asin(math.sqrt(a))
+
     @classmethod
     def _strip_noise(cls, text: str) -> str:
         """Remove parenthetical notes and annotation phrases from a location part."""
@@ -299,8 +367,20 @@ class NominatimGeocoder:
         country = (location_data.get("country") or "").strip()
         region = (location_data.get("region") or "").strip()
         city = (location_data.get("city_or_area") or "").strip()
+        landmark = self._strip_noise((location_data.get("landmark_name") or "").strip())
+
+        # Filter out "no landmark" responses in various languages
+        _NO_LANDMARK_PATTERNS = ("geen ", "no ", "not ", "none", "unknown", "n/a")
+        if landmark and any(landmark.lower().startswith(p) for p in _NO_LANDMARK_PATTERNS):
+            landmark = ""
 
         country = self._normalize_country(country)
+
+        # If a landmark is identified, query for it directly (most precise)
+        if landmark:
+            if country:
+                return f"{landmark}, {country}"
+            return landmark
 
         parts = []
         for part in [city, region, country]:
