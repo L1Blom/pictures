@@ -1,17 +1,18 @@
 # Slide restoration profile: Yellow Cast
 # For slides with yellowish aging cast (typical of 1970s-1980s film)
+# Tuned 2026-09-19 per enhancement-quality audit (audit_output/audit_report.md).
 name: Yellow Cast
 description: For slides with yellowish aging cast
 
-saturation: 0.75
-contrast: 1.2
-brightness: 1.05
-sharpness: 1.1
+saturation: 0.85
+contrast: 1.15
+brightness: 1.04
+sharpness: 1.08
 
 color_balance:
-  red: 0.85
+  red: 0.88
   green: 1.0
-  blue: 1.25
+  blue: 1.18
 
 denoise: true
 denoise_radius: 0.5

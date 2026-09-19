@@ -51,6 +51,7 @@
     - **MANDATORY: recommended_enhancements must NEVER be an empty list. Even a well-exposed B&W scan always benefits from at least CONTRAST + SHARPNESS.**
     - **NEVER include COLOR_TEMPERATURE, RED_CHANNEL, BLUE_CHANNEL, or GREEN_CHANNEL for these images** — there is no color cast to correct on a monochrome image, only tonal/toning issues (see section 13).
     - **BRIGHTNESS ADJUSTMENT FOR EXPOSURE**
+      * GOAL: a pleasing family-album photo — bright, lively, engaging. When in doubt, lean brighter rather than dimmer.
       * Be conservative for flat/faded images — most of those restoration wins come from CONTRAST, not BRIGHTNESS.
       * If genuinely underexposed/dark (real detail loss in shadows, not just dull flatness — common on smaller/low-res snapshots in this mixed set): "BRIGHTNESS: increase by X%", and here it's fine to go higher than the usual cap — up to 15-20% if the image is very dark, since these are true exposure problems rather than fading.
       * If merely flat/faded (dull but no real detail loss): skip or cap BRIGHTNESS at 3-7%, and lean on CONTRAST instead.

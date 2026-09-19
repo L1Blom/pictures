@@ -139,9 +139,17 @@ def _fallback_output(name: str) -> str:
 
 
 def _resolve_profiles(restore_slide: str, analysis: dict) -> list[str]:
-    """Determine which slide-restoration profiles to apply."""
+    """Determine which slide-restoration profiles to apply.
+
+    Unknown/hallucinated profile names from the AI are dropped (with a
+    warning) instead of being written into output filenames — the audit
+    found files like ``_restored_foggy.jpg`` from invented names.
+    """
     if restore_slide != "auto":
         return [restore_slide]
+
+    # Valid profile names (kept in sync with slide_restoration.py / YAML)
+    valid = {"faded", "color_cast", "red_cast", "yellow_cast", "aged", "well_preserved"}
 
     slide_profiles = analysis.get("slide_profiles", [])
     if slide_profiles:
@@ -154,7 +162,16 @@ def _resolve_profiles(restore_slide: str, analysis: dict) -> list[str]:
         except (KeyError, TypeError):
             profiles = []
         if profiles:
-            return profiles
+            known = [p for p in profiles if p in valid]
+            dropped = [p for p in profiles if p not in valid]
+            if dropped:
+                click.echo(
+                    f"  ⚠ Ignoring unknown slide profile(s) from analysis: "
+                    f"{', '.join(dropped)}"
+                )
+            if known:
+                return known
+            click.echo("  ⚠ No valid profiles left — falling back to auto-detect")
     return ["auto"]
 
 
@@ -389,17 +406,35 @@ def _exif_date_within_months(exif_dt: datetime, base_dt: datetime, months: int =
 def _apply_description_ground_truth(
     analysis: dict, ground_truth: dict, timestamp: datetime
 ) -> None:
-    """Override an analysis dict with description.txt location/date/GPS.
+    """Apply description.txt location/date/GPS to an analysis dict.
 
-    Mutates ``analysis`` in place so EXIF/JSON writers embed the ground-truth
-    values instead of the LLM's location guess.  ``timestamp`` is written as
-    ``date_taken`` (matching update_location.py's per-image format).
+    Location is used as a FALLBACK: if the LLM identified a specific landmark
+    (confidence ≥ 70 or has a landmark_name), the LLM's location is kept.
+    Otherwise, the description.txt location is used. Date and GPS from
+    description.txt are always applied (date) or used as fallback (GPS).
     """
-    analysis["location_detection"] = parse_location_parts(ground_truth["location_str"])
+    # Check if the LLM produced a confident, specific location
+    loc = analysis.get("location_detection", {})
+    if isinstance(loc, dict):
+        llm_confidence = int(loc.get("confidence", 0) or 0)
+        llm_landmark = (loc.get("landmark_name") or "").strip()
+        llm_country = (loc.get("country") or "").strip()
+    else:
+        llm_confidence = 0
+        llm_landmark = ""
+        llm_country = ""
+
+    # Only override location if the LLM didn't produce a confident result
+    if not llm_landmark and llm_confidence < 70:
+        analysis["location_detection"] = parse_location_parts(ground_truth["location_str"])
+
+    # GPS: use description.txt coords as fallback when LLM didn't geocode
     coords = ground_truth.get("coords")
     if coords:
-        analysis["gps_coordinates"] = coords
-    elif "gps_coordinates" in analysis:
+        # If the LLM produced its own GPS (from landmark geocoding), keep it
+        if "gps_coordinates" not in analysis or not analysis.get("gps_coordinates"):
+            analysis["gps_coordinates"] = coords
+    elif "gps_coordinates" in analysis and not llm_landmark and llm_confidence < 70:
         del analysis["gps_coordinates"]
     description_text = ground_truth.get("description_text")
     if description_text:
@@ -548,6 +583,7 @@ def _analysis_to_legacy_dict(result) -> dict:
             "country": result.location.country or "",
             "region": result.location.region or "",
             "city_or_area": result.location.city or "",
+            "landmark_name": result.location.landmark_name or "",
             "confidence": result.location.confidence,
         }
 
@@ -918,9 +954,11 @@ def _batch_analyze(
                 img, provider, pipeline_mode, pipeline=shared_pipeline,
                 partial=_load_partial_if_requested(update_existing, only_steps, img, output_dir),
                 only_steps=only_steps,
-                # Ground truth overrides location/GPS/date, so skip the LLM
-                # location step (and per-image geocoding) to avoid wasted inference.
-                detect_location=False if ground_truth["status"] == "ok" else None,
+                # Always run the location step — the LLM can identify specific
+                # landmarks even when description.txt provides a general location.
+                # The description.txt location is used as a fallback when the LLM
+                # doesn't find a more specific landmark (see _apply_description_ground_truth).
+                detect_location=None,
             )
             _t_llm = time.perf_counter() - _t_llm_start
             analysis = _analysis_to_legacy_dict(analysis_result)

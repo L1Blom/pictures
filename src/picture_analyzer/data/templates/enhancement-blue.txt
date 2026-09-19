@@ -51,13 +51,16 @@
     - Each line must start with: "ACTION: description with percentage or parameter"
     - **MANDATORY: recommended_enhancements must NEVER be an empty list. Even for well-exposed images, scanned slides always benefit from at least SHARPNESS + VIBRANCE.**
     - **BRIGHTNESS ADJUSTMENT FOR EXPOSURE**
-      * These are scanned slides — they often look slightly dim but are NOT underexposed. Be very conservative.
-      * If image is clearly underexposed (very dark): include "BRIGHTNESS: increase by X%" (maximum 10%; typically 3-7%)
-      * If image looks slightly dim but mostly correct: skip BRIGHTNESS entirely or use 3-5% at most
+      * GOAL: a pleasing family-album photo — bright, lively, engaging. When in doubt, lean brighter rather than dimmer.
+      * Judge darkness by actual shadow detail: if shadows are crushed or faces are hard to see, the image is genuinely underexposed and needs a REAL brightness lift.
+      * If image is clearly underexposed (very dark, crushed shadows): include "BRIGHTNESS: increase by X%" (15-40%; scale with severity)
+      * If image is moderately dark (dull but detail visible): "BRIGHTNESS: increase by 10-20%"
+      * If image looks slightly dim but mostly correct: 5-10%
+      * If image is well-exposed: skip BRIGHTNESS
       * If image is overexposed: include "BRIGHTNESS: decrease by X%"
       * WARNING: Do NOT combine BRIGHTNESS + SHADOWS + CONTRAST all at once — this will massively overbrighten. Choose ONE exposure correction only.
-      * NEVER exceed 10% brightness increase for scanned slides.
     - **COLOR CORRECTIONS — these images are known to be blue-deficient**:
+      * **HARD RULE: if whites/greys actually look neutral in THIS image, include ZERO color corrections** — the folder hint describes the set average, not this specific image. An unnecessary correction creates a cast that was not there.
       * ALWAYS include COLOR_TEMPERATURE cool shift + RED_CHANNEL reduce + BLUE_CHANNEL increase for these images
       * Typical ranges for blue-deficient slides:
         - COLOR_TEMPERATURE: cool by 600-1000K

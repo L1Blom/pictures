@@ -1,17 +1,19 @@
 # Slide restoration profile: Faded
 # For slides with significant color fading, washed-out appearance
+# Tuned 2026-09-19 per enhancement-quality audit (audit_output/audit_report.md):
+# previous sat 1.5 / contrast 1.6 oversaturated and never won a blind ranking.
 name: Faded Slide
 description: For slides with significant color fading
 
-saturation: 1.5
-contrast: 1.6
-brightness: 1.15
-sharpness: 1.2
+saturation: 1.25
+contrast: 1.3
+brightness: 1.12
+sharpness: 1.1
 
 color_balance:
   red: 1.0
-  green: 1.05
-  blue: 1.15
+  green: 1.03
+  blue: 1.08
 
 denoise: true
 denoise_radius: 0.5

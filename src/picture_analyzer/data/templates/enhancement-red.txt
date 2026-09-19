@@ -53,13 +53,16 @@
     - Each line must start with: "ACTION: description with percentage or parameter"
     - **MANDATORY: recommended_enhancements must NEVER be an empty list. Even for well-exposed images, scanned slides always benefit from at least SHARPNESS + VIBRANCE.**
     - **BRIGHTNESS ADJUSTMENT FOR EXPOSURE — these images are known to be dark**:
-      * These images are known to be dark/underexposed — recommend a BRIGHTNESS increase more generously than the default template.
-      * If image is clearly underexposed (very dark, crushed shadows): include "BRIGHTNESS: increase by X%" (10-15%; higher than the default 10% cap because the darkness is a known condition of this set)
-      * If image is slightly dim but mostly correct: include "BRIGHTNESS: increase by 5-8%"
+      * GOAL: a pleasing family-album photo — bright, lively, engaging. When in doubt, lean brighter rather than dimmer.
+      * These images are known to be dark/underexposed — recommend a BRIGHTNESS increase generously.
+      * If image is clearly underexposed (very dark, crushed shadows): include "BRIGHTNESS: increase by X%" (15-40%; scale with severity — a slide where faces are barely visible needs 30-40%)
+      * If image is moderately dark (dull but detail visible): "BRIGHTNESS: increase by 10-20%"
+      * If image is slightly dim but mostly correct: 5-10%
       * If image is overexposed (rare for this set): include "BRIGHTNESS: decrease by X%"
       * WARNING: Do NOT combine BRIGHTNESS + SHADOWS + CONTRAST all at once — this will massively overbrighten. Choose ONE exposure correction only.
       * If BRIGHTNESS increase is above 8%, also include NOISE_REDUCTION (dark images reveal noise when brightened).
     - **COLOR CORRECTIONS — these images are known to be red-deficient**:
+      * **HARD RULE: if whites/greys actually look neutral in THIS image, include ZERO color corrections** — the folder hint describes the set average, not this specific image. An unnecessary correction creates a cast that was not there.
       * ALWAYS include COLOR_TEMPERATURE warm shift + RED_CHANNEL increase + BLUE_CHANNEL reduce for these images
       * Typical ranges for red-deficient slides:
         - COLOR_TEMPERATURE: warm by 600-1000K

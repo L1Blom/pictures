@@ -250,9 +250,137 @@ class PictureEnhancer:
 class SmartEnhancer:
     """Intelligent image enhancer that parses AI recommendations and applies enhancements"""
     
+    # ── Deterministic safety gates (audit-driven, see audit_output/) ──
+    # Cast-gate: if the original image's measured color cast is below this
+    # threshold, color-correction recommendations are dropped. The audit
+    # showed the analyzer frequently "corrects" casts that are not there,
+    # CREATING a cast on neutral images.
+    CAST_GATE_THRESHOLD = 0.03   # |R - avg(G,B)| / 255, measured on a thumbnail
+    # Highlight-gate: brightness INCREASES are dropped when the original is
+    # already bright or already has clipped highlights. The v4 audit found
+    # 29/50 images blowing highlights (up to 0% → 57% clipping) because the
+    # analyzer recommends brightness lifts on already-bright images.
+    BRIGHT_IMAGE_LUMA = 0.45      # mean luminance above this = bright image
+    HIGH_CLIP_PCT = 3.0          # original highlight clipping above this = at risk
+    # Saturation-gate: vibrance/saturation INCREASES are dropped when the
+    # original is already colorful. The v4 audit found images going from
+    # 0.62 → 0.82 saturation (cartoonish).
+    SATURATED_ORIG = 0.55        # mean saturation above this = already colorful
+    # Sharpness-gate: sharpening is capped when the original is already sharp
+    # or when the analyzer stacks SHARPNESS + UNSHARP_MASK (compounding).
+    # The v5 audit found a median +54% Laplacian-variance increase with p75
+    # at +104% — visible halos. PIL Sharpness factor cap and unsharp-mask
+    # strength cap keep the total sharpening in a natural range.
+    # Threshold calibrated to the sample's p75 lap_var (~1900): only genuinely
+    # sharp originals (top quartile) skip sharpening entirely.
+    SHARP_ORIG_LAP_VAR = 1900.0   # original Laplacian variance above this = already sharp
+    MAX_SHARPNESS_FACTOR = 1.15  # cap for PIL Sharpness (was up to 1.40)
+    MAX_UNSHARP_PERCENT = 60.0   # cap for unsharp-mask strength (was up to 80-100)
+    # Combined-exposure cap: the v6 audit showed two overbrightening patterns:
+    # (a) bright originals blow highlights from CONTRAST alone (up to +40%
+    #     clipping with brightness already gated), and
+    # (b) dark originals blow from the STACKED ops (brightness + contrast +
+    #     shadow brightening compounding, e.g. 1.25 × 1.30 + 20% shadows).
+    # Rules: bright originals get a tight contrast cap; every image gets an
+    # ADAPTIVE total exposure budget — dark originals get more headroom
+    # (they need strong lifts for the vivid family-album goal), bright ones
+    # less. Trim order: shadows → brightness → contrast.
+    # (v7's flat 0.35 budget overcorrected: vibrancy dropped 6.30→5.78 and
+    # the dull original started winning again — see audit v7 vs v6.)
+    BRIGHT_CONTRAST_CAP = 1.05   # contrast cap for bright originals (luma ≥ 0.45)
+    EXPOSURE_BUDGET_BASE = 0.35  # budget for a fully bright image (luma = 1.0)
+    EXPOSURE_BUDGET_DARK_BONUS = 0.40  # extra headroom for a fully dark image
+    # effective budget = BASE + DARK_BONUS × (1 − luma)
+    #   luma 0.20 (dark slide)  → ~0.67
+    #   luma 0.45 (mid)         → ~0.57
+    #   luma 0.70 (bright)      → ~0.47
+    
     def __init__(self):
         """Initialize smart enhancer"""
         self.enhancer = PictureEnhancer()
+    
+    @staticmethod
+    def _measure_image_stats(image_path: str) -> dict:
+        """Measure objective stats of an image on a small thumbnail.
+        
+        Returns a dict with:
+          cast: |R - avg(G,B)| / 255  (0 = neutral, higher = red/blue bias)
+          luma: mean luminance in [0, 1]
+          highlight_clip_pct: % of pixels at/above 250 luminance
+          saturation: mean HSV-style saturation in [0, 1]
+          lap_var: Laplacian variance (sharpness; higher = sharper)
+        Values are -1.0 when measurement fails (gates then stay open).
+        """
+        fallback = {"cast": -1.0, "luma": -1.0, "highlight_clip_pct": -1.0,
+                    "saturation": -1.0, "lap_var": -1.0}
+        try:
+            from PIL import Image
+            img = Image.open(image_path)
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            img.thumbnail((256, 256))
+            try:
+                import numpy as np
+                arr = np.asarray(img, dtype='float32')
+                r, g, b = arr[..., 0], arr[..., 1], arr[..., 2]
+                lum = 0.299 * r + 0.587 * g + 0.114 * b
+                mx = arr.max(axis=2)
+                mn = arr.min(axis=2)
+                sat = np.where(mx > 0, (mx - mn) / np.maximum(mx, 1e-6), 0.0)
+                # Laplacian variance (sharpness) on luminance
+                lap = (
+                    -4 * lum
+                    + np.roll(lum, 1, 0) + np.roll(lum, -1, 0)
+                    + np.roll(lum, 1, 1) + np.roll(lum, -1, 1)
+                )
+                return {
+                    "cast": float(abs(r.mean() - (g.mean() + b.mean()) / 2.0) / 255.0),
+                    "luma": float(lum.mean() / 255.0),
+                    "highlight_clip_pct": float((lum >= 250).mean() * 100),
+                    "saturation": float(sat.mean()),
+                    "lap_var": float(lap.var()),
+                }
+            except ImportError:
+                data = list(img.getdata())
+                n = len(data)
+                rs = [p[0] for p in data]; gs = [p[1] for p in data]; bs = [p[2] for p in data]
+                r, g, b = sum(rs) / n, sum(gs) / n, sum(bs) / n
+                lums = [0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2] for p in data]
+                mean_lum = sum(lums) / n
+                sats = [(max(p) - min(p)) / max(p) if max(p) > 0 else 0.0 for p in data]
+                # Laplacian variance without numpy: sample a grid of pixels
+                w, h = img.size
+                lap_vals = []
+                for y in range(1, h - 1, 4):
+                    for x in range(1, w - 1, 4):
+                        c = lums[y * w + x]
+                        lap_vals.append(
+                            -4 * c
+                            + lums[(y-1) * w + x] + lums[(y+1) * w + x]
+                            + lums[y * w + x - 1] + lums[y * w + x + 1]
+                        )
+                mean_lap = sum(lap_vals) / len(lap_vals) if lap_vals else 0.0
+                lap_var = (sum((v - mean_lap) ** 2 for v in lap_vals) / len(lap_vals)
+                           if lap_vals else 0.0)
+                return {
+                    "cast": abs(r - (g + b) / 2.0) / 255.0,
+                    "luma": mean_lum / 255.0,
+                    "highlight_clip_pct": sum(1 for l in lums if l >= 250) / n * 100,
+                    "saturation": sum(sats) / n,
+                    "lap_var": lap_var,
+                }
+        except Exception as e:
+            print(f"  ⚠ Could not measure image stats ({e}) — safety gates disabled for this image")
+            return fallback
+    
+    @staticmethod
+    def _measure_color_cast(image_path: str) -> float:
+        """Measure the color cast of an image as |R - avg(G,B)| / 255.
+        
+        Convenience wrapper around _measure_image_stats.
+        """
+        return SmartEnhancer._measure_image_stats(image_path)["cast"]
+    
     
     def enhance_from_analysis(
         self,
@@ -307,7 +435,9 @@ class SmartEnhancer:
                 return None
             
             # Parse and apply each recommendation
-            adjustments = self._parse_recommendations(recommendations, enhancement_data)
+            adjustments = self._parse_recommendations(
+                recommendations, enhancement_data, image_path=image_path
+            )
             
             # Apply adjustments in optimal order
             current_image_path = self._apply_adjustments(
@@ -366,7 +496,8 @@ class SmartEnhancer:
     def _parse_recommendations(
         self,
         recommendations: List[str],
-        enhancement_data: Dict[str, Any]
+        enhancement_data: Dict[str, Any],
+        image_path: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Parse AI recommendations and extract adjustment factors
@@ -633,6 +764,172 @@ class SmartEnhancer:
                 seen_channels.add(ch)
             deduped_ops.append(op)
         advanced_ops = deduped_ops
+
+        # ── SAFETY GATES (deterministic, audit-driven) ────────────────
+        # Measure the original once; gates stay open on measurement failure.
+        if image_path and (advanced_ops or adjustments):
+            stats = self._measure_image_stats(image_path)
+
+            # Cast-gate: neutral originals get no color corrections
+            if 0.0 <= stats["cast"] < self.CAST_GATE_THRESHOLD and any(
+                isinstance(op, dict) and op.get('type') in ('color_temperature', 'channel')
+                for op in advanced_ops
+            ):
+                dropped = [
+                    op for op in advanced_ops
+                    if isinstance(op, dict) and op.get('type') in ('color_temperature', 'channel')
+                ]
+                advanced_ops = [
+                    op for op in advanced_ops
+                    if not (isinstance(op, dict) and op.get('type') in ('color_temperature', 'channel'))
+                ]
+                print(f"  ⚠ Cast-gate: original is color-neutral (cast={stats['cast']:.4f} < "
+                      f"{self.CAST_GATE_THRESHOLD}) — dropping {len(dropped)} color-correction "
+                      f"op(s) that would have introduced a cast")
+
+            # Highlight-gate: no brightness increases on bright/clipped originals
+            at_risk = (
+                (stats["luma"] >= self.BRIGHT_IMAGE_LUMA)
+                or (stats["highlight_clip_pct"] >= self.HIGH_CLIP_PCT)
+            )
+            if at_risk:
+                if adjustments.get('brightness', 1.0) > 1.0:
+                    print(f"  ⚠ Highlight-gate: original is bright (luma={stats['luma']:.2f}, "
+                          f"hi_clip={stats['highlight_clip_pct']:.1f}%) — dropping brightness "
+                          f"increase {adjustments['brightness']:.2f}x that would blow highlights")
+                    del adjustments['brightness']
+                # Shadow brightening also pushes pixels toward clipping
+                kept_ops = []
+                for op in advanced_ops:
+                    if (isinstance(op, dict) and op.get('type') == 'shadows_highlights'
+                            and op.get('shadow_adjust', 0) > 0):
+                        print(f"  ⚠ Highlight-gate: dropping shadow brightening "
+                              f"(+{op['shadow_adjust']}%) on bright/clipped original")
+                        continue
+                    kept_ops.append(op)
+                advanced_ops = kept_ops
+
+            # Saturation-gate: no vibrance/saturation increases on colorful originals
+            if stats["saturation"] >= self.SATURATED_ORIG:
+                if adjustments.get('saturation', 1.0) > 1.0:
+                    print(f"  ⚠ Saturation-gate: original is already colorful "
+                          f"(sat={stats['saturation']:.2f}) — dropping saturation increase")
+                    del adjustments['saturation']
+                kept_ops = []
+                for op in advanced_ops:
+                    if (isinstance(op, dict) and op.get('type') == 'vibrance'
+                            and op.get('factor', 1.0) > 1.0):
+                        print(f"  ⚠ Saturation-gate: dropping vibrance boost "
+                              f"({op['factor']:.2f}x) on already-colorful original")
+                        continue
+                    kept_ops.append(op)
+                advanced_ops = kept_ops
+
+            # Sharpness-gate: cap total sharpening (halo prevention)
+            # a) Already-sharp originals get no additional sharpening at all
+            if stats.get("lap_var", 0.0) >= self.SHARP_ORIG_LAP_VAR:
+                if adjustments.get('sharpness', 1.0) > 1.0:
+                    print(f"  ⚠ Sharpness-gate: original is already sharp "
+                          f"(lap_var={stats['lap_var']:.0f}) — dropping sharpness increase")
+                    del adjustments['sharpness']
+                kept_ops = []
+                for op in advanced_ops:
+                    if isinstance(op, dict) and op.get('type') == 'unsharp_mask':
+                        print(f"  ⚠ Sharpness-gate: dropping unsharp mask on already-sharp original")
+                        continue
+                    kept_ops.append(op)
+                advanced_ops = kept_ops
+            else:
+                # b) Not already sharp: cap the PIL Sharpness factor
+                if adjustments.get('sharpness', 1.0) > self.MAX_SHARPNESS_FACTOR:
+                    print(f"  ⚠ Sharpness-gate: capping sharpness "
+                          f"{adjustments['sharpness']:.2f}x → {self.MAX_SHARPNESS_FACTOR}x")
+                    adjustments['sharpness'] = self.MAX_SHARPNESS_FACTOR
+                # c) Cap unsharp-mask strength; and if BOTH SHARPNESS and
+                #    UNSHARP_MASK are recommended, drop the unsharp mask
+                #    entirely (compounding sharpening = halos)
+                has_sharpness = adjustments.get('sharpness', 1.0) > 1.0
+                kept_ops = []
+                for op in advanced_ops:
+                    if isinstance(op, dict) and op.get('type') == 'unsharp_mask':
+                        if has_sharpness:
+                            print(f"  ⚠ Sharpness-gate: dropping unsharp mask "
+                                  f"(compounds with SHARPNESS increase — halo risk)")
+                            continue
+                        if op.get('percent', 0) > self.MAX_UNSHARP_PERCENT:
+                            print(f"  ⚠ Sharpness-gate: capping unsharp strength "
+                                  f"{op['percent']:.0f}% → {self.MAX_UNSHARP_PERCENT:.0f}%")
+                            op['percent'] = self.MAX_UNSHARP_PERCENT
+                    kept_ops.append(op)
+                advanced_ops = kept_ops
+
+            # Combined-exposure cap: limit the TOTAL brightening effect of
+            # stacked ops (brightness × contrast × shadow brightening).
+            # Trim order: shadow brightening first, then brightness, then contrast.
+            if stats["luma"] >= 0.0:  # measurement succeeded
+                # (a) Bright originals: contrast alone blows highlights
+                if (stats["luma"] >= self.BRIGHT_IMAGE_LUMA
+                        and adjustments.get('contrast', 1.0) > self.BRIGHT_CONTRAST_CAP):
+                    print(f"  ⚠ Exposure-cap: capping contrast {adjustments['contrast']:.2f}x → "
+                          f"{self.BRIGHT_CONTRAST_CAP}x on bright original "
+                          f"(luma={stats['luma']:.2f}) — contrast blows highlights too")
+                    adjustments['contrast'] = self.BRIGHT_CONTRAST_CAP
+
+                # (b) Adaptive total exposure budget across all brightening ops:
+                #     dark originals get more headroom than bright ones.
+                budget_cap = (self.EXPOSURE_BUDGET_BASE
+                              + self.EXPOSURE_BUDGET_DARK_BONUS * (1.0 - stats["luma"]))
+
+                def _budget(b, c, sh):
+                    return (b - 1.0) + 0.5 * (c - 1.0) + 0.5 * (sh / 100.0)
+
+                shadow_pct = 0.0
+                for op in advanced_ops:
+                    if (isinstance(op, dict) and op.get('type') == 'shadows_highlights'
+                            and op.get('shadow_adjust', 0) > 0):
+                        shadow_pct = max(shadow_pct, op['shadow_adjust'])
+                b = adjustments.get('brightness', 1.0)
+                c = adjustments.get('contrast', 1.0)
+                bud = _budget(b, c, shadow_pct)
+                if b > 1.0 and bud > budget_cap:
+                    # Trim 1: drop shadow brightening
+                    if shadow_pct > 0:
+                        print(f"  ⚠ Exposure-cap: dropping shadow brightening "
+                              f"(+{shadow_pct:.0f}%) — combined exposure budget "
+                              f"{bud:.2f} > {budget_cap:.2f}")
+                        kept_ops = []
+                        for op in advanced_ops:
+                            if (isinstance(op, dict) and op.get('type') == 'shadows_highlights'
+                                    and op.get('shadow_adjust', 0) > 0):
+                                # keep the op only if it still has a highlight component
+                                if op.get('highlight_adjust', 0) != 0:
+                                    op = dict(op, shadow_adjust=0)
+                                else:
+                                    continue
+                            kept_ops.append(op)
+                        advanced_ops = kept_ops
+                        shadow_pct = 0.0
+                        bud = _budget(b, c, shadow_pct)
+                    # Trim 2: reduce brightness
+                    if bud > budget_cap:
+                        max_b = 1.0 + budget_cap - 0.5 * (c - 1.0)
+                        max_b = max(1.0, round(max_b, 4))
+                        if max_b < b:
+                            print(f"  ⚠ Exposure-cap: reducing brightness {b:.2f}x → "
+                                  f"{max_b:.2f}x — combined exposure budget "
+                                  f"{bud:.2f} > {budget_cap:.2f}")
+                            adjustments['brightness'] = max_b
+                            b = max_b
+                            bud = _budget(b, c, shadow_pct)
+                    # Trim 3: reduce contrast (last resort)
+                    if bud > budget_cap and c > 1.0:
+                        max_c = 1.0 + 2.0 * (budget_cap - (b - 1.0))
+                        max_c = max(1.0, round(max_c, 4))
+                        if max_c < c:
+                            print(f"  ⚠ Exposure-cap: reducing contrast {c:.2f}x → "
+                                  f"{max_c:.2f}x — combined exposure budget "
+                                  f"{bud:.2f} > {budget_cap:.2f}")
+                            adjustments['contrast'] = max_c
 
         return {
             'basic': adjustments,

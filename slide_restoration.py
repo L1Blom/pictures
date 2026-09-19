@@ -18,46 +18,50 @@ class SlideRestoration:
     """Specialized restoration for old slides and dia positives"""
     
     # Restoration profiles for different slide conditions
+    # Tuned 2026-09-19 based on the enhancement-quality audit (see
+    # audit_output/audit_report.md): the previous values oversaturated and
+    # oversharpened (faded: sat 1.5/contrast 1.6 never won a blind ranking;
+    # user preference ≈ well_preserved-to-aged intensity, sat ≈ 1.1-1.25).
     RESTORATION_PROFILES = {
         'faded': {
             'description': 'Very faded slide with lost color and contrast',
-            'saturation': 1.5,      # Restore color vibrancy
-            'contrast': 1.6,        # Restore lost contrast
-            'brightness': 1.15,     # Lift shadows
-            'sharpness': 1.2,       # Enhance clarity
-            'color_balance': {'red': 1.0, 'green': 1.05, 'blue': 1.15},  # Neutral with cool boost
+            'saturation': 1.25,     # was 1.5 — oversaturated skin tones
+            'contrast': 1.3,        # was 1.6 — crushed shadows
+            'brightness': 1.12,     # was 1.15
+            'sharpness': 1.1,       # was 1.2 — halo artifacts
+            'color_balance': {'red': 1.0, 'green': 1.03, 'blue': 1.08},  # gentler cool boost
         },
         'color_cast': {
             'description': 'Strong color cast from aging (magenta, yellow, or cyan)',
-            'saturation': 1.3,      # Moderate saturation
-            'contrast': 1.4,        # Enhance contrast
-            'brightness': 1.1,      # Subtle lift
-            'sharpness': 1.15,      # Enhance details
-            'color_balance': {'red': 1.0, 'green': 1.05, 'blue': 0.95},  # Neutral shift
+            'saturation': 1.15,     # was 1.3
+            'contrast': 1.2,        # was 1.4
+            'brightness': 1.06,     # was 1.1
+            'sharpness': 1.08,      # was 1.15
+            'color_balance': {'red': 1.0, 'green': 1.03, 'blue': 0.97},  # gentler neutral shift
         },
         'red_cast': {
             'description': 'Strong red/magenta color cast from aging',
-            'saturation': 1.25,     # Moderate saturation recovery
-            'contrast': 1.35,       # Restore contrast
-            'brightness': 1.1,      # Subtle lift
-            'sharpness': 1.15,      # Enhance clarity
-            'color_balance': {'red': 0.85, 'green': 1.08, 'blue': 1.12},  # Reduce red, boost green and blue
+            'saturation': 1.15,     # was 1.25
+            'contrast': 1.2,        # was 1.35
+            'brightness': 1.06,     # was 1.1
+            'sharpness': 1.08,      # was 1.15
+            'color_balance': {'red': 0.9, 'green': 1.05, 'blue': 1.08},  # reduce red, boost green and blue
         },
         'yellow_cast': {
             'description': 'Strong yellow/orange color cast (warm aging) - needs desaturation and blue boost',
-            'saturation': 0.75,  # REDUCE saturation (was boosting before) to remove orange cast
-            'contrast': 1.2,
-            'brightness': 1.05,
-            'sharpness': 1.1,
-            'color_balance': {'red': 0.85, 'green': 1.0, 'blue': 1.25},  # Significantly boost blue, reduce red
+            'saturation': 0.85,  # REDUCE saturation (was boosting before) to remove orange cast
+            'contrast': 1.15,
+            'brightness': 1.04,
+            'sharpness': 1.08,
+            'color_balance': {'red': 0.88, 'green': 1.0, 'blue': 1.18},  # boost blue, reduce red
         },
         'aged': {
             'description': 'Moderately aged with some fading and contrast loss',
-            'saturation': 1.25,
-            'contrast': 1.3,
-            'brightness': 1.08,
-            'sharpness': 1.1,
-            'color_balance': {'red': 1.0, 'green': 1.02, 'blue': 1.05},
+            'saturation': 1.18,    # was 1.25
+            'contrast': 1.22,      # was 1.3
+            'brightness': 1.06,    # was 1.08
+            'sharpness': 1.08,     # was 1.1
+            'color_balance': {'red': 1.0, 'green': 1.01, 'blue': 1.03},
         },
         'well_preserved': {
             'description': 'Well-preserved slide with minimal aging',
@@ -261,7 +265,6 @@ class SlideRestoration:
             return None
     
     @staticmethod
-    @staticmethod
     def auto_restore_slide(
         image_path: str,
         analysis_data: Dict[str, Any],
@@ -283,20 +286,26 @@ class SlideRestoration:
         # First, check if the AI analysis already provided slide profile recommendations
         ai_profiles = analysis_data.get('slide_profiles', [])
         if ai_profiles and isinstance(ai_profiles, list) and len(ai_profiles) > 0:
-            # Use the AI's top recommendation
-            best_profile = ai_profiles[0]
-            if isinstance(best_profile, dict):
-                profile_name = best_profile.get('profile', 'aged')
-                confidence = best_profile.get('confidence', 0)
+            # Use the AI's top VALID recommendation (drop hallucinated names)
+            valid = set(SlideRestoration.RESTORATION_PROFILES.keys())
+            candidates = []
+            for p in ai_profiles:
+                name = p.get('profile') if isinstance(p, dict) else p
+                if name in valid:
+                    candidates.append((name, p.get('confidence', 0) if isinstance(p, dict) else 0))
+                else:
+                    print(f"  ⚠ Ignoring unknown AI slide profile: {name!r}")
+            if candidates:
+                profile_name, confidence = candidates[0]
+                print(f"\nUsing AI-provided slide profile:")
+                print(f"  Profile: {profile_name}")
+                print(f"  Confidence: {confidence:.0f}%")
+                if len(candidates) > 1:
+                    print(f"  Alternative profiles: {[c[0] for c in candidates[1:]]}")
             else:
-                profile_name = best_profile
-                confidence = 0
-            
-            print(f"\nUsing AI-provided slide profile:")
-            print(f"  Profile: {profile_name}")
-            print(f"  Confidence: {confidence:.0f}%")
-            if len(ai_profiles) > 1:
-                print(f"  Alternative profiles: {[p.get('profile') if isinstance(p, dict) else p for p in ai_profiles[1:]]}")
+                print(f"\nNo valid AI slide profiles, using heuristic analysis:")
+                condition = SlideRestoration.analyze_slide_condition(analysis_data)
+                profile_name = condition['recommended_profile']
         else:
             # Fall back to heuristic detection
             print(f"\nNo AI slide profile provided, using heuristic analysis:")

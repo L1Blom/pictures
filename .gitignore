@@ -89,6 +89,9 @@ htmlcov/
 test_*/
 output-*/
 
+# Enhancement audit outputs (auditor results, galleries, regenerated variants)
+audit_output/
+
 # Temporary files
 tmp/
 temp/

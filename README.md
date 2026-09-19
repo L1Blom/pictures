@@ -37,6 +37,13 @@ A Python project that analyzes pictures using AI vision models (Ollama local mod
 - Automatic adjustment of lighting, contrast, saturation, and sharpness
 - Smart factor calculation from percentage recommendations
 - Separate enhancement recommendations (not cluttering EXIF)
+- **Deterministic safety gates** (audit-tuned): the enhancer measures each
+  original image and automatically drops/caps recommendations that would
+  introduce a color cast on neutral images, blow highlights on bright images,
+  over-saturate colorful images, or over-sharpen (halos). A combined
+  exposure budget (adaptive to image darkness) prevents stacked
+  brightness/contrast/shadow operations from overbrightening.
+  See `ENHANCEMENT_AUDIT.md` for how these were calibrated.
 
 **Slide Restoration**
 - Specialized restoration for scanned old slides and dia positives

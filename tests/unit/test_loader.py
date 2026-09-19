@@ -118,15 +118,15 @@ def test_load_builtin_profiles():
 
 
 def test_profile_values_match_defaults():
-    """YAML profile values should match the original defaults."""
+    """YAML profile values should match the tuned defaults (2026-09-19 audit)."""
     profiles = load_slide_profiles()
 
     faded = profiles["faded"]
-    assert faded.saturation == 1.5
-    assert faded.contrast == 1.6
-    assert faded.brightness == 1.15
+    assert faded.saturation == 1.25
+    assert faded.contrast == 1.3
+    assert faded.brightness == 1.12
     assert faded.denoise is True
-    assert faded.color_balance.blue == 1.15
+    assert faded.color_balance.blue == 1.08
 
     well = profiles["well_preserved"]
     assert well.saturation == 1.1
