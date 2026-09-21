@@ -53,12 +53,14 @@ label.chk { font-size: 12px; color: var(--muted); display: flex; align-items: ce
 select { padding: 5px 8px; background: var(--panel2); color: var(--text);
          border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
 
-/* Job bar — floats above everything (incl. viewer) so progress is always visible */
+/* Job bar — floats above everything (incl. viewer) so progress is always visible.
+   Content below is pushed down by the bar's ACTUAL height via --jobbar-h
+   (updated by JS), so multi-line job lists never overlap the header/buttons. */
 .job-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 200;
           background: var(--panel); border-bottom: 1px solid var(--border); padding: 6px 14px;
           font-size: 12px; flex-shrink: 0; max-height: 120px; overflow-y: auto; display: none; }
-body.has-jobs header { margin-top: 34px; }
-body.has-jobs .viewer .top { margin-top: 34px; }
+body.has-jobs header { margin-top: var(--jobbar-h, 34px); }
+body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
 .job-bar .job { display: flex; gap: 10px; padding: 3px 0; font-family: var(--mono); }
 .job .st-queued { color: var(--muted); } .job .st-running { color: var(--warn); }
 .job .st-completed { color: var(--ok); } .job .st-failed { color: var(--err); }
@@ -283,7 +285,17 @@ function showJobBar() {
   const bar = $('jobBar');
   bar.style.display = 'block';
   document.body.classList.add('has-jobs');
+  updateJobBarHeight();
 }
+
+function updateJobBarHeight() {
+  const bar = $('jobBar');
+  if (bar.style.display === 'none') return;
+  document.documentElement.style.setProperty('--jobbar-h', bar.offsetHeight + 'px');
+}
+
+// Keep the pushed-down offset in sync whenever the bar grows/shrinks
+new ResizeObserver(updateJobBarHeight).observe(document.getElementById('jobBar'));
 
 function startJobPolling(jobId, label) {
   showJobBar();
@@ -292,6 +304,7 @@ function startJobPolling(jobId, label) {
   el.className = 'job';
   el.innerHTML = `<span class="st-queued" id="job-${jobId}">⏳ ${esc(label)} — queued</span>`;
   bar.appendChild(el);
+  updateJobBarHeight();
   const timer = setInterval(async () => {
     try {
       const j = await api(`/api/jobs/${jobId}`);
@@ -319,6 +332,7 @@ function showSyncStatus(label, ok, detail) {
   el.className = 'job';
   el.innerHTML = `<span class="st-${ok ? 'completed' : 'failed'}">${ok ? '✓' : '✗'} ${esc(label)} — ${ok ? 'completed' : 'failed'}${detail ? ' · ' + esc(detail) : ''}</span>`;
   bar.appendChild(el);
+  updateJobBarHeight();
   if (ok) {
     if (viewerImage) openViewer(viewerImage);   // refresh viewer
     if (currentFolder) selectFolder(currentFolder); // refresh grid
