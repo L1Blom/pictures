@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Picture Analyzer — Admin</title>
+<style>
+:root {
+  --bg: #1e1e2e; --panel: #2a2a3a; --panel2: #32324a; --border: #44445c;
+  --text: #e0e0ea; --muted: #9090a8; --accent: #7c6cf0; --ok: #4caf50;
+  --warn: #ffb74d; --err: #ef5350; --mono: ui-monospace, monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
+header { background: var(--panel); padding: 10px 16px; display: flex; align-items: center;
+         gap: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+header h1 { font-size: 16px; font-weight: 600; }
+header .roots { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+header a { color: var(--accent); text-decoration: none; font-size: 12px; margin-left: auto; }
+
+.layout { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Sidebar: folders ─────────────────────────────── */
+.sidebar { width: 280px; background: var(--panel); border-right: 1px solid var(--border);
+           display: flex; flex-direction: column; flex-shrink: 0; }
+.sidebar .search { padding: 8px; }
+.sidebar input { width: 100%; padding: 6px 10px; background: var(--panel2); color: var(--text);
+                 border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+.folder-list { flex: 1; overflow-y: auto; }
+.folder { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.folder:hover { background: var(--panel2); }
+.folder.active { background: var(--accent); color: white; }
+.folder .name { font-size: 13px; word-break: break-all; }
+.folder .meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.folder.active .meta { color: rgba(255,255,255,0.7); }
+.folder .meta .has-desc { color: var(--ok); }
+
+/* ── Main area ────────────────────────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Command bar */
+.cmd-bar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 10px 14px;
+           display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex-shrink: 0; }
+.cmd-bar .folder-label { font-size: 13px; font-weight: 600; margin-right: 8px; max-width: 340px;
+                         overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
+         background: var(--panel2); color: var(--text); font-size: 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: white; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+label.chk { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+select { padding: 5px 8px; background: var(--panel2); color: var(--text);
+         border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
+
+/* Job bar */
+.job-bar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 6px 14px;
+           font-size: 12px; flex-shrink: 0; max-height: 120px; overflow-y: auto; display: none; }
+.job-bar .job { display: flex; gap: 10px; padding: 3px 0; font-family: var(--mono); }
+.job .st-queued { color: var(--muted); } .job .st-running { color: var(--warn); }
+.job .st-completed { color: var(--ok); } .job .st-failed { color: var(--err); }
+
+/* Image grid */
+.grid-wrap { flex: 1; overflow-y: auto; padding: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.cell { background: var(--panel); border-radius: 8px; overflow: hidden; cursor: pointer;
+        border: 2px solid transparent; }
+.cell:hover { border-color: var(--accent); }
+.cell img { width: 100%; height: 110px; object-fit: cover; display: block; }
+.cell .cap { padding: 4px 8px; font-size: 10px; color: var(--muted);
+             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell .badges { padding: 0 8px 6px; font-size: 9px; }
+.badge { display: inline-block; padding: 1px 5px; border-radius: 4px; margin-right: 3px;
+         background: var(--panel2); color: var(--muted); }
+.badge.has-enh { background: #2e7d32; color: white; }
+.badge.has-rest { background: #1565c0; color: white; }
+
+/* ── Viewer overlay ───────────────────────────────── */
+.viewer { position: fixed; inset: 0; background: rgba(10,10,16,0.92); z-index: 100;
+          display: none; flex-direction: column; }
+.viewer.open { display: flex; }
+.viewer .top { padding: 10px 16px; display: flex; align-items: center; gap: 12px;
+               background: var(--panel); border-bottom: 1px solid var(--border); }
+.viewer .top .title { font-size: 14px; font-weight: 600; flex: 1;
+                      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewer .body { flex: 1; display: flex; overflow: hidden; }
+.viewer .imgs { flex: 1.6; display: flex; flex-wrap: wrap; align-content: flex-start;
+                gap: 12px; padding: 14px; overflow-y: auto; align-items: flex-start; }
+.variant-card { background: var(--panel); border-radius: 8px; overflow: hidden; width: 340px; }
+.variant-card img { width: 100; height: 240px; object-fit: contain; background: #111; display: block; width: 100%; }
+.variant-card .vlabel { padding: 6px 10px; font-size: 12px; font-weight: 600; display: flex;
+                        justify-content: space-between; }
+.variant-card .vlabel .tag { font-size: 10px; color: var(--muted); font-weight: 400; }
+.viewer .json { flex: 1; background: var(--panel); border-left: 1px solid var(--border);
+                overflow-y: auto; padding: 14px; font-family: var(--mono); font-size: 11px;
+                white-space: pre-wrap; word-break: break-all; }
+.viewer .json h3 { font-family: -apple-system, sans-serif; font-size: 13px; margin-bottom: 8px; }
+.viewer .json .rec { padding: 4px 8px; background: var(--panel2); border-radius: 4px;
+                     margin-bottom: 4px; color: var(--warn); }
+.viewer .json .kv { color: var(--muted); }
+.viewer .nav { display: flex; gap: 8px; }
+.empty { color: var(--muted); padding: 40px; text-align: center; width: 100%; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚡ Picture Analyzer Admin</h1>
+  <div class="roots" id="roots"></div>
+  <a href="/">← description editor</a>
+</header>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="search"><input id="folderSearch" placeholder="Filter folders…"></div>
+    <div class="folder-list" id="folderList"><div class="empty">Loading folders…</div></div>
+  </div>
+
+  <div class="main">
+    <div class="cmd-bar">
+      <span class="folder-label" id="folderLabel">Select a folder ←</span>
+      <button class="primary" id="btnProcessFolder" disabled title="Analyze + enhance + restore all images in the folder">▶ Process folder</button>
+      <button id="btnAnalyzeFolder" disabled title="Analyze only (no enhance/restore)">Analyze only</button>
+      <label class="chk"><input type="checkbox" id="optEnhance" checked> enhance</label>
+      <label class="chk"><input type="checkbox" id="optRestore" checked> restore</label>
+      <select id="optProfile" title="Restoration profile">
+        <option value="auto">auto</option>
+        <option>faded</option><option>color_cast</option><option>red_cast</option>
+        <option>yellow_cast</option><option>aged</option><option>well_preserved</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="optSkipExisting"> skip existing</label>
+      <button id="btnReport" disabled title="Generate markdown report">Report</button>
+      <button id="btnGallery" disabled title="Generate gallery markdown">Gallery</button>
+    </div>
+    <div class="job-bar" id="jobBar"></div>
+    <div class="grid-wrap"><div class="grid" id="grid"><div class="empty">Select a folder to see its images.</div></div></div>
+  </div>
+</div>
+
+<div class="viewer" id="viewer">
+  <div class="top">
+    <div class="title" id="viewerTitle"></div>
+    <div class="nav">
+      <button id="btnProcessImage" class="primary">▶ Process this image</button>
+      <button id="btnEnhanceImage">Enhance</button>
+      <button id="btnClose">✕ Close</button>
+    </div>
+  </div>
+  <div class="body">
+    <div class="imgs" id="viewerImgs"></div>
+    <div class="json" id="viewerJson"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let folders = [], currentFolder = null, currentImages = [], viewerImage = null;
+let jobTimers = [];
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+
+/* ── Folder list ─────────────────────────────────── */
+async function loadFolders() {
+  try {
+    const data = await api('/api/admin/folders');
+    folders = data.folders;
+    renderFolders('');
+  } catch (e) {
+    $('folderList').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
+}
+
+function renderFolders(filter) {
+  const list = folders.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()));
+  $('folderList').innerHTML = list.map(f => `
+    <div class="folder ${currentFolder === f.name ? 'active' : ''}" data-folder="${escAttr(f.name)}">
+      <div class="name">${esc(f.name)}</div>
+      <div class="meta">${f.images} images ${f.has_description ? '<span class="has-desc">· description.txt ✓</span>' : '· no description'}</div>
+    </div>`).join('') || '<div class="empty">No folders match.</div>';
+  document.querySelectorAll('.folder').forEach(el =>
+    el.onclick = () => selectFolder(el.dataset.folder));
+}
+
+async function selectFolder(name) {
+  currentFolder = name;
+  renderFolders($('folderSearch').value);
+  const f = folders.find(x => x.name === name);
+  $('folderLabel').textContent = `${name} (${f.images} images)`;
+  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery'].forEach(id => $(id).disabled = false);
+  $('grid').innerHTML = '<div class="empty">Loading images…</div>';
+  try {
+    // list images via the editor's directory API (photos root relative)
+    const roots = await api('/api/admin/roots');
+    const resp = await fetch(`/api/admin/dir?dir=${encodeURIComponent(name)}`).then(r => r.json()).catch(() => null);
+    if (resp && resp.images) {
+      currentImages = resp.images;
+    } else {
+      // fallback: build from folder info (paths are absolute)
+      currentImages = [];
+    }
+    renderGrid();
+  } catch (e) {
+    $('grid').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
+}
+
+function renderGrid() {
+  if (!currentImages.length) {
+    $('grid').innerHTML = '<div class="empty">No images found (or folder uses unsupported formats).</div>';
+    return;
+  }
+  $('grid').innerHTML = currentImages.map(img => {
+    const src = img.absolute || img.path;
+    return `<div class="cell" data-src="${escAttr(src)}">
+      <img loading="lazy" src="/api/admin/file?path=${encodeURIComponent(src)}" onerror="this.style.opacity=0.15">
+      <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}</div>
+      <div class="cap" title="${escAttr(img.name)}">${esc(img.name)}</div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.cell').forEach(el => el.onclick = () => openViewer(el.dataset.src));
+}
+
+/* ── Viewer ───────────────────────────────────────── */
+async function openViewer(srcPath) {
+  viewerImage = srcPath;
+  $('viewer').classList.add('open');
+  $('viewerTitle').textContent = srcPath.split('/').pop();
+  $('viewerImgs').innerHTML = '<div class="empty">Loading variants…</div>';
+  $('viewerJson').innerHTML = '';
+  try {
+    const v = await api(`/api/admin/variants?image=${encodeURIComponent(srcPath)}`);
+    const cards = [];
+    cards.push(variantCard('Original (source)', srcPath, 'source'));
+    if (v.analyzed) cards.push(variantCard('Analyzed (untouched copy)', v.analyzed, 'analyzed'));
+    if (v.enhanced) cards.push(variantCard('Enhanced (AI recommendations)', v.enhanced, 'enhanced'));
+    for (const r of v.restored) cards.push(variantCard(`Restored: ${r.profile}`, r.path, 'restored'));
+    $('viewerImgs').innerHTML = cards.join('') || '<div class="empty">No variants yet — process the image.</div>';
+    if (v.analysis_json) loadAnalysis(v.analysis_json);
+    else $('viewerJson').innerHTML = '<h3>Analysis</h3><div class="kv">No analysis JSON found.</div>';
+  } catch (e) {
+    $('viewerImgs').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
+}
+
+function variantCard(label, path, tag) {
+  return `<div class="variant-card">
+    <div class="vlabel"><span>${esc(label)}</span><span class="tag">${tag}</span></div>
+    <img src="/api/admin/file?path=${encodeURIComponent(path)}" loading="lazy">
+  </div>`;
+}
+
+async function loadAnalysis(jsonPath) {
+  try {
+    const r = await fetch(`/api/admin/file?path=${encodeURIComponent(jsonPath)}`);
+    const d = await r.json();
+    const recs = (d.enhancement && d.enhancement.recommended_enhancements) || [];
+    const profiles = d.slide_profiles || [];
+    const loc = d.location_detection || {};
+    $('viewerJson').innerHTML = `
+      <h3>Analysis</h3>
+      <div class="kv">Date: ${esc(d.date_taken || '?')}</div>
+      <div class="kv">Location: ${esc([loc.city_or_area, loc.region, loc.country].filter(Boolean).join(', ') || '?')} (${loc.confidence ?? '?'}%)</div>
+      <div class="kv">Objects: ${esc((d.metadata||{}).objects || '?')}</div>
+      <div class="kv">Persons: ${esc((d.metadata||{}).persons || '?')}</div>
+      <h3 style="margin-top:12px">Enhancement recommendations</h3>
+      ${recs.map(r => `<div class="rec">${esc(r)}</div>`).join('') || '<div class="kv">none</div>'}
+      <h3 style="margin-top:12px">Slide profiles</h3>
+      ${profiles.map(p => `<div class="rec">${esc(p.profile)} (${p.confidence}%)</div>`).join('') || '<div class="kv">none</div>'}
+      <h3 style="margin-top:12px">Full JSON</h3>
+      <div class="kv">${esc(JSON.stringify(d, null, 2))}</div>`;
+  } catch (e) {
+    $('viewerJson').innerHTML = `<div class="kv">Could not load analysis: ${e.message}</div>`;
+  }
+}
+
+/* ── Commands ─────────────────────────────────────── */
+function startJobPolling(jobId, label) {
+  const bar = $('jobBar');
+  bar.style.display = 'block';
+  const el = document.createElement('div');
+  el.className = 'job';
+  el.innerHTML = `<span class="st-queued" id="job-${jobId}">⏳ ${esc(label)} — queued</span>`;
+  bar.appendChild(el);
+  const timer = setInterval(async () => {
+    try {
+      const j = await api(`/api/jobs/${jobId}`);
+      const span = document.getElementById(`job-${jobId}`);
+      if (!span) { clearInterval(timer); return; }
+      span.className = `st-${j.status}`;
+      span.textContent = j.status === 'running' ? `🔄 ${label} — running…`
+        : j.status === 'completed' ? `✓ ${label} — completed`
+        : `✗ ${label} — failed`;
+      if (j.status === 'completed' || j.status === 'failed') {
+        clearInterval(timer);
+        if (j.error) span.title = j.error;
+        if (viewerImage) openViewer(viewerImage); // refresh viewer
+        if (currentFolder) selectFolder(currentFolder); // refresh grid
+      }
+    } catch (e) { /* keep polling */ }
+  }, 2000);
+  jobTimers.push(timer);
+}
+
+async function runCommand(kind) {
+  if (!currentFolder) return;
+  const f = folders.find(x => x.name === currentFolder);
+  const doEnh = $('optEnhance').checked, doRestore = $('optRestore').checked;
+  const profile = $('optProfile').value, skip = $('optSkipExisting').checked;
+  let body, endpoint, label;
+  if (kind === 'folder-process') {
+    endpoint = '/api/analyze/batch';
+    body = { directory: f.path, enhance: doEnh, restore_slide: doRestore ? profile : null, skip_existing: skip };
+    label = `Process ${currentFolder}`;
+  } else if (kind === 'folder-analyze') {
+    endpoint = '/api/analyze/batch';
+    body = { directory: f.path, enhance: false, restore_slide: null, skip_existing: skip };
+    label = `Analyze ${currentFolder}`;
+  } else if (kind === 'report') {
+    const roots = await api('/api/admin/roots');
+    const r = await api('/api/report', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ directory: `${roots.enhanced_root}/${currentFolder}` }) });
+    alert('Report generated: ' + r.report_path); return;
+  } else if (kind === 'gallery') {
+    const roots = await api('/api/admin/roots');
+    const r = await api('/api/gallery', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ directory: `${roots.enhanced_root}/${currentFolder}` }) });
+    alert('Gallery generated: ' + r.report_path); return;
+  } else if (kind === 'image-process') {
+    endpoint = '/api/process';
+    body = { image: viewerImage, restore_slide: doRestore ? profile : null };
+    label = `Process ${viewerImage.split('/').pop()}`;
+  } else if (kind === 'image-enhance') {
+    endpoint = '/api/enhance';
+    body = { image: viewerImage };
+    label = `Enhance ${viewerImage.split('/').pop()}`;
+  }
+  try {
+    const r = await api(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'},
+                                   body: JSON.stringify(body) });
+    startJobPolling(r.job_id, label);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+/* ── Utils ────────────────────────────────────────── */
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c])); }
+function escAttr(s) { return esc(s); }
+
+/* ── Wire up ──────────────────────────────────────── */
+$('folderSearch').oninput = e => renderFolders(e.target.value);
+$('btnProcessFolder').onclick = () => runCommand('folder-process');
+$('btnAnalyzeFolder').onclick = () => runCommand('folder-analyze');
+$('btnReport').onclick = () => runCommand('report');
+$('btnGallery').onclick = () => runCommand('gallery');
+$('btnProcessImage').onclick = () => runCommand('image-process');
+$('btnEnhanceImage').onclick = () => runCommand('image-enhance');
+$('btnClose').onclick = () => { $('viewer').classList.remove('open'); viewerImage = null; };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('btnClose').click(); });
+
+loadFolders();
+api('/api/admin/roots').then(r => {
+  $('roots').textContent = `photos: ${r.photos_root}  ·  enhanced: ${r.enhanced_root}`;
+}).catch(() => {});
+</script>
+</body>
+</html>

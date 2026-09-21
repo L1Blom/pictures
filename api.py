@@ -26,7 +26,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import click
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 
 # New src-based CLI functions (support pipeline_mode, skip_existing)
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -46,6 +46,7 @@ from cli_commands import (
 from config import SUPPORTED_FORMATS
 
 app = Flask(__name__)
+static_dir = Path(__file__).parent / "static"
 
 # ---------------------------------------------------------------------------
 # Serial job queue — Ollama cannot handle concurrent inference.
@@ -471,6 +472,225 @@ def restore_slide():
 def formats():
     """Return the list of supported image formats."""
     return jsonify({"formats": sorted(SUPPORTED_FORMATS)})
+
+
+# ---------------------------------------------------------------------------
+# Admin page + processing-support endpoints
+# ---------------------------------------------------------------------------
+
+# Root that the admin page browses: source photos (~/fotos by default).
+# Derived the same way the description editor does it.
+def _admin_roots() -> tuple[Path, Path]:
+    """Return (photos_root, enhanced_root) used by the admin page."""
+    # enhanced root: prefer the configured output.enhanced_root (absolute),
+    # fall back to ~/enhanced
+    enhanced_root = None
+    try:
+        import yaml
+        cfg = yaml.safe_load((Path(__file__).parent / "config.yaml").read_text(encoding="utf-8"))
+        enhanced_root = (cfg.get("output") or {}).get("enhanced_root")
+    except Exception:
+        pass
+    if not enhanced_root or not Path(enhanced_root).is_dir():
+        enhanced_root = Path.home() / "enhanced"
+    enhanced_root = Path(enhanced_root)
+
+    photos_root = Path.home() / "fotos"
+    if not photos_root.is_dir():
+        photos_root = enhanced_root.parent / "fotos"
+    return photos_root, enhanced_root
+
+
+@app.get("/admin")
+def admin_page():
+    """Serve the admin single-page app."""
+    return send_file(static_dir / "admin.html")
+
+
+@app.get("/api/admin/roots")
+def admin_roots():
+    """Return the photos and enhanced root directories the admin page uses."""
+    photos_root, enhanced_root = _admin_roots()
+    return jsonify({
+        "photos_root": str(photos_root),
+        "enhanced_root": str(enhanced_root),
+    })
+
+
+@app.get("/api/admin/folders")
+def admin_folders():
+    """List album folders in the photos root (name + image count + description presence)."""
+    photos_root, _ = _admin_roots()
+    if not photos_root.is_dir():
+        return _err(f"Photos root not found: {photos_root}", 500)
+    folders = []
+    for sub in sorted(photos_root.iterdir()):
+        if not sub.is_dir() or sub.name.startswith("."):
+            continue
+        n_images = sum(
+            1 for f in sub.iterdir()
+            if f.is_file() and f.suffix.lower() in SUPPORTED_FORMATS
+        )
+        if n_images == 0:
+            continue
+        folders.append({
+            "name": sub.name,
+            "path": str(sub),
+            "images": n_images,
+            "has_description": (sub / "description.txt").exists(),
+        })
+    return jsonify({"folders": folders})
+
+
+@app.get("/api/admin/dir")
+def admin_dir():
+    """List images in a photos-root folder, with variant badges from the output folder.
+
+    Query params:
+        dir  string  required  Folder name (or relative path) under the photos root
+    """
+    rel = request.args.get("dir")
+    if not rel:
+        return _err("Missing required query param: dir")
+    photos_root, enhanced_root = _admin_roots()
+    folder = (photos_root / rel).resolve()
+    try:
+        folder.relative_to(photos_root.resolve())
+    except ValueError:
+        return _err("Invalid folder path", 403)
+    if not folder.is_dir():
+        return _err(f"Folder not found: {rel}", 404)
+
+    # Output folder: Albumnaam from description.txt, else folder name
+    album = folder.name
+    desc = folder / "description.txt"
+    if desc.exists():
+        import re
+        m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+        if m and m.group(1).strip():
+            album = m.group(1).strip()
+    out_dir = enhanced_root / album
+
+    images = []
+    for f in sorted(folder.iterdir()):
+        if not f.is_file() or f.suffix.lower() not in SUPPORTED_FORMATS:
+            continue
+        has_enhanced = (out_dir / f"{f.stem}_enhanced.jpg").is_file()
+        restored_count = len(list(out_dir.glob(f"{glob_escape(f.stem)}_restored_*.jpg"))) if out_dir.is_dir() else 0
+        images.append({
+            "name": f.name,
+            "path": str(f),
+            "has_enhanced": has_enhanced,
+            "restored_count": restored_count,
+        })
+    return jsonify({"folder": rel, "album": album, "output_dir": str(out_dir), "images": images})
+
+
+@app.get("/api/admin/variants")
+def admin_variants():
+    """List all output variants for one source image.
+
+    Query params:
+        image  string  required  Absolute path to the SOURCE image (in photos root)
+
+    Returns the analyzed copy, enhanced version, restored variants and the
+    analysis JSON path — all discovered in the output folder derived from the
+    image's directory description.txt (Albumnaam), falling back to the folder name.
+    """
+    image = request.args.get("image")
+    if not image:
+        return _err("Missing required query param: image")
+    src = Path(image)
+    if not src.is_file():
+        return _err(f"Image not found: {image}")
+
+    # Determine output folder: <enhanced_root>/<Albumnaam or folder name>
+    _, enhanced_root = _admin_roots()
+    album = src.parent.name
+    desc = src.parent / "description.txt"
+    if desc.exists():
+        import re
+        m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+        if m and m.group(1).strip():
+            album = m.group(1).strip()
+    out_dir = enhanced_root / album
+    stem = src.stem
+
+    def _find(pattern: str) -> list[Path]:
+        return sorted(out_dir.glob(pattern)) if out_dir.is_dir() else []
+
+    analyzed = out_dir / f"{stem}_analyzed.jpg"
+    enhanced = out_dir / f"{stem}_enhanced.jpg"
+    analysis_json = out_dir / f"{stem}_analyzed.json"
+    restored = [
+        {"profile": p.name[len(stem) + len("_restored_"):-len(".jpg")], "path": str(p)}
+        for p in _find(f"{glob_escape(stem)}_restored_*.jpg")
+    ]
+
+    return jsonify({
+        "source": str(src),
+        "output_dir": str(out_dir),
+        "analyzed": str(analyzed) if analyzed.exists() else None,
+        "enhanced": str(enhanced) if enhanced.exists() else None,
+        "analysis_json": str(analysis_json) if analysis_json.exists() else None,
+        "restored": restored,
+    })
+
+
+@app.get("/api/admin/file")
+def admin_file():
+    """Serve any file under the photos or enhanced roots (for image viewing).
+
+    Query params:
+        path  string  required  Absolute path to the file
+    """
+    path = request.args.get("path")
+    if not path:
+        return _err("Missing required query param: path")
+    full = Path(path).resolve()
+    photos_root, enhanced_root = _admin_roots()
+    allowed = False
+    for root in (photos_root, enhanced_root):
+        try:
+            full.relative_to(root.resolve())
+            allowed = True
+            break
+        except ValueError:
+            continue
+    if not allowed:
+        return _err("Path is outside the allowed roots", 403)
+    if not full.is_file():
+        return _err(f"File not found: {path}", 404)
+    return send_file(full)
+
+
+@app.get("/api/admin/analysis")
+def admin_analysis():
+    """Return the analysis JSON for a source image (parsed)."""
+    image = request.args.get("image")
+    if not image:
+        return _err("Missing required query param: image")
+    src = Path(image)
+    if not src.is_file():
+        return _err(f"Image not found: {image}")
+
+    _, enhanced_root = _admin_roots()
+    album = src.parent.name
+    desc = src.parent / "description.txt"
+    if desc.exists():
+        import re
+        m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+        if m and m.group(1).strip():
+            album = m.group(1).strip()
+    jf = enhanced_root / album / f"{src.stem}_analyzed.json"
+    if not jf.is_file():
+        return _err(f"No analysis JSON found at {jf}", 404)
+    return send_file(jf, mimetype="application/json")
+
+
+def glob_escape(s: str) -> str:
+    """Escape glob special characters in a filename stem."""
+    return s.replace("[", "[[]").replace("*", "[*]").replace("?", "[?]")
 
 
 # ---------------------------------------------------------------------------
