@@ -326,17 +326,33 @@ function startJobPolling(jobId, label) {
 }
 
 function showSyncStatus(label, ok, detail) {
+  return finishSyncStatus(null, label, ok, detail);
+}
+
+function showRunning(label) {
   showJobBar();
   const bar = $('jobBar');
   const el = document.createElement('div');
   el.className = 'job';
-  el.innerHTML = `<span class="st-${ok ? 'completed' : 'failed'}">${ok ? '✓' : '✗'} ${esc(label)} — ${ok ? 'completed' : 'failed'}${detail ? ' · ' + esc(detail) : ''}</span>`;
+  el.innerHTML = `<span class="st-running">🔄 ${esc(label)} — running…</span>`;
   bar.appendChild(el);
+  updateJobBarHeight();
+  return el;
+}
+
+function finishSyncStatus(existingLine, label, ok, detail) {
+  showJobBar();
+  const bar = $('jobBar');
+  const el = existingLine || document.createElement('div');
+  el.className = 'job';
+  el.innerHTML = `<span class="st-${ok ? 'completed' : 'failed'}">${ok ? '✓' : '✗'} ${esc(label)} — ${ok ? 'completed' : 'failed'}${detail ? ' · ' + esc(detail) : ''}</span>`;
+  if (!existingLine) bar.appendChild(el);
   updateJobBarHeight();
   if (ok) {
     if (viewerImage) openViewer(viewerImage);   // refresh viewer
     if (currentFolder) selectFolder(currentFolder); // refresh grid
   }
+  return el;
 }
 
 async function runCommand(kind) {
@@ -372,18 +388,26 @@ async function runCommand(kind) {
     body = { image: viewerImage };
     label = `Enhance ${viewerImage.split('/').pop()}`;
   }
+  // Show a running line immediately for synchronous commands (enhance/
+  // report/gallery block on the request — without this, nothing is visible
+  // between the click and the result).
+  const isSync = kind === 'image-enhance' || kind === 'report' || kind === 'gallery';
+  let syncLine = null;
+  if (isSync) syncLine = showRunning(label);
+
   try {
     const r = await api(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'},
                                    body: JSON.stringify(body) });
     if (r.job_id) {
       // Async command — poll the job queue
       startJobPolling(r.job_id, label);
+      if (syncLine) syncLine.remove();
     } else {
-      // Synchronous command (enhance) — completed immediately
-      showSyncStatus(label, true, r.output ? r.output.split('/').pop() : null);
+      // Synchronous command (enhance) — completed; update the running line
+      finishSyncStatus(syncLine, label, true, r.output ? r.output.split('/').pop() : null);
     }
   } catch (e) {
-    showSyncStatus(label, false, e.message);
+    finishSyncStatus(syncLine, label, false, e.message);
   }
 }
 
