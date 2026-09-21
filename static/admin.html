@@ -341,7 +341,20 @@ async function runCommand(kind) {
   try {
     const r = await api(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'},
                                    body: JSON.stringify(body) });
-    startJobPolling(r.job_id, label);
+    if (r.job_id) {
+      // Async command — poll the job queue
+      startJobPolling(r.job_id, label);
+    } else {
+      // Synchronous command (enhance) — completed immediately
+      const bar = $('jobBar');
+      bar.style.display = 'block';
+      const el = document.createElement('div');
+      el.className = 'job';
+      el.innerHTML = `<span class="st-completed">✓ ${esc(label)} — completed</span>`;
+      bar.appendChild(el);
+      if (viewerImage) openViewer(viewerImage);   // refresh viewer
+      if (currentFolder) selectFolder(currentFolder); // refresh grid
+    }
   } catch (e) { alert('Error: ' + e.message); }
 }
 
