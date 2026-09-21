@@ -54,10 +54,11 @@ select { padding: 5px 8px; background: var(--panel2); color: var(--text);
          border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
 
 /* Job bar — floats above everything (incl. viewer) so progress is always visible */
-.job-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-          background: var(--panel); border-top: 1px solid var(--border); padding: 6px 14px;
+.job-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+          background: var(--panel); border-bottom: 1px solid var(--border); padding: 6px 14px;
           font-size: 12px; flex-shrink: 0; max-height: 120px; overflow-y: auto; display: none; }
-body.has-jobs .grid-wrap, body.has-jobs .viewer .imgs { padding-bottom: 70px; }
+body.has-jobs header { margin-top: 34px; }
+body.has-jobs .viewer .top { margin-top: 34px; }
 .job-bar .job { display: flex; gap: 10px; padding: 3px 0; font-family: var(--mono); }
 .job .st-queued { color: var(--muted); } .job .st-running { color: var(--warn); }
 .job .st-completed { color: var(--ok); } .job .st-failed { color: var(--err); }
@@ -287,7 +288,6 @@ function showJobBar() {
 function startJobPolling(jobId, label) {
   showJobBar();
   const bar = $('jobBar');
-  bar.style.display = 'block';
   const el = document.createElement('div');
   el.className = 'job';
   el.innerHTML = `<span class="st-queued" id="job-${jobId}">⏳ ${esc(label)} — queued</span>`;
@@ -314,6 +314,7 @@ function startJobPolling(jobId, label) {
 
 function showSyncStatus(label, ok, detail) {
   showJobBar();
+  const bar = $('jobBar');
   const el = document.createElement('div');
   el.className = 'job';
   el.innerHTML = `<span class="st-${ok ? 'completed' : 'failed'}">${ok ? '✓' : '✗'} ${esc(label)} — ${ok ? 'completed' : 'failed'}${detail ? ' · ' + esc(detail) : ''}</span>`;
