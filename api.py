@@ -284,9 +284,24 @@ def process():
     if missing:
         return _err(f"Missing required fields: {missing}")
 
+    # Default output: the album folder in the enhanced root, derived from the
+    # image's directory description.txt (Albumnaam) — same as batch analyze.
+    output = body.get("output")
+    if not output:
+        src = Path(body["image"])
+        _, enhanced_root = _admin_roots()
+        album = src.parent.name
+        desc = src.parent / "description.txt"
+        if desc.exists():
+            import re
+            m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+            if m and m.group(1).strip():
+                album = m.group(1).strip()
+        output = str(enhanced_root / album)
+
     args = SimpleNamespace(
         image=body["image"],
-        output=body.get("output"),
+        output=output,
         restore_slide=body.get("restore_slide"),
     )
 
