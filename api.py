@@ -534,8 +534,10 @@ def _admin_roots() -> tuple[Path, Path]:
 
 @app.get("/admin")
 def admin_page():
-    """Serve the admin single-page app."""
-    return send_file(static_dir / "admin.html")
+    """Serve the admin single-page app (never cached — always latest)."""
+    resp = send_file(static_dir / "admin.html")
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 
 @app.get("/api/admin/roots")
