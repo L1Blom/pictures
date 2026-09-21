@@ -290,7 +290,7 @@ class ReportGenerator:
         lines.append("")
         
         # Check if there's a description.txt file
-        desc_file = Path(output_dir) / "description.txt"
+        desc_file = Path(images_dir) / "description.txt"
         if desc_file.exists():
             with open(desc_file, 'r') as f:
                 desc_content = f.read().strip()
