@@ -381,7 +381,8 @@ def enhance():
     Request body (JSON):
         image     string  required  Absolute path to the image file
         analysis  string  optional  Path to the JSON analysis file
-                                    (auto-detected from image location if omitted)
+                                    (auto-detected: next to the image, or in the
+                                    output folder derived from description.txt)
         output    string  optional  Output path for enhanced image
 
     Response:
@@ -392,22 +393,52 @@ def enhance():
     if missing:
         return _err(f"Missing required fields: {missing}")
 
+    image = body["image"]
+    analysis = body.get("analysis")
+
+    # Auto-locate the analysis JSON if not provided: the pipeline stores it in
+    # <enhanced_root>/<Albumnaam>/<stem>_analyzed.json, not next to the source.
+    if not analysis:
+        src = Path(image)
+        candidates = []
+        # 1. next to the source image (legacy layout)
+        candidates.append(src.parent / f"{src.stem}_analyzed.json")
+        # 2. output folder derived from description.txt Albumnaam
+        _, enhanced_root = _admin_roots()
+        album = src.parent.name
+        desc = src.parent / "description.txt"
+        if desc.exists():
+            import re
+            m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+            if m and m.group(1).strip():
+                album = m.group(1).strip()
+        candidates.append(enhanced_root / album / f"{src.stem}_analyzed.json")
+        analysis = next((str(c) for c in candidates if c.is_file()), None)
+        if not analysis:
+            return _err(
+                "Analysis file not found. Run 'analyze' first, or pass 'analysis' path. "
+                f"Looked for: {', '.join(str(c) for c in candidates)}"
+            )
+
     args = SimpleNamespace(
-        image=body["image"],
-        analysis=body.get("analysis"),
+        image=image,
+        analysis=analysis,
         output=body.get("output"),
     )
 
     if not Path(args.image).is_file():
         return _err(f"Image not found: {args.image}")
 
+    # Default output: next to the analysis JSON in the output folder (keeps
+    # enhanced images with their album), not next to the source image.
+    if not args.output:
+        args.output = str(Path(analysis).parent / f"{Path(args.image).stem}_enhanced.jpg")
+
     rc = cmd_enhance(args)
     if rc != 0:
         return _err("Enhancement failed", 500)
 
-    output_path = args.output or str(
-        Path(args.image).parent / f"{Path(args.image).stem}_enhanced.jpg"
-    )
+    output_path = args.output
     return jsonify({"status": "ok", "output": output_path})
 
 
