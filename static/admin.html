@@ -154,7 +154,7 @@ select { padding: 5px 8px; background: var(--panel2); color: var(--text);
 
 <script>
 const $ = id => document.getElementById(id);
-let folders = [], currentFolder = null, currentImages = [], viewerImage = null;
+let folders = [], currentFolder = null, currentImages = [], currentOutputDir = null, viewerImage = null;
 let jobTimers = [];
 
 async function api(path, opts) {
@@ -194,15 +194,10 @@ async function selectFolder(name) {
   ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery'].forEach(id => $(id).disabled = false);
   $('grid').innerHTML = '<div class="empty">Loading images…</div>';
   try {
-    // list images via the editor's directory API (photos root relative)
-    const roots = await api('/api/admin/roots');
-    const resp = await fetch(`/api/admin/dir?dir=${encodeURIComponent(name)}`).then(r => r.json()).catch(() => null);
-    if (resp && resp.images) {
-      currentImages = resp.images;
-    } else {
-      // fallback: build from folder info (paths are absolute)
-      currentImages = [];
-    }
+    // list images via the admin dir API (also resolves the output folder)
+    const resp = await api(`/api/admin/dir?dir=${encodeURIComponent(name)}`);
+    currentImages = resp.images || [];
+    currentOutputDir = resp.output_dir || null;
     renderGrid();
   } catch (e) {
     $('grid').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
@@ -336,15 +331,15 @@ async function runCommand(kind) {
     body = { directory: f.path, enhance: false, restore_slide: null, skip_existing: skip };
     label = `Analyze ${currentFolder}`;
   } else if (kind === 'report') {
-    const roots = await api('/api/admin/roots');
+    if (!currentOutputDir) { alert('Select a folder first.'); return; }
     const r = await api('/api/report', { method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ directory: `${roots.enhanced_root}/${currentFolder}` }) });
-    alert('Report generated: ' + r.report_path); return;
+      body: JSON.stringify({ directory: currentOutputDir }) });
+    showSyncStatus('Report ' + currentFolder, true, r.report_path); return;
   } else if (kind === 'gallery') {
-    const roots = await api('/api/admin/roots');
+    if (!currentOutputDir) { alert('Select a folder first.'); return; }
     const r = await api('/api/gallery', { method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ directory: `${roots.enhanced_root}/${currentFolder}` }) });
-    alert('Gallery generated: ' + r.report_path); return;
+      body: JSON.stringify({ directory: currentOutputDir }) });
+    showSyncStatus('Gallery ' + currentFolder, true, r.report_path); return;
   } else if (kind === 'image-process') {
     endpoint = '/api/process';
     body = { image: viewerImage, restore_slide: doRestore ? profile : null };
