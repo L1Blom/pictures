@@ -608,11 +608,22 @@ def admin_dir():
             continue
         has_enhanced = (out_dir / f"{f.stem}_enhanced.jpg").is_file()
         restored_count = len(list(out_dir.glob(f"{glob_escape(f.stem)}_restored_*.jpg"))) if out_dir.is_dir() else 0
+        # Latest generation timestamp across all output variants
+        latest = None
+        if out_dir.is_dir():
+            for out_f in out_dir.glob(f"{glob_escape(f.stem)}_*.jpg"):
+                try:
+                    ts = out_f.stat().st_mtime
+                    if latest is None or ts > latest:
+                        latest = ts
+                except OSError:
+                    continue
         images.append({
             "name": f.name,
             "path": str(f),
             "has_enhanced": has_enhanced,
             "restored_count": restored_count,
+            "latest_generated": latest,  # unix timestamp or null
         })
     return jsonify({"folder": rel, "album": album, "output_dir": str(out_dir), "images": images})
 
@@ -654,15 +665,24 @@ def admin_variants():
     enhanced = out_dir / f"{stem}_enhanced.jpg"
     analysis_json = out_dir / f"{stem}_analyzed.json"
     restored = [
-        {"profile": p.name[len(stem) + len("_restored_"):-len(".jpg")], "path": str(p)}
+        {
+            "profile": p.name[len(stem) + len("_restored_"):-len(".jpg")],
+            "path": str(p),
+            "generated": p.stat().st_mtime,
+        }
         for p in _find(f"{glob_escape(stem)}_restored_*.jpg")
     ]
+
+    def _ts(p: Path):
+        return p.stat().st_mtime if p.exists() else None
 
     return jsonify({
         "source": str(src),
         "output_dir": str(out_dir),
         "analyzed": str(analyzed) if analyzed.exists() else None,
+        "analyzed_generated": _ts(analyzed),
         "enhanced": str(enhanced) if enhanced.exists() else None,
+        "enhanced_generated": _ts(enhanced),
         "analysis_json": str(analysis_json) if analysis_json.exists() else None,
         "restored": restored,
     })

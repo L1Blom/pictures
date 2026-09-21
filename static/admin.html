@@ -74,6 +74,7 @@ select { padding: 5px 8px; background: var(--panel2); color: var(--text);
          background: var(--panel2); color: var(--muted); }
 .badge.has-enh { background: #2e7d32; color: white; }
 .badge.has-rest { background: #1565c0; color: white; }
+.badge.gen { background: #5d4037; color: #ffe0b2; font-family: var(--mono); }
 
 /* ── Viewer overlay ───────────────────────────────── */
 .viewer { position: fixed; inset: 0; background: rgba(10,10,16,0.92); z-index: 100;
@@ -215,9 +216,10 @@ function renderGrid() {
   }
   $('grid').innerHTML = currentImages.map(img => {
     const src = img.absolute || img.path;
+    const gen = img.latest_generated ? fmtDate(img.latest_generated) : null;
     return `<div class="cell" data-src="${escAttr(src)}">
       <img loading="lazy" src="/api/admin/file?path=${encodeURIComponent(src)}" onerror="this.style.opacity=0.15">
-      <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}</div>
+      <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}${gen ? `<span class="badge gen">${gen}</span>` : ''}</div>
       <div class="cap" title="${escAttr(img.name)}">${esc(img.name)}</div>
     </div>`;
   }).join('');
@@ -234,10 +236,10 @@ async function openViewer(srcPath) {
   try {
     const v = await api(`/api/admin/variants?image=${encodeURIComponent(srcPath)}`);
     const cards = [];
-    cards.push(variantCard('Original (source)', srcPath, 'source'));
-    if (v.analyzed) cards.push(variantCard('Analyzed (untouched copy)', v.analyzed, 'analyzed'));
-    if (v.enhanced) cards.push(variantCard('Enhanced (AI recommendations)', v.enhanced, 'enhanced'));
-    for (const r of v.restored) cards.push(variantCard(`Restored: ${r.profile}`, r.path, 'restored'));
+    cards.push(variantCard('Original (source)', srcPath, null));
+    if (v.analyzed) cards.push(variantCard('Analyzed (untouched copy)', v.analyzed, v.analyzed_generated));
+    if (v.enhanced) cards.push(variantCard('Enhanced (AI recommendations)', v.enhanced, v.enhanced_generated));
+    for (const r of v.restored) cards.push(variantCard(`Restored: ${r.profile}`, r.path, r.generated));
     $('viewerImgs').innerHTML = cards.join('') || '<div class="empty">No variants yet — process the image.</div>';
     if (v.analysis_json) loadAnalysis(v.analysis_json);
     else $('viewerJson').innerHTML = '<h3>Analysis</h3><div class="kv">No analysis JSON found.</div>';
@@ -246,9 +248,10 @@ async function openViewer(srcPath) {
   }
 }
 
-function variantCard(label, path, tag) {
+function variantCard(label, path, generated) {
+  const gen = generated ? `<span class="tag">${fmtDate(generated)}</span>` : '';
   return `<div class="variant-card">
-    <div class="vlabel"><span>${esc(label)}</span><span class="tag">${tag}</span></div>
+    <div class="vlabel"><span>${esc(label)}</span>${gen}</div>
     <img src="/api/admin/file?path=${encodeURIComponent(path)}" loading="lazy">
   </div>`;
 }
@@ -305,6 +308,19 @@ function startJobPolling(jobId, label) {
   jobTimers.push(timer);
 }
 
+function showSyncStatus(label, ok, detail) {
+  const bar = $('jobBar');
+  bar.style.display = 'block';
+  const el = document.createElement('div');
+  el.className = 'job';
+  el.innerHTML = `<span class="st-${ok ? 'completed' : 'failed'}">${ok ? '✓' : '✗'} ${esc(label)} — ${ok ? 'completed' : 'failed'}${detail ? ' · ' + esc(detail) : ''}</span>`;
+  bar.appendChild(el);
+  if (ok) {
+    if (viewerImage) openViewer(viewerImage);   // refresh viewer
+    if (currentFolder) selectFolder(currentFolder); // refresh grid
+  }
+}
+
 async function runCommand(kind) {
   if (!currentFolder) return;
   const f = folders.find(x => x.name === currentFolder);
@@ -346,22 +362,23 @@ async function runCommand(kind) {
       startJobPolling(r.job_id, label);
     } else {
       // Synchronous command (enhance) — completed immediately
-      const bar = $('jobBar');
-      bar.style.display = 'block';
-      const el = document.createElement('div');
-      el.className = 'job';
-      el.innerHTML = `<span class="st-completed">✓ ${esc(label)} — completed</span>`;
-      bar.appendChild(el);
-      if (viewerImage) openViewer(viewerImage);   // refresh viewer
-      if (currentFolder) selectFolder(currentFolder); // refresh grid
+      showSyncStatus(label, true, r.output ? r.output.split('/').pop() : null);
     }
-  } catch (e) { alert('Error: ' + e.message); }
+  } catch (e) {
+    showSyncStatus(label, false, e.message);
+  }
 }
 
 /* ── Utils ────────────────────────────────────────── */
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c])); }
-function escAttr(s) { return esc(s); }
-
+function escAttr(s) { return esc(s); }function fmtDate(unixTs) {
+  const d = new Date(unixTs * 1000);
+  const now = new Date();
+  const hm = d.toTimeString().substring(0, 5);
+  if (d.toDateString() === now.toDateString()) return `vandaag ${hm}`;
+  const day = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+  return `${day} ${hm}`;
+}
 /* ── Wire up ──────────────────────────────────────── */
 $('folderSearch').oninput = e => renderFolders(e.target.value);
 $('btnProcessFolder').onclick = () => runCommand('folder-process');
