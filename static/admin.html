@@ -100,7 +100,12 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
           display: none; flex-direction: column; }
 .viewer.open { display: flex; }
 .viewer .top { padding: 10px 16px; display: flex; align-items: center; gap: 12px;
-               background: var(--panel); border-bottom: 1px solid var(--border); }
+               background: var(--panel); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.viewer .top .job-inline { font-size: 12px; font-family: var(--mono); flex-basis: 100%; order: 5; }
+.viewer .top .job-inline .st-running { color: var(--warn); }
+.viewer .top .job-inline .st-completed { color: var(--ok); }
+.viewer .top .job-inline .st-failed { color: var(--err); }
+.viewer .top .job-inline .st-queued { color: var(--muted); }
 .viewer .top .title { font-size: 14px; font-weight: 600; flex: 1;
                       overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .viewer .body { flex: 1; display: flex; overflow: hidden; }
@@ -177,6 +182,7 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
       <button id="btnEnhanceImage">Enhance</button>
       <button id="btnClose">✕ Close</button>
     </div>
+    <div class="job-inline" id="viewerJobLine"></div>
   </div>
   <div class="body">
     <div class="imgs" id="viewerImgs"></div>
@@ -377,6 +383,14 @@ function updateJobBarHeight() {
   const bar = $('jobBar');
   if (bar.style.display === 'none') return;
   document.documentElement.style.setProperty('--jobbar-h', bar.offsetHeight + 'px');
+  // Mirror the latest job line into the viewer so progress stays visible
+  // while browsing pictures (the floating bar can be crowded out visually).
+  const inline = document.getElementById('viewerJobLine');
+  if (inline) {
+    const lines = bar.querySelectorAll('.job span');
+    const last = lines[lines.length - 1];
+    inline.innerHTML = last ? last.outerHTML : '';
+  }
 }
 
 // Keep the pushed-down offset in sync whenever the bar grows/shrinks
