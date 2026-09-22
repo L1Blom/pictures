@@ -396,6 +396,36 @@ def _read_image_exif_date(image_path: Path) -> datetime | None:
     return None
 
 
+def _next_sequential_timestamp(output_dir: Path, parsed_date: str, own_json: Path | None = None) -> datetime:
+    """Return the timestamp to use for a single-image processing run.
+
+    Batch mode assigns each image date + N seconds. For single-image runs:
+
+    1. If the image's OWN previous JSON exists with a same-day ``date_taken``,
+       reuse it (re-processing must not move the photo in the Immich timeline).
+    2. Otherwise continue from the highest same-day ``date_taken`` in the
+       folder (+1s) so the sequence doesn't reset or collide.
+    """
+    base = datetime.strptime(parsed_date, "%Y-%m-%d")
+
+    def _read_date(jf: Path) -> datetime | None:
+        try:
+            data = json.loads(jf.read_text(encoding="utf-8"))
+            return datetime.strptime(str(data.get("date_taken", "")), "%Y-%m-%d %H:%M:%S")
+        except (ValueError, OSError, json.JSONDecodeError):
+            return None
+
+    if own_json is not None and own_json.is_file():
+        own_dt = _read_date(own_json)
+        if own_dt is not None and own_dt.date() == base.date():
+            return own_dt
+
+    max_existing = _max_existing_date_taken(str(output_dir), base)
+    if max_existing is not None:
+        return max_existing + timedelta(seconds=1)
+    return base
+
+
 def _exif_date_within_months(exif_dt: datetime, base_dt: datetime, months: int = 6) -> bool:
     """Return True if *exif_dt* is within *months* calendar months of *base_dt*."""
     from dateutil.relativedelta import relativedelta  # type: ignore[import]
@@ -783,6 +813,45 @@ def _single_analyze(
 
     analyzed_target = Path(output_path) if output_path else Path("output") / f"{image_path.stem}_analyzed.jpg"
     analyzed_target.parent.mkdir(parents=True, exist_ok=True)
+
+    # Apply description.txt ground truth (date/location/GPS) — same rules as
+    # batch mode, so single-image processing produces identical EXIF dates
+    # for the Immich timeline.
+    ground_truth = _load_description_ground_truth(image_path.parent, settings)
+    if ground_truth["status"] == "ok":
+        # Sequential timestamp: reuse this image's own previous timestamp if
+        # it has one (re-processing must not move it in the Immich timeline),
+        # else continue the folder's sequence.
+        gt_timestamp = _next_sequential_timestamp(
+            analyzed_target.parent, ground_truth["parsed_date"],
+            own_json=analyzed_target.with_suffix(".json"),
+        )
+        exif_dt = _read_image_exif_date(image_path)
+        use_timestamp: datetime
+        if exif_dt is not None:
+            try:
+                in_range = _exif_date_within_months(
+                    exif_dt,
+                    datetime.strptime(ground_truth["parsed_date"], "%Y-%m-%d"),
+                )
+            except Exception:
+                in_range = False
+            if in_range:
+                use_timestamp = exif_dt
+                click.echo(
+                    f"  ↩ Keeping original EXIF date: "
+                    f"{exif_dt.strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+            else:
+                use_timestamp = gt_timestamp
+        else:
+            use_timestamp = gt_timestamp
+        _apply_description_ground_truth(analysis, ground_truth, use_timestamp)
+    elif ground_truth["status"] == "failed":
+        click.echo(
+            f"  ⚠ description.txt present but unusable: {ground_truth['reason']}",
+            err=True,
+        )
     analyzed_target.write_bytes(image_path.read_bytes())
 
     # Embed EXIF metadata (including GPS if geocoding resolved coordinates)
