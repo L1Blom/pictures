@@ -438,33 +438,38 @@ def _apply_description_ground_truth(
 ) -> None:
     """Apply description.txt location/date/GPS to an analysis dict.
 
-    Location is used as a FALLBACK: if the LLM identified a specific landmark
-    (confidence ≥ 70 or has a landmark_name), the LLM's location is kept.
-    Otherwise, the description.txt location is used. Date and GPS from
-    description.txt are always applied (date) or used as fallback (GPS).
+    The description.txt location is GROUND TRUTH and wins by default. The
+    LLM's location is only kept when it identified a specific, recognizable
+    landmark (e.g. the Brandenburg Gate) with really high confidence — a
+    generic city/area guess never overrides the description, even at high
+    confidence (the LLM confidently guessed the wrong province for 'Gouda').
+
+    Date from description.txt is always applied; GPS follows the location
+    that won (landmark geocoding if the LLM won, description coords else).
     """
-    # Check if the LLM produced a confident, specific location
+    # Check if the LLM identified a specific landmark with high confidence
     loc = analysis.get("location_detection", {})
     if isinstance(loc, dict):
         llm_confidence = int(loc.get("confidence", 0) or 0)
         llm_landmark = (loc.get("landmark_name") or "").strip()
-        llm_country = (loc.get("country") or "").strip()
     else:
         llm_confidence = 0
         llm_landmark = ""
-        llm_country = ""
 
-    # Only override location if the LLM didn't produce a confident result
-    if not llm_landmark and llm_confidence < 70:
+    # The LLM only wins with a named landmark at very high confidence
+    LANDMARK_CONFIDENCE = 85
+    llm_won = bool(llm_landmark) and llm_confidence >= LANDMARK_CONFIDENCE
+
+    if not llm_won:
         analysis["location_detection"] = parse_location_parts(ground_truth["location_str"])
 
-    # GPS: use description.txt coords as fallback when LLM didn't geocode
+    # GPS: keep the LLM's landmark geocoding only when the LLM won;
+    # otherwise use the description.txt coordinates (or drop wrong ones).
     coords = ground_truth.get("coords")
     if coords:
-        # If the LLM produced its own GPS (from landmark geocoding), keep it
-        if "gps_coordinates" not in analysis or not analysis.get("gps_coordinates"):
+        if not llm_won or not analysis.get("gps_coordinates"):
             analysis["gps_coordinates"] = coords
-    elif "gps_coordinates" in analysis and not llm_landmark and llm_confidence < 70:
+    elif "gps_coordinates" in analysis and not llm_won:
         del analysis["gps_coordinates"]
     description_text = ground_truth.get("description_text")
     if description_text:
