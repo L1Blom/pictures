@@ -65,6 +65,20 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
 .job .st-queued { color: var(--muted); } .job .st-running { color: var(--warn); }
 .job .st-completed { color: var(--ok); } .job .st-failed { color: var(--err); }
 
+/* Description editor panel */
+.desc-panel { background: var(--panel); border-bottom: 1px solid var(--border); padding: 10px 14px; flex-shrink: 0; display: none; }
+.desc-panel.open { display: block; }
+.desc-panel .desc-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.desc-panel .desc-head h2 { font-size: 13px; font-weight: 600; }
+.desc-panel .desc-head .status { font-size: 11px; color: var(--muted); }
+.desc-panel .desc-head .status.saved { color: var(--ok); }
+.desc-panel .desc-head .status.dirty { color: var(--warn); }
+.desc-panel textarea { width: 100%; height: 150px; background: var(--panel2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-family: var(--mono);
+  font-size: 12px; resize: vertical; }
+.desc-panel textarea:focus { outline: none; border-color: var(--accent); }
+.desc-panel .desc-actions { display: flex; gap: 8px; margin-top: 6px; }
+
 /* Image grid */
 .grid-wrap { flex: 1; overflow-y: auto; padding: 12px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
@@ -136,8 +150,21 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
       <label class="chk"><input type="checkbox" id="optSkipExisting"> skip existing</label>
       <button id="btnReport" disabled title="Generate markdown report">Report</button>
       <button id="btnGallery" disabled title="Generate gallery markdown">Gallery</button>
+      <button id="btnDesc" disabled title="Edit this folder's description.txt">📝 Description</button>
     </div>
     <div class="job-bar" id="jobBar"></div>
+    <div class="desc-panel" id="descPanel">
+      <div class="desc-head">
+        <h2>📝 description.txt</h2>
+        <span class="status" id="descStatus"></span>
+        <button id="btnToggleDesc" style="margin-left:auto" title="Hide editor">▲ Hide</button>
+      </div>
+      <textarea id="descText" spellcheck="false" placeholder="Albumnaam: …"></textarea>
+      <div class="desc-actions">
+        <button class="primary" id="btnSaveDesc">💾 Save description</button>
+        <span style="font-size:11px;color:var(--muted);align-self:center">Albumnaam determines the output folder — changing it re-routes future processing</span>
+      </div>
+    </div>
     <div class="grid-wrap"><div class="grid" id="grid"><div class="empty">Select a folder to see its images.</div></div></div>
   </div>
 </div>
@@ -196,8 +223,9 @@ async function selectFolder(name) {
   renderFolders($('folderSearch').value);
   const f = folders.find(x => x.name === name);
   $('folderLabel').textContent = `${name} (${f.images} images)`;
-  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery'].forEach(id => $(id).disabled = false);
+  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery','btnDesc'].forEach(id => $(id).disabled = false);
   $('grid').innerHTML = '<div class="empty">Loading images…</div>';
+  if ($('descPanel').classList.contains('open')) loadDescription();
   try {
     // list images via the admin dir API (also resolves the output folder)
     const resp = await api(`/api/admin/dir?dir=${encodeURIComponent(name)}`);
@@ -279,6 +307,63 @@ async function loadAnalysis(jsonPath) {
     $('viewerJson').innerHTML = `<div class="kv">Could not load analysis: ${e.message}</div>`;
   }
 }
+
+/* ── Description editor ────────────────────────────── */
+let descLoaded = '', descDirty = false;
+
+async function loadDescription() {
+  if (!currentFolder) return;
+  try {
+    const d = await api(`/api/admin/description?dir=${encodeURIComponent(currentFolder)}`);
+    $('descText').value = d.description;
+    descLoaded = d.description;
+    descDirty = false;
+    $('descStatus').textContent = d.exists ? 'existing file' : 'new file (template)';
+    $('descStatus').className = 'status';
+  } catch (e) {
+    $('descStatus').textContent = 'error: ' + e.message;
+    $('descStatus').className = 'status dirty';
+  }
+}
+
+async function saveDescription() {
+  if (!currentFolder) return;
+  const btn = $('btnSaveDesc');
+  btn.disabled = true;
+  try {
+    await api('/api/admin/description', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ dir: currentFolder, description: $('descText').value }) });
+    descLoaded = $('descText').value;
+    descDirty = false;
+    $('descStatus').textContent = 'saved ✓';
+    $('descStatus').className = 'status saved';
+    // Refresh folder list (has_description flag) and grid (output dir may
+    // change if Albumnaam was edited)
+    await loadFolders();
+    if (currentFolder) await selectFolder(currentFolder);
+  } catch (e) {
+    $('descStatus').textContent = 'error: ' + e.message;
+    $('descStatus').className = 'status dirty';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function toggleDescPanel(show) {
+  const panel = $('descPanel');
+  const open = show !== undefined ? show : !panel.classList.contains('open');
+  panel.classList.toggle('open', open);
+  if (open) loadDescription();
+}
+
+$('btnDesc').onclick = () => toggleDescPanel();
+$('btnToggleDesc').onclick = () => toggleDescPanel(false);
+$('btnSaveDesc').onclick = saveDescription;
+$('descText').oninput = () => {
+  descDirty = true;
+  $('descStatus').textContent = 'unsaved changes';
+  $('descStatus').className = 'status dirty';
+};
 
 /* ── Commands ─────────────────────────────────────── */
 function showJobBar() {

@@ -756,6 +756,63 @@ def admin_analysis():
     return send_file(jf, mimetype="application/json")
 
 
+@app.get("/api/admin/description")
+def admin_get_description():
+    """Read a folder's description.txt.
+
+    Query params:
+        dir  string  required  Folder name (or relative path) under the photos root
+    """
+    rel = request.args.get("dir")
+    if not rel:
+        return _err("Missing required query param: dir")
+    photos_root, _ = _admin_roots()
+    folder = (photos_root / rel).resolve()
+    try:
+        folder.relative_to(photos_root.resolve())
+    except ValueError:
+        return _err("Invalid folder path", 403)
+    if not folder.is_dir():
+        return _err(f"Folder not found: {rel}", 404)
+    desc = folder / "description.txt"
+    if desc.exists():
+        return jsonify({"dir": rel, "exists": True, "description": desc.read_text(encoding="utf-8")})
+    # New file: offer the standard template
+    return jsonify({
+        "dir": rel, "exists": False,
+        "description": "Albumnaam: \nLocatie: \nDatum: \nPersonen: \nActiviteit: \nWeer: \nOpmerkingen: \nStemming: ",
+    })
+
+
+@app.post("/api/admin/description")
+def admin_save_description():
+    """Write a folder's description.txt.
+
+    Request body (JSON):
+        dir          string  required  Folder name under the photos root
+        description  string  required  Full description.txt content
+    """
+    body = request.get_json(silent=True) or {}
+    missing = _require_fields(body, "dir", "description")
+    if missing:
+        return _err(f"Missing required fields: {missing}")
+    photos_root, _ = _admin_roots()
+    folder = (photos_root / body["dir"]).resolve()
+    try:
+        folder.relative_to(photos_root.resolve())
+    except ValueError:
+        return _err("Invalid folder path", 403)
+    if not folder.is_dir():
+        return _err(f"Folder not found: {body['dir']}", 404)
+    try:
+        (folder / "description.txt").write_text(
+            str(body["description"]).strip() + "\n", encoding="utf-8"
+        )
+    except OSError as e:
+        return _err(f"Could not write description.txt: {e}", 500)
+    return jsonify({"status": "ok"})
+
+
 def glob_escape(s: str) -> str:
     """Escape glob special characters in a filename stem."""
     return s.replace("[", "[[]").replace("*", "[*]").replace("?", "[?]")
