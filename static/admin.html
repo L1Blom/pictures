@@ -343,6 +343,9 @@ async function saveDescription() {
     descDirty = false;
     $('descStatus').textContent = 'saved ✓';
     $('descStatus').className = 'status saved';
+    // Notify: the folder list and grid are about to refresh (Albumnaam
+    // changes re-route the output folder, so the view must follow).
+    showSyncStatus('Description saved — refreshing folder view', true, currentFolder);
     // Refresh folder list (has_description flag) and grid (output dir may
     // change if Albumnaam was edited)
     await loadFolders();
