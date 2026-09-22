@@ -456,9 +456,21 @@ def _apply_description_ground_truth(
         llm_confidence = 0
         llm_landmark = ""
 
-    # The LLM only wins with a named landmark at very high confidence
+    # The LLM only wins with a named landmark at very high confidence —
+    # AND the landmark must be an INDEPENDENT visual identification: if the
+    # landmark text is (partly) copied from the description.txt context, it
+    # is not a recognition and the description wins. E.g. description says
+    # "Berlin" and the LLM sees the Brandenburger Tor → LLM wins; description
+    # says "Han Hollanderweg, Gouda" and the LLM parrots "Han Hollanderweg"
+    # back as landmark → description wins.
     LANDMARK_CONFIDENCE = 85
-    llm_won = bool(llm_landmark) and llm_confidence >= LANDMARK_CONFIDENCE
+    description_text = (ground_truth.get("description_text") or "").lower()
+    landmark_is_independent = bool(llm_landmark) and not any(
+        word in description_text
+        for word in llm_landmark.lower().replace("(", " ").replace(")", " ").split()
+        if len(word) >= 4  # ignore short/stop words
+    )
+    llm_won = landmark_is_independent and llm_confidence >= LANDMARK_CONFIDENCE
 
     if not llm_won:
         analysis["location_detection"] = parse_location_parts(ground_truth["location_str"])
