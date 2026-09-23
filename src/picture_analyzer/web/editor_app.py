@@ -476,7 +476,7 @@ _INDEX_HTML = """<!DOCTYPE html>
 </style>
 </head>
 <body>
-<h1>📷 Description Editor</h1>
+<h1>📷 Description Editor &nbsp;<a href="/admin" style="font-size:.8rem;color:#0d6efd;text-decoration:none">admin →</a></h1>
 <div id="exif-popup"></div>
 <div id="modal" onclick="closeModal()">
   <button id="modal-prev" class="modal-nav"

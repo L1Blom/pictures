@@ -62,7 +62,6 @@ dev = [
 
 [project.scripts]
 picture-analyzer = "picture_analyzer.cli.app:main"
-description-editor = "picture_analyzer.web.app:main"
 
 [project.urls]
 Repository = "https://github.com/leen/picture-analyzer"
