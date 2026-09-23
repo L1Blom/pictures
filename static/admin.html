@@ -208,6 +208,9 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
   <div class="top">
     <div class="title" id="viewerTitle"></div>
     <div class="nav">
+      <button id="btnPrevImage" title="Previous image (←)">‹</button>
+      <span id="viewerCounter" style="font-size:12px;color:var(--muted);font-family:var(--mono);align-self:center"></span>
+      <button id="btnNextImage" title="Next image (→)">›</button>
       <button id="btnProcessImage" class="primary">▶ Process this image</button>
       <button id="btnEnhanceImage">Enhance</button>
       <button id="btnClose">✕ Close</button>
@@ -308,10 +311,29 @@ function renderGrid() {
 /* ── Viewer ───────────────────────────────────────── */
 let viewerVariants = [], viewerPreferred = null;
 
+function viewerImageIndex() {
+  // Position of the open image within the folder's image list
+  return currentImages.findIndex(i => (i.absolute || i.path) === viewerImage);
+}
+
+function viewerStep(dir) {
+  if (!currentImages.length || !viewerImage) return;
+  const idx = viewerImageIndex();
+  if (idx === -1) return;
+  const next = (idx + dir + currentImages.length) % currentImages.length;
+  openViewer(currentImages[next].absolute || currentImages[next].path);
+}
+
+function updateViewerCounter() {
+  const idx = viewerImageIndex();
+  $('viewerCounter').textContent = idx === -1 ? '' : `${idx + 1}/${currentImages.length}`;
+}
+
 async function openViewer(srcPath) {
   viewerImage = srcPath;
   $('viewer').classList.add('open');
   $('viewerTitle').textContent = srcPath.split('/').pop();
+  updateViewerCounter();
   $('viewerImgs').innerHTML = '<div class="empty">Loading variants…</div>';
   $('viewerJson').innerHTML = '';
   try {
@@ -616,9 +638,20 @@ $('btnReport').onclick = () => runCommand('report');
 $('btnGallery').onclick = () => runCommand('gallery');
 $('btnProcessImage').onclick = () => runCommand('image-process');
 $('btnEnhanceImage').onclick = () => runCommand('image-enhance');
+$('btnPrevImage').onclick = () => viewerStep(-1);
+$('btnNextImage').onclick = () => viewerStep(1);
 $('btnClose').onclick = () => { $('viewer').classList.remove('open'); viewerImage = null; };
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !$('zoom').classList.contains('open')) $('btnClose').click();
+});
+
+// Arrow keys navigate images in the viewer — but while the zoom overlay is
+// open, ←/→ belong to the zoom's variant loop instead.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if ($('zoom').classList.contains('open')) return;   // zoom owns the arrows
+  if (!$('viewer').classList.contains('open')) return;
+  viewerStep(e.key === 'ArrowLeft' ? -1 : 1);
 });
 
 /* ── Zoom overlay ──────────────────────────────────── */
