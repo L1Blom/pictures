@@ -807,13 +807,23 @@ def _single_analyze(
 
     click.echo(f"Analyzing: {image_path}")
 
-    # Resolve output path — treat as output directory when:
-    #  • it already is one, OR
-    #  • the raw string ends with a path separator (user wrote "output_dir/")
+    # Resolve output path — treat as output DIRECTORY by default.
+    # A path is only treated as an output FILE when it clearly names one:
+    #  • it already exists as a file, OR
+    #  • it has an image extension (e.g. ".../photo_analyzed.jpg")
+    # Anything else (including a not-yet-existing album folder like
+    # ``<enhanced_root>/<Albumnaam>``) is a directory: the analyzed copy is
+    # written as ``<output>/<stem>_analyzed.jpg`` inside it.
+    # The old heuristic (directory only when it already existed or ended with
+    # a separator) wrote the analyzed image AS the album folder itself on a
+    # first run, which then made batch mkdir() crash with FileExistsError.
     output_path = output
     if output_path:
-        _raw = str(output)
-        if Path(output_path).is_dir() or _raw.endswith("/") or _raw.endswith("\\"):
+        _is_file_target = (
+            Path(output_path).is_file()
+            or Path(output_path).suffix.lower() in DEFAULT_SUPPORTED_FORMATS
+        )
+        if not _is_file_target:
             output_path = str(Path(output_path) / f"{image_path.stem}_analyzed.jpg")
 
     analysis_result = _analyze_with_provider(
@@ -892,7 +902,7 @@ def _single_analyze(
     # Optional enhancement
     if do_enhance and "enhancement" in analysis:
         enhancer = SmartEnhancer()
-        out_dir = output or "output"
+        out_dir = str(analyzed_target.parent)
         enhanced_path = str(Path(out_dir) / f"{image_path.stem}_enhanced.jpg")
         result = enhancer.enhance_from_analysis(
             str(analyzed_target), analysis["enhancement"], enhanced_path,
@@ -905,13 +915,12 @@ def _single_analyze(
 
     # Optional slide restoration
     if restore_slide:
-        out_dir = output or "output"
         _restore_from_analysis(
             SlideRestoration, MetadataManager,
             source_path=str(analyzed_target),
             analysis=analysis,
             restore_slide=restore_slide,
-            output_dir=out_dir,
+            output_dir=str(analyzed_target.parent),
             image_stem=image_path.stem,
         )
 
@@ -952,6 +961,15 @@ def _batch_analyze(
     if output is None:
         output = _default_output_from_description(directory)
     output_dir = output or _fallback_output(directory.name)
+
+    # A regular file occupying the output path (e.g. an analyzed image that
+    # was once written AS the album folder) makes mkdir() crash with a raw
+    # FileExistsError — fail with a clear, actionable message instead.
+    if Path(output_dir).exists() and not Path(output_dir).is_dir():
+        raise click.ClickException(
+            f"Output path exists but is not a directory: {output_dir}\n"
+            f"A file is blocking the album folder — remove or rename it, then retry."
+        )
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     # Collect image files
@@ -1914,38 +1932,6 @@ def config_cmd():
 
     settings = get_settings()
     click.echo(settings.model_dump_json(indent=2))
-
-
-@cli.command()
-@click.argument("directory", type=click.Path(exists=True, file_okay=False),
-                default=".")
-@click.option("-p", "--port", type=int, default=None,
-              help="Port for the web server.")
-def describe(directory: str, port: int | None):
-    """Launch the description editor web UI.
-
-    Opens a browser-based editor for writing description.txt files
-    that provide context to the AI analyzer.
-    """
-    from ..config.settings import get_settings
-
-    settings = get_settings()
-    web_port = port or settings.web.port
-
-    try:
-        from ..web.editor_app import create_app
-
-        click.echo(f"Starting description editor on port {web_port}...")
-        click.echo(f"Photos directory: {directory}")
-        app = create_app(photos_dir=directory)
-        app.run(debug=settings.web.debug, host=settings.web.host, port=web_port)
-    except ImportError as exc:
-        click.echo(f"Starting description editor on port {web_port}...")
-        click.echo(f"Photos directory: {directory}")
-        click.echo(
-            "Description editor not found.  Install with: pip install picture-analyzer[web]"
-        )
-        raise click.ClickException(f"Could not import web editor: {exc}") from exc
 
 
 # ── Entry point ──────────────────────────────────────────────────────

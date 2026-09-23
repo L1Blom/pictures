@@ -180,6 +180,46 @@ class TestAnalyze:
         assert result.exit_code == 0
         assert "pipeline-mode" in result.output
 
+    def test_analyze_output_is_treated_as_directory_when_not_yet_existing(
+        self, runner, fake_image, mock_legacy, mock_provider_analysis, tmp_path
+    ):
+        """Regression: a not-yet-existing output path (e.g. a new album folder
+        ``<enhanced_root>/<Albumnaam>``) must be treated as a DIRECTORY.
+
+        The old heuristic only treated output as a directory when it already
+        existed, so the analyzed image was written AS the album folder —
+        which then made batch processing crash on mkdir().
+        """
+        out_dir = tmp_path / "1984-06 Goes"  # does not exist yet, no image suffix
+        result = runner.invoke(cli, ["analyze", str(fake_image), "-o", str(out_dir)])
+        assert result.exit_code == 0
+        assert out_dir.is_dir(), "output path must have been created as a directory"
+        assert (out_dir / "photo_analyzed.jpg").is_file(), \
+            "analyzed copy must be written INSIDE the output directory"
+        assert not out_dir.is_file()
+
+    def test_analyze_output_with_image_suffix_is_treated_as_file(
+        self, runner, fake_image, mock_legacy, mock_provider_analysis, tmp_path
+    ):
+        """An explicit output file path (image extension) is still honored."""
+        out_file = tmp_path / "result_analyzed.jpg"
+        result = runner.invoke(cli, ["analyze", str(fake_image), "-o", str(out_file)])
+        assert result.exit_code == 0
+        assert out_file.is_file()
+        assert out_file.with_suffix(".json").is_file()
+
+    def test_analyze_batch_fails_clearly_when_file_blocks_output_dir(
+        self, runner, fake_dir, mock_legacy, mock_provider_analysis, tmp_path
+    ):
+        """Regression: a regular file occupying the output path must produce
+        a clear ClickException, not a raw FileExistsError traceback."""
+        blocking = tmp_path / "1984-06 Goes"
+        blocking.write_bytes(b"not a directory")
+        result = runner.invoke(cli, ["analyze", str(fake_dir), "--batch", "-o", str(blocking)])
+        assert result.exit_code != 0
+        assert "not a directory" in result.output
+        assert "FileExistsError" not in result.output
+
 
 class TestAnalyzePipelineMode:
     """Tests for --pipeline-mode flag and stepped/single branching."""
