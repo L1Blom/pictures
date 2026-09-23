@@ -316,10 +316,14 @@ async function openViewer(srcPath) {
   $('viewerJson').innerHTML = '';
   try {
     const v = await api(`/api/admin/variants?image=${encodeURIComponent(srcPath)}`);
-    const variants = [{label: 'Original (source)', path: srcPath, key: 'original'}];
+    // The original source is shown for reference but is NOT pickable — it
+    // carries no EXIF data (no date/GPS/description), so it can't go into
+    // the Immich album. Only processed variants are candidates.
+    const variants = [];
     if (v.analyzed) variants.push({label: 'Analyzed (untouched copy)', path: v.analyzed, key: 'analyzed', gen: v.analyzed_generated});
     if (v.enhanced) variants.push({label: 'Enhanced (AI recommendations)', path: v.enhanced, key: 'enhanced', gen: v.enhanced_generated});
     for (const r of v.restored) variants.push({label: `Restored: ${r.profile}`, path: r.path, key: `restored:${r.profile}`, gen: r.generated});
+    if (variants.length) variants.unshift({label: 'Original (source, no EXIF — reference only)', path: srcPath, key: null});
     viewerVariants = variants;
     viewerPreferred = v.preferred_variant;
     $('viewerImgs').innerHTML = variants.map((vv, i) => variantCard(vv, i)).join('')
@@ -362,8 +366,11 @@ function refreshPreferredUI() {
 function variantCard(vv, i) {
   const gen = vv.gen ? `<span class="tag">${fmtDate(vv.gen)}</span>` : '';
   const isPref = viewerPreferred === vv.key;
+  const pickBtn = vv.key
+    ? `<button class="pick" data-variant="${escAttr(vv.key)}">${isPref ? '★ preferred' : '☆ pick'}</button>`
+    : '';  // original: reference only, not pickable (no EXIF)
   return `<div class="variant-card ${isPref ? 'preferred' : ''}">
-    <div class="vlabel"><span>${esc(vv.label)}</span>${gen}<button class="pick" data-variant="${escAttr(vv.key)}">${isPref ? '★ preferred' : '☆ pick'}</button></div>
+    <div class="vlabel"><span>${esc(vv.label)}</span>${gen}${pickBtn}</div>
     <img src="/api/admin/file?path=${encodeURIComponent(vv.path)}" loading="lazy" data-vindex="${i}">
   </div>`;
 }
@@ -655,8 +662,14 @@ function showZoomVariant() {
 
 function updateZoomPick() {
   const vv = viewerVariants[zoomIndex];
-  const isPref = !!vv && viewerPreferred === vv.key;
   const b = $('btnZoomPick');
+  if (!vv || !vv.key) {
+    // Original source: reference only — no pick button in the zoom bar
+    b.style.display = 'none';
+    return;
+  }
+  b.style.display = '';
+  const isPref = viewerPreferred === vv.key;
   b.textContent = isPref ? '★ preferred' : '☆ pick best';
   b.classList.toggle('preferred', isPref);
 }
@@ -714,7 +727,7 @@ function clampPan() {
   $('btnZoomNext').onclick = () => zoomStep(1);
   $('btnZoomPick').onclick = () => {
     const vv = viewerVariants[zoomIndex];
-    if (vv) setPreferred(viewerImage, vv.key);
+    if (vv && vv.key) setPreferred(viewerImage, vv.key);  // original (key=null) is not pickable
   };
 
   // Wheel: zoom around the cursor position

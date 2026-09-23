@@ -988,7 +988,12 @@ def admin_set_preferred():
 
 
 def _variant_paths(src: Path) -> dict[str, str]:
-    """Map variant labels to file paths for a source image (Albumnaam routing)."""
+    """Map variant labels to file paths for a source image (Albumnaam routing).
+
+    Note: the ORIGINAL source file is deliberately not offered — it carries
+    no EXIF data (no date, GPS, or description), so it is not a valid
+    candidate for the Immich album. Only processed variants are pickable.
+    """
     _, enhanced_root = _admin_roots()
     album = src.parent.name
     desc = src.parent / "description.txt"
@@ -1000,7 +1005,6 @@ def _variant_paths(src: Path) -> dict[str, str]:
     out_dir = enhanced_root / album
     stem = src.stem
     paths: dict[str, str] = {
-        "original": str(src),
         "analyzed": str(out_dir / f"{stem}_analyzed.jpg"),
         "enhanced": str(out_dir / f"{stem}_enhanced.jpg"),
     }
