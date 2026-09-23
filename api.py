@@ -17,6 +17,7 @@ Usage:
 """
 
 import argparse
+import json
 import queue
 import sys
 import threading
@@ -635,12 +636,22 @@ def admin_dir():
                         latest = ts
                 except OSError:
                     continue
+        # Preferred variant (if marked in the analysis JSON)
+        preferred = None
+        jf = out_dir / f"{f.stem}_analyzed.json"
+        if jf.is_file():
+            try:
+                data = json.loads(jf.read_text(encoding="utf-8"))
+                preferred = data.get("preferred_variant")
+            except (json.JSONDecodeError, OSError):
+                pass
         images.append({
             "name": f.name,
             "path": str(f),
             "has_enhanced": has_enhanced,
             "restored_count": restored_count,
             "latest_generated": latest,  # unix timestamp or null
+            "preferred_variant": preferred,
         })
     return jsonify({"folder": rel, "album": album, "output_dir": str(out_dir), "images": images})
 
@@ -693,6 +704,15 @@ def admin_variants():
     def _ts(p: Path):
         return p.stat().st_mtime if p.exists() else None
 
+    # Current preferred variant (if any) — read from the analysis JSON
+    preferred_variant = None
+    if analysis_json.exists():
+        try:
+            data = json.loads(analysis_json.read_text(encoding="utf-8"))
+            preferred_variant = data.get("preferred_variant")
+        except (json.JSONDecodeError, OSError):
+            pass
+
     return jsonify({
         "source": str(src),
         "output_dir": str(out_dir),
@@ -702,6 +722,7 @@ def admin_variants():
         "enhanced_generated": _ts(enhanced),
         "analysis_json": str(analysis_json) if analysis_json.exists() else None,
         "restored": restored,
+        "preferred_variant": preferred_variant,
     })
 
 
@@ -816,6 +837,149 @@ def admin_save_description():
 def glob_escape(s: str) -> str:
     """Escape glob special characters in a filename stem."""
     return s.replace("[", "[[]").replace("*", "[*]").replace("?", "[?]")
+
+
+# ---------------------------------------------------------------------------
+# Preferred variant — Immich album preparation
+# ---------------------------------------------------------------------------
+
+def _resolve_album_json(src: Path) -> Path:
+    """Return the analysis JSON path for a source image (Albumnaam routing)."""
+    _, enhanced_root = _admin_roots()
+    album = src.parent.name
+    desc = src.parent / "description.txt"
+    if desc.exists():
+        import re
+        m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+        if m and m.group(1).strip():
+            album = m.group(1).strip()
+    return enhanced_root / album / f"{src.stem}_analyzed.json"
+
+
+@app.post("/api/admin/preferred")
+def admin_set_preferred():
+    """Mark the preferred variant for a source image (stored in its analysis JSON).
+
+    Request body (JSON):
+        image     string  required  Absolute path to the SOURCE image (in photos root)
+        variant   string  optional  Variant label: "original", "analyzed",
+                                    "enhanced", "restored:<profile>".
+                                    Null/omitted clears the preference.
+
+    The label is stored in the JSON as ``preferred_variant``; the absolute
+    path of the chosen file is stored as ``preferred_path``.
+    """
+    body = request.get_json(silent=True) or {}
+    missing = _require_fields(body, "image")
+    if missing:
+        return _err(f"Missing required fields: {missing}")
+    src = Path(body["image"])
+    if not src.is_file():
+        return _err(f"Image not found: {body['image']}", 404)
+
+    jf = _resolve_album_json(src)
+    if not jf.is_file():
+        return _err(f"No analysis JSON found at {jf} — process the image first", 404)
+
+    variant = body.get("variant")
+    if variant is not None and not isinstance(variant, str):
+        return _err("variant must be a string or null")
+
+    try:
+        data = json.loads(jf.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        return _err(f"Could not read analysis JSON: {e}", 500)
+
+    if variant:
+        # Resolve the label to an actual file path (validates it exists)
+        v = _variant_paths(src)
+        path = v.get(variant)
+        if not path:
+            return _err(f"Unknown or missing variant '{variant}' for this image", 400)
+        data["preferred_variant"] = variant
+        data["preferred_path"] = str(path)
+    else:
+        data.pop("preferred_variant", None)
+        data.pop("preferred_path", None)
+
+    try:
+        jf.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    except OSError as e:
+        return _err(f"Could not write analysis JSON: {e}", 500)
+    return jsonify({"status": "ok", "preferred_variant": variant})
+
+
+def _variant_paths(src: Path) -> dict[str, str]:
+    """Map variant labels to file paths for a source image (Albumnaam routing)."""
+    _, enhanced_root = _admin_roots()
+    album = src.parent.name
+    desc = src.parent / "description.txt"
+    if desc.exists():
+        import re
+        m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+        if m and m.group(1).strip():
+            album = m.group(1).strip()
+    out_dir = enhanced_root / album
+    stem = src.stem
+    paths: dict[str, str] = {
+        "original": str(src),
+        "analyzed": str(out_dir / f"{stem}_analyzed.jpg"),
+        "enhanced": str(out_dir / f"{stem}_enhanced.jpg"),
+    }
+    if out_dir.is_dir():
+        for p in out_dir.glob(f"{glob_escape(stem)}_restored_*.jpg"):
+            profile = p.name[len(stem) + len("_restored_"):-len(".jpg")]
+            paths[f"restored:{profile}"] = str(p)
+    return {k: v for k, v in paths.items() if Path(v).is_file()}
+
+
+# ---------------------------------------------------------------------------
+# Description editor UI (mounted at /) — replaces the standalone
+# `picture-analyzer describe` service that used to run on port 7000.
+# ---------------------------------------------------------------------------
+
+def _create_editor_app() -> "Flask":
+    """Build the description editor app pointed at the admin photos root."""
+    sys.path.insert(0, str(Path(__file__).parent / "src"))
+    from picture_analyzer.web.editor_app import create_app as _editor_create_app
+
+    photos_root, _ = _admin_roots()
+    return _editor_create_app(photos_dir=str(photos_root))
+
+
+# Mount the editor's routes (/, /api/directories, /api/directory/...,
+# /api/thumbnail*, /api/image*, /api/exif-enhanced) under this app.
+# WSGI middleware dispatches: editor paths go to the editor app, the rest
+# (our /api/* and /admin) to the main app.
+class _EditorMount:
+    """WSGI middleware routing editor paths to the editor Flask app."""
+
+    # Paths owned by the editor app (its index page + its API namespace)
+    _EDITOR_PREFIXES = (
+        "/api/directories",
+        "/api/directory/",
+        "/api/thumbnail/",
+        "/api/thumbnail-enhanced/",
+        "/api/image/",
+        "/api/image-enhanced/",
+        "/api/exif-enhanced/",
+    )
+
+    def __init__(self, main_app: Flask, editor_app: Flask):
+        # Capture the ORIGINAL wsgi callable — assigning app.wsgi_app below
+        # would otherwise make self.main_app(environ) re-enter this mount.
+        self.main_app = main_app.wsgi_app
+        self.editor_app = editor_app
+
+    def __call__(self, environ, start_response):
+        path = environ.get("PATH_INFO", "")
+        if path == "/" or any(path.startswith(p) for p in self._EDITOR_PREFIXES):
+            return self.editor_app(environ, start_response)
+        return self.main_app(environ, start_response)
+
+
+_editor_flask = _create_editor_app()
+app.wsgi_app = _EditorMount(app, _editor_flask)
 
 
 # ---------------------------------------------------------------------------
