@@ -573,8 +573,10 @@ def admin_folders():
 
     The scan stats every file in every folder (70k+ files), so the result is
     cached for a short while — the folder set rarely changes between clicks.
+    Also reports how many images have a preferred-variant pick (for the
+    Immich album) by scanning the album's analysis JSONs in the enhanced root.
     """
-    photos_root, _ = _admin_roots()
+    photos_root, enhanced_root = _admin_roots()
     if not photos_root.is_dir():
         return _err(f"Photos root not found: {photos_root}", 500)
 
@@ -587,16 +589,36 @@ def admin_folders():
     for sub in sorted(photos_root.iterdir()):
         if not sub.is_dir() or sub.name.startswith("."):
             continue
-        n_images = sum(
-            1 for f in sub.iterdir()
-            if f.is_file() and f.suffix.lower() in SUPPORTED_FORMATS
-        )
+        n_images = 0
+        for f in sub.iterdir():
+            if f.is_file() and f.suffix.lower() in SUPPORTED_FORMATS:
+                n_images += 1
         if n_images == 0:
             continue
+        # Count preferred picks: analysis JSONs in the album's output folder
+        # that carry a preferred_variant. Album routing follows description.txt.
+        album = sub.name
+        desc = sub / "description.txt"
+        if desc.exists():
+            import re
+            m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+            if m and m.group(1).strip():
+                album = m.group(1).strip()
+        out_dir = enhanced_root / album
+        n_picked = 0
+        if out_dir.is_dir():
+            for jf in out_dir.glob("*_analyzed.json"):
+                try:
+                    data = json.loads(jf.read_text(encoding="utf-8"))
+                    if data.get("preferred_variant"):
+                        n_picked += 1
+                except (json.JSONDecodeError, OSError):
+                    continue
         folders.append({
             "name": sub.name,
             "path": str(sub),
             "images": n_images,
+            "picked": n_picked,
             "has_description": (sub / "description.txt").exists(),
         })
     admin_folders._cache = (root_mtime, folders, time.time())
@@ -650,16 +672,25 @@ def admin_dir():
                     continue
         # Preferred variant (if marked in the analysis JSON)
         preferred = None
+        preferred_path = None
         jf = out_dir / f"{f.stem}_analyzed.json"
         if jf.is_file():
             try:
                 data = json.loads(jf.read_text(encoding="utf-8"))
                 preferred = data.get("preferred_variant")
+                preferred_path = data.get("preferred_path")
             except (json.JSONDecodeError, OSError):
                 pass
+        # The grid thumbnail shows the PICKED variant when there is one
+        # (the original is just the unprocessed scan); fall back to the
+        # original when nothing is picked or the pick is missing on disk.
+        thumb_src = str(f)
+        if preferred_path and Path(preferred_path).is_file():
+            thumb_src = preferred_path
         images.append({
             "name": f.name,
             "path": str(f),
+            "thumb_src": thumb_src,
             "has_enhanced": has_enhanced,
             "restored_count": restored_count,
             "latest_generated": latest,  # unix timestamp or null

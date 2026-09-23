@@ -183,6 +183,7 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
         <option>yellow_cast</option><option>aged</option><option>well_preserved</option>
       </select>
       <label class="chk"><input type="checkbox" id="optSkipExisting"> skip existing</label>
+      <label class="chk" title="Show only images with a picked best variant"><input type="checkbox" id="optPicksOnly"> ★ picks only</label>
       <button id="btnReport" disabled title="Generate markdown report">Report</button>
       <button id="btnGallery" disabled title="Generate gallery markdown">Gallery</button>
       <button id="btnDesc" disabled title="Edit this folder's description.txt">📝 Description</button>
@@ -263,11 +264,17 @@ async function loadFolders() {
 
 function renderFolders(filter) {
   const list = folders.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()));
-  $('folderList').innerHTML = list.map(f => `
+  $('folderList').innerHTML = list.map(f => {
+    const picked = f.picked || 0;
+    const pickInfo = picked
+      ? ` · <span style="color:#f9a825">★ ${picked}/${f.images}</span>`
+      : '';
+    return `
     <div class="folder ${currentFolder === f.name ? 'active' : ''}" data-folder="${escAttr(f.name)}">
       <div class="name">${esc(f.name)}</div>
-      <div class="meta">${f.images} images ${f.has_description ? '<span class="has-desc">· description.txt ✓</span>' : '· no description'}</div>
-    </div>`).join('') || '<div class="empty">No folders match.</div>';
+      <div class="meta">${f.images} images${pickInfo} ${f.has_description ? '<span class="has-desc">· description.txt ✓</span>' : '· no description'}</div>
+    </div>`;
+  }).join('') || '<div class="empty">No folders match.</div>';
   document.querySelectorAll('.folder').forEach(el =>
     el.onclick = () => selectFolder(el.dataset.folder));
 }
@@ -296,12 +303,21 @@ function renderGrid() {
     $('grid').innerHTML = '<div class="empty">No images found (or folder uses unsupported formats).</div>';
     return;
   }
-  $('grid').innerHTML = currentImages.map(img => {
+  const picksOnly = $('optPicksOnly').checked;
+  const shown = picksOnly ? currentImages.filter(i => i.preferred_variant) : currentImages;
+  if (!shown.length) {
+    $('grid').innerHTML = `<div class="empty">No picks yet in this folder — pick the best variant in the image viewer.</div>`;
+    return;
+  }
+  $('grid').innerHTML = shown.map(img => {
     const src = img.absolute || img.path;
+    // Show the picked variant's image when there is one (the original is
+    // just the unprocessed scan); otherwise the original thumbnail.
+    const thumb = img.thumb_src || src;
     const gen = img.latest_generated ? fmtDate(img.latest_generated) : null;
     return `<div class="cell" data-src="${escAttr(src)}">
-      <img loading="lazy" src="/api/admin/thumb?path=${encodeURIComponent(src)}" onerror="this.style.opacity=0.15">
-      <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}${img.preferred_variant ? '<span class="badge pref">★ pref</span>' : ''}${gen ? `<span class="badge gen">${gen}</span>` : ''}</div>
+      <img loading="lazy" src="/api/admin/thumb?path=${encodeURIComponent(thumb)}" onerror="this.src='/api/admin/thumb?path=${encodeURIComponent(src)}'; this.onerror=()=>this.style.opacity=0.15">
+      <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}${img.preferred_variant ? `<span class="badge pref">★ ${esc(img.preferred_variant)}</span>` : ''}${gen ? `<span class="badge gen">${gen}</span>` : ''}</div>
       <div class="cap" title="${escAttr(img.name)}">${esc(img.name)}</div>
     </div>`;
   }).join('');
@@ -633,6 +649,7 @@ function escAttr(s) { return esc(s); }function fmtDate(unixTs) {
 }
 /* ── Wire up ──────────────────────────────────────── */
 $('folderSearch').oninput = e => renderFolders(e.target.value);
+$('optPicksOnly').onchange = () => renderGrid();
 $('btnProcessFolder').onclick = () => runCommand('folder-process');
 $('btnAnalyzeFolder').onclick = () => runCommand('folder-analyze');
 $('btnReport').onclick = () => runCommand('report');
