@@ -374,9 +374,10 @@ async function setPreferred(srcPath, variant) {
 }
 
 function refreshPreferredUI() {
-  // Viewer cards
+  // Viewer cards (the original's card has no pick button — skip it)
   document.querySelectorAll('.variant-card').forEach(card => {
     const b = card.querySelector('.pick');
+    if (!b) return;
     const isPref = b.dataset.variant === viewerPreferred;
     card.classList.toggle('preferred', isPref);
     b.textContent = isPref ? '★ preferred' : '☆ pick';
