@@ -297,7 +297,7 @@ function renderGrid() {
     const src = img.absolute || img.path;
     const gen = img.latest_generated ? fmtDate(img.latest_generated) : null;
     return `<div class="cell" data-src="${escAttr(src)}">
-      <img loading="lazy" src="/api/admin/file?path=${encodeURIComponent(src)}" onerror="this.style.opacity=0.15">
+      <img loading="lazy" src="/api/admin/thumb?path=${encodeURIComponent(src)}" onerror="this.style.opacity=0.15">
       <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}${img.preferred_variant ? '<span class="badge pref">★ pref</span>' : ''}${gen ? `<span class="badge gen">${gen}</span>` : ''}</div>
       <div class="cap" title="${escAttr(img.name)}">${esc(img.name)}</div>
     </div>`;

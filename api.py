@@ -21,6 +21,7 @@ import json
 import queue
 import sys
 import threading
+import time
 import traceback
 import uuid
 from pathlib import Path
@@ -568,10 +569,20 @@ def admin_roots():
 
 @app.get("/api/admin/folders")
 def admin_folders():
-    """List album folders in the photos root (name + image count + description presence)."""
+    """List album folders in the photos root (name + image count + description presence).
+
+    The scan stats every file in every folder (70k+ files), so the result is
+    cached for a short while — the folder set rarely changes between clicks.
+    """
     photos_root, _ = _admin_roots()
     if not photos_root.is_dir():
         return _err(f"Photos root not found: {photos_root}", 500)
+
+    cache = getattr(admin_folders, "_cache", None)
+    root_mtime = photos_root.stat().st_mtime
+    if cache and cache[0] == root_mtime and (time.time() - cache[2]) < 300:
+        return jsonify({"folders": cache[1]})
+
     folders = []
     for sub in sorted(photos_root.iterdir()):
         if not sub.is_dir() or sub.name.startswith("."):
@@ -588,6 +599,7 @@ def admin_folders():
             "images": n_images,
             "has_description": (sub / "description.txt").exists(),
         })
+    admin_folders._cache = (root_mtime, folders, time.time())
     return jsonify({"folders": folders})
 
 
@@ -751,6 +763,72 @@ def admin_file():
     if not full.is_file():
         return _err(f"File not found: {path}", 404)
     return send_file(full)
+
+
+# ---------------------------------------------------------------------------
+# Thumbnails — the grid used to load full-size originals (3.5MB each, 100+MB
+# per folder) into 110px cells, which made folder clicks take 10-20 seconds.
+# This endpoint serves a small cached thumbnail instead.
+# ---------------------------------------------------------------------------
+
+_THUMB_DIR = Path("/tmp/picture_analyzer_thumbs")
+_THUMB_SIZE = 300  # pixels on the long side
+_THUMB_CACHE_TTL = 60 * 60 * 24 * 7  # regenerate after a week (catches re-processed images)
+
+
+def _thumbnail_response(path: str):
+    """Serve a cached thumbnail for *path* (any image under the allowed roots)."""
+    if not path:
+        return _err("Missing required query param: path")
+    full = Path(path).resolve()
+    photos_root, enhanced_root = _admin_roots()
+    allowed = False
+    for root in (photos_root, enhanced_root):
+        try:
+            full.relative_to(root.resolve())
+            allowed = True
+            break
+        except ValueError:
+            continue
+    if not allowed:
+        return _err("Path is outside the allowed roots", 403)
+    if not full.is_file():
+        return _err(f"File not found: {path}", 404)
+
+    # Cache key: hash of the full path + mtime (regenerates when re-processed)
+    import hashlib
+    try:
+        mtime = full.stat().st_mtime
+    except OSError:
+        mtime = 0
+    key = hashlib.sha256(f"{full}:{mtime}".encode()).hexdigest()[:24]
+    thumb = _THUMB_DIR / f"{key}.jpg"
+    _THUMB_DIR.mkdir(parents=True, exist_ok=True)
+
+    if not thumb.is_file() or (time.time() - thumb.stat().st_mtime) > _THUMB_CACHE_TTL:
+        try:
+            from PIL import Image
+            with Image.open(full) as img:
+                img = img.convert("RGB")
+                img.thumbnail((_THUMB_SIZE, _THUMB_SIZE))
+                img.save(thumb, "JPEG", quality=80)
+        except Exception as e:
+            # Fall back to the original file (better slow than broken)
+            return send_file(full)
+
+    resp = send_file(thumb, mimetype="image/jpeg")
+    resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
+
+
+@app.get("/api/admin/thumb")
+def admin_thumb():
+    """Serve a small cached thumbnail for grid display.
+
+    Query params:
+        path  string  required  Absolute path to the image
+    """
+    return _thumbnail_response(request.args.get("path"))
 
 
 @app.get("/api/admin/analysis")
