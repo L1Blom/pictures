@@ -184,6 +184,7 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
       </select>
       <label class="chk"><input type="checkbox" id="optSkipExisting"> skip existing</label>
       <label class="chk" title="Show only images with a picked best variant"><input type="checkbox" id="optPicksOnly"> ★ picks only</label>
+      <label class="chk" title="Toggle grid thumbnails between the original scans and the picked variants"><input type="checkbox" id="optShowPicks" checked> show picks</label>
       <button id="btnReport" disabled title="Generate markdown report">Report</button>
       <button id="btnGallery" disabled title="Generate gallery markdown">Gallery</button>
       <button id="btnDesc" disabled title="Edit this folder's description.txt">📝 Description</button>
@@ -311,9 +312,9 @@ function renderGrid() {
   }
   $('grid').innerHTML = shown.map(img => {
     const src = img.absolute || img.path;
-    // Show the picked variant's image when there is one (the original is
-    // just the unprocessed scan); otherwise the original thumbnail.
-    const thumb = img.thumb_src || src;
+    // "show picks" on: picked images display their picked variant's image
+    // (the original is just the unprocessed scan). Off: always the original.
+    const thumb = ($('optShowPicks').checked && img.thumb_src) ? img.thumb_src : src;
     const gen = img.latest_generated ? fmtDate(img.latest_generated) : null;
     return `<div class="cell" data-src="${escAttr(src)}">
       <img loading="lazy" src="/api/admin/thumb?path=${encodeURIComponent(thumb)}" onerror="this.src='/api/admin/thumb?path=${encodeURIComponent(src)}'; this.onerror=()=>this.style.opacity=0.15">
@@ -650,6 +651,7 @@ function escAttr(s) { return esc(s); }function fmtDate(unixTs) {
 /* ── Wire up ──────────────────────────────────────── */
 $('folderSearch').oninput = e => renderFolders(e.target.value);
 $('optPicksOnly').onchange = () => renderGrid();
+$('optShowPicks').onchange = () => renderGrid();
 $('btnProcessFolder').onclick = () => runCommand('folder-process');
 $('btnAnalyzeFolder').onclick = () => runCommand('folder-analyze');
 $('btnReport').onclick = () => runCommand('report');
