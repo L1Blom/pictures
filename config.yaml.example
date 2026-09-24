@@ -109,6 +109,13 @@ pipeline:
 # Top-level settings
 # batch_size: 5
 # log_level: "INFO"
+
+# Immich album publishing (publish-immich / sync-immich commands)
+# immich:
+#   url: "http://127.0.0.1:2283"
+#   api_key: ""            # Immich → Settings → API Keys → Create key
+#   picks_root: "/path/to/picks"      # host path of the picks external library
+#   immich_picks_root: "/data/picks"  # same path as Immich sees it (Docker container path)
 # supported_formats:
 #   - ".jpg"
 #   - ".jpeg"

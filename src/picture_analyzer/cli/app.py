@@ -1934,6 +1934,108 @@ def config_cmd():
     click.echo(settings.model_dump_json(indent=2))
 
 
+# ── Immich album publishing ─────────────────────────────────────────
+
+
+def _immich_settings():
+    """Load settings and validate the Immich section."""
+    from ..config.settings import get_settings
+
+    settings = get_settings()
+    cfg = settings.immich
+    if not cfg.api_key:
+        raise click.ClickException(
+            "immich.api_key not configured — add it to config.yaml "
+            "(Immich → Settings → API Keys)"
+        )
+    if not cfg.picks_root:
+        raise click.ClickException(
+            "immich.picks_root not configured — add it to config.yaml "
+            "(host path of the picks external library)"
+        )
+    return settings, cfg
+
+
+@cli.command(name="publish-immich")
+@click.argument("directory", type=click.Path(exists=True, file_okay=False), default=".")
+@click.option("--dry-run", is_flag=True, help="Show what would be published without writing.")
+def publish_immich(directory: str, dry_run: bool):
+    """Publish the preferred picks of a folder into the picks root.
+
+    DIRECTORY is a photos folder (Albumnaam routing, same as analyze).
+    Each picked variant is hardlinked into <picks_root>/<Albumnaam>/<stem>.jpg
+    so Immich sees exactly one asset per image. Re-picking replaces the file.
+    """
+    settings, cfg = _immich_settings()
+    from ..immich.publisher import publish_folder
+
+    result = publish_folder(
+        Path(directory), settings.output.enhanced_root, cfg.picks_root, dry_run
+    )
+    click.echo(f"Album: {_album_name(Path(directory))}")
+    click.echo(f"  published: {len(result.published)}")
+    click.echo(f"  removed:   {len(result.removed)}")
+    click.echo(f"  skipped:   {len(result.skipped)} (no pick yet)")
+    for e in result.errors:
+        click.echo(f"  ✗ {e}", err=True)
+    if dry_run:
+        click.echo("(dry run — nothing written)")
+
+
+def _album_name(folder: Path) -> str:
+    from ..immich.publisher import _album_for_folder
+
+    return _album_for_folder(folder)
+
+
+@cli.command(name="sync-immich")
+@click.option("--dry-run", is_flag=True, help="Show what would change without changing.")
+@click.option("--scan", is_flag=True, help="Trigger an Immich library scan first and wait briefly.")
+def sync_immich(dry_run: bool, scan: bool):
+    """Make Immich albums mirror the picks root.
+
+    Creates missing albums, adds new assets, removes gone assets. Run after
+    publish-immich (and after the Immich library scan has picked up new files).
+    """
+    import time as _time
+
+    settings, cfg = _immich_settings()
+    from ..immich.client import ImmichClient, ImmichError
+    from ..immich.sync import sync_albums, trigger_scan
+
+    immich_root = cfg.immich_picks_root or cfg.picks_root
+    client = ImmichClient(cfg.url, cfg.api_key)
+    if not client.ping():
+        raise click.ClickException(f"Immich not reachable at {cfg.url}")
+
+    if scan:
+        lib_id = trigger_scan(client, cfg.picks_root)
+        if lib_id:
+            click.echo(f"Library scan triggered ({lib_id}) — waiting 20s for new files…")
+            _time.sleep(20)
+        else:
+            click.echo("⚠ No Immich library imports the picks root — skipping scan", err=True)
+
+    try:
+        report = sync_albums(client, cfg.picks_root, str(immich_root), dry_run)
+    except ImmichError as exc:
+        raise click.ClickException(str(exc))
+
+    for name in report.albums_created:
+        click.echo(f"  + album created: {name}")
+    click.echo(f"  assets added:    {report.assets_added}")
+    click.echo(f"  assets removed:  {report.assets_removed}")
+    if report.missing_assets:
+        click.echo(f"  ⚠ {len(report.missing_assets)} pick files not found in Immich "
+                   f"(library scan pending?)")
+        for p in report.missing_assets[:5]:
+            click.echo(f"      {p}")
+    for e in report.errors:
+        click.echo(f"  ✗ {e}", err=True)
+    if dry_run:
+        click.echo("(dry run — nothing changed)")
+
+
 # ── Entry point ──────────────────────────────────────────────────────
 
 

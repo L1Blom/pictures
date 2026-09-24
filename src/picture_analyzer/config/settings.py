@@ -184,6 +184,21 @@ class PipelineConfig(BaseModel):
 # ── Root Settings ────────────────────────────────────────────────────
 
 
+class ImmichConfig(BaseModel):
+    """Immich server connection and album publishing configuration."""
+
+    url: str = Field(default="http://127.0.0.1:2283", description="Immich server URL")
+    api_key: str = Field(default="", description="Immich API key (Settings → API Keys)")
+    picks_root: Optional[Path] = Field(
+        default=None,
+        description="Host path of the picks external library (e.g. .../picks)",
+    )
+    immich_picks_root: Optional[Path] = Field(
+        default=None,
+        description="The picks library path as Immich sees it (container path for Docker)",
+    )
+
+
 class Settings(BaseSettings):
     """Root configuration — aggregates all sub-configs.
 
@@ -254,6 +269,7 @@ class Settings(BaseSettings):
     report: ReportConfig = Field(default_factory=ReportConfig)
     prompt: PromptConfig = Field(default_factory=PromptConfig)
     pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
+    immich: ImmichConfig = Field(default_factory=ImmichConfig)
 
     # Top-level settings
     supported_formats: FrozenSet[str] = Field(default=d.DEFAULT_SUPPORTED_FORMATS)
