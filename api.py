@@ -949,6 +949,128 @@ def glob_escape(s: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Immich publishing — expose the CLI commands to the admin page
+# ---------------------------------------------------------------------------
+
+def _immich_cfg():
+    """Load and validate the Immich config section."""
+    try:
+        import yaml
+        cfg = yaml.safe_load((Path(__file__).parent / "config.yaml").read_text(encoding="utf-8"))
+    except Exception as e:
+        raise ValueError(f"cannot read config.yaml: {e}")
+    immich = (cfg or {}).get("immich") or {}
+    if not immich.get("api_key"):
+        raise ValueError("immich.api_key not configured in config.yaml")
+    if not immich.get("picks_root"):
+        raise ValueError("immich.picks_root not configured in config.yaml")
+    return immich
+
+
+@app.post("/api/admin/immich/publish")
+def admin_immich_publish():
+    """Publish the picks of one folder into the picks root (sync, fast).
+
+    Request body (JSON):
+        dir  string  required  Folder name (or relative path) under the photos root
+    """
+    body = request.get_json(silent=True) or {}
+    missing = _require_fields(body, "dir")
+    if missing:
+        return _err(f"Missing required fields: {missing}")
+    photos_root, _ = _admin_roots()
+    folder = (photos_root / body["dir"]).resolve()
+    try:
+        folder.relative_to(photos_root.resolve())
+    except ValueError:
+        return _err("Invalid folder path", 403)
+    if not folder.is_dir():
+        return _err(f"Folder not found: {body['dir']}", 404)
+
+    try:
+        immich = _immich_cfg()
+    except ValueError as e:
+        return _err(str(e), 500)
+
+    sys.path.insert(0, str(Path(__file__).parent / "src"))
+    from picture_analyzer.immich.publisher import publish_folder, _album_for_folder
+
+    # enhanced root: same resolution as _admin_roots
+    enhanced_root = None
+    try:
+        cfg = yaml.safe_load((Path(__file__).parent / "config.yaml").read_text(encoding="utf-8"))
+        enhanced_root = (cfg.get("output") or {}).get("enhanced_root")
+    except Exception:
+        pass
+    if not enhanced_root or not Path(enhanced_root).is_dir():
+        enhanced_root = Path.home() / "enhanced"
+
+    result = publish_folder(folder, Path(enhanced_root), Path(immich["picks_root"]))
+    return jsonify({
+        "status": "ok",
+        "album": _album_for_folder(folder),
+        "published": len(result.published),
+        "removed": len(result.removed),
+        "skipped": len(result.skipped),
+        "errors": result.errors,
+    })
+
+
+@app.post("/api/admin/immich/sync")
+def admin_immich_sync():
+    """Sync Immich albums to mirror the picks root (async job).
+
+    Request body (JSON):
+        scan  bool  optional  Trigger an Immich library scan first (default false)
+    """
+    body = request.get_json(silent=True) or {}
+    try:
+        immich = _immich_cfg()
+    except ValueError as e:
+        return _err(str(e), 500)
+
+    args = SimpleNamespace(
+        url=immich["url"],
+        api_key=immich["api_key"],
+        picks_root=immich["picks_root"],
+        immich_picks_root=immich.get("immich_picks_root") or immich["picks_root"],
+        scan=bool(body.get("scan", False)),
+    )
+    job_id = _start_job(_run_immich_sync, args)
+    return jsonify({"job_id": job_id, "status": "queued"}), 202
+
+
+def _run_immich_sync(args: SimpleNamespace) -> None:
+    """Job worker: scan library (optional) + sync albums."""
+    import time as _time
+
+    sys.path.insert(0, str(Path(__file__).parent / "src"))
+    from picture_analyzer.immich.client import ImmichClient, ImmichError
+    from picture_analyzer.immich.sync import sync_albums, trigger_scan
+
+    client = ImmichClient(args.url, args.api_key)
+    if not client.ping():
+        raise RuntimeError(f"Immich not reachable at {args.url}")
+
+    if args.scan:
+        lib_id = trigger_scan(client, Path(args.picks_root))
+        if lib_id:
+            _time.sleep(20)  # let Immich ingest new/changed files
+
+    report = sync_albums(client, Path(args.picks_root), str(args.immich_picks_root))
+    # Surface the result in the job's "result" field
+    print(f"albums created: {len(report.albums_created)}; "
+          f"assets added: {report.assets_added}; removed: {report.assets_removed}; "
+          f"missing: {len(report.missing_assets)}; errors: {len(report.errors)}")
+    for name in report.albums_created:
+        print(f"  + album: {name}")
+    for p in report.missing_assets[:10]:
+        print(f"  ⚠ missing in Immich: {p}")
+    for e in report.errors:
+        print(f"  ✗ {e}")
+
+
+# ---------------------------------------------------------------------------
 # Preferred variant — Immich album preparation
 # ---------------------------------------------------------------------------
 

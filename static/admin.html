@@ -187,6 +187,8 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
       <label class="chk" title="Toggle grid thumbnails between the original scans and the picked variants"><input type="checkbox" id="optShowPicks" checked> show picks</label>
       <button id="btnReport" disabled title="Generate markdown report">Report</button>
       <button id="btnGallery" disabled title="Generate gallery markdown">Gallery</button>
+      <button id="btnPublish" disabled title="Publish this folder's picked bests into the Immich picks library">📤 Immich publish</button>
+      <button id="btnSync" disabled title="Sync Immich albums with the picks library (scan + album update)">🔄 Immich sync</button>
       <button id="btnDesc" disabled title="Edit this folder's description.txt">📝 Description</button>
     </div>
     <div class="job-bar" id="jobBar"></div>
@@ -285,7 +287,7 @@ async function selectFolder(name) {
   renderFolders($('folderSearch').value);
   const f = folders.find(x => x.name === name);
   $('folderLabel').textContent = `${name} (${f.images} images)`;
-  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery','btnDesc'].forEach(id => $(id).disabled = false);
+  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery','btnDesc','btnPublish','btnSync'].forEach(id => $(id).disabled = false);
   $('grid').innerHTML = '<div class="empty">Loading images…</div>';
   if ($('descPanel').classList.contains('open')) loadDescription();
   try {
@@ -596,6 +598,19 @@ async function runCommand(kind) {
     endpoint = '/api/analyze/batch';
     body = { directory: f.path, enhance: false, restore_slide: null, skip_existing: skip };
     label = `Analyze ${currentFolder}`;
+  } else if (kind === 'immich-publish') {
+    if (!currentFolder) return;
+    const r = await api('/api/admin/immich/publish', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ dir: currentFolder }) });
+    // Show the ALBUM name (Albumnaam) — the picks land there, which may
+    // differ from the source folder name.
+    showSyncStatus(`Immich publish → ${r.album}`, true,
+      `${r.published} published · ${r.skipped} no pick yet${r.errors.length ? ` · ${r.errors.length} errors` : ''}`);
+    return;
+  } else if (kind === 'immich-sync') {
+    endpoint = '/api/admin/immich/sync';
+    body = { scan: true };
+    label = `Immich sync`;
   } else if (kind === 'report') {
     if (!currentOutputDir) { alert('Select a folder first.'); return; }
     const r = await api('/api/report', { method: 'POST', headers: {'Content-Type':'application/json'},
@@ -656,6 +671,8 @@ $('btnProcessFolder').onclick = () => runCommand('folder-process');
 $('btnAnalyzeFolder').onclick = () => runCommand('folder-analyze');
 $('btnReport').onclick = () => runCommand('report');
 $('btnGallery').onclick = () => runCommand('gallery');
+$('btnPublish').onclick = () => runCommand('immich-publish');
+$('btnSync').onclick = () => runCommand('immich-sync');
 $('btnProcessImage').onclick = () => runCommand('image-process');
 $('btnEnhanceImage').onclick = () => runCommand('image-enhance');
 $('btnPrevImage').onclick = () => viewerStep(-1);
