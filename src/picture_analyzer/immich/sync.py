@@ -42,6 +42,7 @@ def sync_albums(
     picks_root: Path,
     immich_picks_root: str,
     dry_run: bool = False,
+    album_order: str = "asc",
 ) -> SyncReport:
     """Make Immich albums mirror the album folders under *picks_root*.
 
@@ -50,6 +51,8 @@ def sync_albums(
         picks_root: host path of the picks external library
         immich_picks_root: the same library as Immich sees it (container path)
         dry_run: report what would happen without changing anything
+        album_order: "asc" (old→new, default) or "desc" for created albums;
+                    existing albums are updated to match
     """
     picks_root = Path(picks_root)
     created: list[str] = []
@@ -99,13 +102,19 @@ def sync_albums(
         if album is None:
             if not dry_run:
                 try:
-                    album = client.create_album(album_name)
+                    album = client.create_album(album_name, order=album_order)
                 except ImmichError as exc:
                     errors.append(f"{album_name}: cannot create album ({exc})")
                     continue
             created.append(album_name)
             have_ids: set[str] = set()
         else:
+            # Enforce the desired ordering on existing albums (Immich default is desc)
+            if album.get("order") != album_order and not dry_run:
+                try:
+                    client.update_album(album["id"], order=album_order)
+                except ImmichError as exc:
+                    errors.append(f"{album_name}: cannot set order ({exc})")
             try:
                 have_ids = {a["id"] for a in client.get_album_assets(album["id"])}
             except ImmichError as exc:

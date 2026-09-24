@@ -141,9 +141,21 @@ class ImmichClient:
                 return album
         return None
 
-    def create_album(self, name: str, description: str = "") -> dict:
-        """Create a new album and return it."""
-        return self._post("/api/albums", json={"albumName": name, "description": description})
+    def create_album(self, name: str, description: str = "", order: str = "asc") -> dict:
+        """Create a new album and return it.
+
+        ``order``: "asc" = oldest first (old→new), "desc" = newest first
+        (Immich's default).
+        """
+        return self._post("/api/albums", json={
+            "albumName": name,
+            "description": description,
+            "order": order,
+        })
+
+    def update_album(self, album_id: str, **fields) -> dict:
+        """Update album fields (albumName, description, order, ...)."""
+        return self._request("PATCH", f"/api/albums/{album_id}", json=fields)
 
     def add_assets(self, album_id: str, asset_ids: list[str]) -> int:
         """Add assets to an album; returns how many were actually added."""
