@@ -791,6 +791,25 @@ def _load_partial_if_requested(
     return None
 
 
+def _preserve_pick(json_path: Path, analysis: dict) -> None:
+    """Carry the preferred-variant pick over from an existing analysis JSON.
+
+    Reprocessing writes a fresh analysis dict, which would silently drop the
+    user's ``preferred_variant``/``preferred_path`` pick. Called before the
+    JSON is (re)written; copies the pick fields into *analysis* when the old
+    JSON has them and the new one does not.
+    """
+    try:
+        if not json_path.is_file():
+            return
+        old = json.loads(json_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return
+    for field in ("preferred_variant", "preferred_path"):
+        if not analysis.get(field) and old.get(field):
+            analysis[field] = old[field]
+
+
 def _single_analyze(
     image_path: Path,
     output: str | None,
@@ -891,6 +910,9 @@ def _single_analyze(
 
     if not no_json:
         json_path = analyzed_target.with_suffix(".json")
+        # Preserve the user's preferred-variant pick across reprocessing —
+        # the fresh analysis dict does not carry it.
+        _preserve_pick(json_path, analysis)
         json_path.write_text(
             json.dumps({k: v for k, v in analysis.items() if k not in ("source_description", "raw_response")}, indent=2),
             encoding="utf-8"
@@ -1117,7 +1139,11 @@ def _batch_analyze(
             _t_exif = time.perf_counter() - _t_exif_start
 
             _t_json_start = time.perf_counter()
-            Path(analyzed_path).with_suffix(".json").write_text(
+            _json_path = Path(analyzed_path).with_suffix(".json")
+            # Preserve the user's preferred-variant pick across reprocessing —
+            # the fresh analysis dict does not carry it.
+            _preserve_pick(_json_path, analysis)
+            _json_path.write_text(
                 json.dumps({k: v for k, v in analysis.items() if k not in ("source_description", "raw_response")}, indent=2), encoding="utf-8"
             )
             _t_json = time.perf_counter() - _t_json_start
