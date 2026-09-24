@@ -381,6 +381,8 @@ async function openViewer(srcPath) {
 }
 
 async function setPreferred(srcPath, variant) {
+  // Toggle: clicking the already-preferred variant unpicks it (variant=null clears)
+  if (viewerPreferred === variant) variant = null;
   try {
     await api('/api/admin/preferred', { method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ image: srcPath, variant }) });
