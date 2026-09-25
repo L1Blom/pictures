@@ -1228,4 +1228,6 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true", help="Enable Flask debug mode")
     args = parser.parse_args()
 
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    # threaded=True: the dev server is single-threaded by default — one slow
+    # request (folders rescan, thumbnail batch) would block the whole UI.
+    app.run(host=args.host, port=args.port, debug=args.debug, threaded=True)
