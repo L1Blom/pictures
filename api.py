@@ -531,12 +531,14 @@ def formats():
 # Derived the same way the description editor does it.
 def _admin_roots() -> tuple[Path, Path]:
     """Return (photos_root, enhanced_root) used by the admin page."""
-    # enhanced root: prefer the configured output.enhanced_root (absolute),
-    # fall back to ~/enhanced
+    # both roots: prefer the configured values (absolute paths), falling
+    # back to ~/fotos and ~/enhanced so the app works out of the box.
+    photos_root = None
     enhanced_root = None
     try:
         import yaml
         cfg = yaml.safe_load((Path(__file__).parent / "config.yaml").read_text(encoding="utf-8"))
+        photos_root = cfg.get("photos_root")
         enhanced_root = (cfg.get("output") or {}).get("enhanced_root")
     except Exception:
         pass
@@ -544,10 +546,11 @@ def _admin_roots() -> tuple[Path, Path]:
         enhanced_root = Path.home() / "enhanced"
     enhanced_root = Path(enhanced_root)
 
-    photos_root = Path.home() / "fotos"
-    if not photos_root.is_dir():
-        photos_root = enhanced_root.parent / "fotos"
-    return photos_root, enhanced_root
+    if not photos_root or not Path(photos_root).is_dir():
+        photos_root = Path.home() / "fotos"
+        if not photos_root.is_dir():
+            photos_root = enhanced_root.parent / "fotos"
+    return Path(photos_root), enhanced_root
 
 
 @app.get("/admin")

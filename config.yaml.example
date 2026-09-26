@@ -60,6 +60,11 @@ output:
   # thumbnail_size: 150
   # thumbnail_quality: 85
   # cleanup_temp: true
+  # enhanced_root: "/path/to/enhanced"   # admin/API server: root of analysis output folders (default: ~/enhanced)
+
+# Admin/API server (api.py): root folder of source photos to browse.
+# Defaults to ~/fotos if unset or not a directory.
+# photos_root: "/path/to/photos"
 
 web:
   # host: "127.0.0.1"

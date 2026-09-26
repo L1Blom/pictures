@@ -150,6 +150,15 @@ METADATA_LANGUAGE=nl
 GPS_CONFIDENCE_THRESHOLD=80
 ```
 
+5. (Optional) Configure the admin web UI's source/output folders in `config.yaml`
+   — without these, it defaults to `~/fotos` (source photos) and `~/enhanced`
+   (analysis output):
+```yaml
+photos_root: "/path/to/your/photos"
+output:
+  enhanced_root: "/path/to/your/enhanced"
+```
+
 ## Configuration
 
 ### Language Support

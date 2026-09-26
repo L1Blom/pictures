@@ -49,6 +49,9 @@ output:
   enhanced_root: "/home/leen/bigfoot/NieuwVolume/enhanced"
   docker_enhanced_root: "/data/enhanced"  # used automatically when running inside Docker
 
+# Admin/API server (api.py): root folder of source photos to browse.
+photos_root: "/home/leen/fotos"
+
 batch_size: 5
 log_level: "INFO"
 
