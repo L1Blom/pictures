@@ -1148,10 +1148,12 @@ def _run_immich_sync(args: SimpleNamespace) -> None:
         if lib_id:
             _time.sleep(20)  # let Immich ingest new/changed files
 
-    report = sync_albums(client, Path(args.picks_root), str(args.immich_picks_root))
+    photos_root, _ = _admin_roots()
+    report = sync_albums(client, Path(args.picks_root), str(args.immich_picks_root), photos_root=photos_root)
     # Surface the result in the job's "result" field
     print(f"albums created: {len(report.albums_created)}; "
           f"assets added: {report.assets_added}; removed: {report.assets_removed}; "
+          f"descriptions updated: {report.descriptions_updated}; "
           f"missing: {len(report.missing_assets)}; errors: {len(report.errors)}")
     for name in report.albums_created:
         print(f"  + album: {name}")

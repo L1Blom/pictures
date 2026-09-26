@@ -275,6 +275,10 @@ class Settings(BaseSettings):
     supported_formats: FrozenSet[str] = Field(default=d.DEFAULT_SUPPORTED_FORMATS)
     batch_size: int = Field(default=d.DEFAULT_BATCH_SIZE, ge=1, le=100)
     log_level: str = Field(default=d.DEFAULT_LOG_LEVEL, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
+    photos_root: Optional[Path] = Field(
+        default=None,
+        description="Admin/API server: root of source photo folders (defaults to ~/fotos when unset)",
+    )
 
     @model_validator(mode="before")
     @classmethod

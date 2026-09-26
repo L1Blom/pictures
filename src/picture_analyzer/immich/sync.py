@@ -14,6 +14,7 @@ mapped from the host path via ``path_map``.
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import NamedTuple, Optional
 
@@ -21,12 +22,15 @@ from .client import ImmichClient, ImmichError
 
 logger = logging.getLogger(__name__)
 
+_ALBUM_NAME_LINE_RE = re.compile(r"(?im)^albumnaam\s*:.*$\n?")
+
 
 class SyncReport(NamedTuple):
     albums_created: list[str]
     albums_deleted: list[str]
     assets_added: int
     assets_removed: int
+    descriptions_updated: int
     missing_assets: list[str]   # pick files not (yet) found in Immich
     errors: list[str]
 
@@ -37,12 +41,32 @@ def _immich_path(host_path: Path, picks_root: Path, immich_picks_root: str) -> s
     return f"{immich_picks_root.rstrip('/')}/{rel}"
 
 
+def _album_descriptions(photos_root: Path) -> dict[str, str]:
+    """Map album name -> description.txt content (Albumnaam line stripped)."""
+    from .publisher import _album_for_folder
+
+    descriptions: dict[str, str] = {}
+    if not photos_root.is_dir():
+        return descriptions
+    for folder in sorted(photos_root.iterdir()):
+        if not folder.is_dir() or folder.name.startswith("."):
+            continue
+        desc = folder / "description.txt"
+        if not desc.is_file():
+            continue
+        text = _ALBUM_NAME_LINE_RE.sub("", desc.read_text(encoding="utf-8")).strip()
+        if text:
+            descriptions[_album_for_folder(folder)] = text
+    return descriptions
+
+
 def sync_albums(
     client: ImmichClient,
     picks_root: Path,
     immich_picks_root: str,
     dry_run: bool = False,
     album_order: str = "asc",
+    photos_root: Optional[Path] = None,
 ) -> SyncReport:
     """Make Immich albums mirror the album folders under *picks_root*.
 
@@ -53,13 +77,19 @@ def sync_albums(
         dry_run: report what would happen without changing anything
         album_order: "asc" (old→new, default) or "desc" for created albums;
                     existing albums are updated to match
+        photos_root: source photos root; when given, each album's
+                    description.txt (minus the Albumnaam line) is pushed to
+                    the matching Immich album's description field
     """
     picks_root = Path(picks_root)
     created: list[str] = []
     deleted: list[str] = []
     added = removed = 0
+    descriptions_updated = 0
     missing: list[str] = []
     errors: list[str] = []
+
+    descriptions = _album_descriptions(Path(photos_root)) if photos_root else {}
 
     # Desired state: album name → set of immich paths
     desired: dict[str, set[str]] = {}
@@ -77,7 +107,7 @@ def sync_albums(
     try:
         immich_albums = {a["albumName"]: a for a in client.list_albums()}
     except ImmichError as exc:
-        return SyncReport(created, deleted, 0, 0, missing, [f"cannot list albums: {exc}"])
+        return SyncReport(created, deleted, 0, 0, 0, missing, [f"cannot list albums: {exc}"])
 
     # Resolve every desired path to an asset id (batched search)
     all_paths = sorted({p for paths in desired.values() for p in paths})
@@ -99,10 +129,11 @@ def sync_albums(
                 missing.append(p)
 
         album = immich_albums.get(album_name)
+        description = descriptions.get(album_name, "")
         if album is None:
             if not dry_run:
                 try:
-                    album = client.create_album(album_name, order=album_order)
+                    album = client.create_album(album_name, order=album_order, description=description)
                 except ImmichError as exc:
                     errors.append(f"{album_name}: cannot create album ({exc})")
                     continue
@@ -115,6 +146,13 @@ def sync_albums(
                     client.update_album(album["id"], order=album_order)
                 except ImmichError as exc:
                     errors.append(f"{album_name}: cannot set order ({exc})")
+            if description and album.get("description", "") != description:
+                if not dry_run:
+                    try:
+                        client.update_album(album["id"], description=description)
+                    except ImmichError as exc:
+                        errors.append(f"{album_name}: cannot set description ({exc})")
+                descriptions_updated += 1
             try:
                 have_ids = {a["id"] for a in client.get_album_assets(album["id"])}
             except ImmichError as exc:
@@ -151,7 +189,7 @@ def sync_albums(
             # the user may have created it manually. Only report.
             logger.debug("Empty album without picks folder: %s", album_name)
 
-    return SyncReport(created, deleted, added, removed, missing, errors)
+    return SyncReport(created, deleted, added, removed, descriptions_updated, missing, errors)
 
 
 def trigger_scan(client: ImmichClient, picks_root: Path) -> Optional[str]:

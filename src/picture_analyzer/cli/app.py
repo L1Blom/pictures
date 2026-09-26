@@ -2020,8 +2020,10 @@ def _album_name(folder: Path) -> str:
 def sync_immich(dry_run: bool, scan: bool):
     """Make Immich albums mirror the picks root.
 
-    Creates missing albums, adds new assets, removes gone assets. Run after
-    publish-immich (and after the Immich library scan has picked up new files).
+    Creates missing albums, adds new assets, removes gone assets, and pushes
+    each source folder's description.txt (minus the Albumnaam line) to the
+    matching album's description field. Run after publish-immich (and after
+    the Immich library scan has picked up new files).
     """
     import time as _time
 
@@ -2043,7 +2045,8 @@ def sync_immich(dry_run: bool, scan: bool):
             click.echo("⚠ No Immich library imports the picks root — skipping scan", err=True)
 
     try:
-        report = sync_albums(client, cfg.picks_root, str(immich_root), dry_run)
+        photos_root = settings.photos_root or Path.home() / "fotos"
+        report = sync_albums(client, cfg.picks_root, str(immich_root), dry_run, photos_root=photos_root)
     except ImmichError as exc:
         raise click.ClickException(str(exc))
 
@@ -2051,6 +2054,7 @@ def sync_immich(dry_run: bool, scan: bool):
         click.echo(f"  + album created: {name}")
     click.echo(f"  assets added:    {report.assets_added}")
     click.echo(f"  assets removed:  {report.assets_removed}")
+    click.echo(f"  descriptions:    {report.descriptions_updated} updated")
     if report.missing_assets:
         click.echo(f"  ⚠ {len(report.missing_assets)} pick files not found in Immich "
                    f"(library scan pending?)")
