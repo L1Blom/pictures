@@ -255,11 +255,17 @@ async function api(path, opts) {
 }
 
 /* ── Folder list ─────────────────────────────────── */
+let foldersPollTimer = null;
+
 async function loadFolders() {
   try {
     const data = await api('/api/admin/folders');
     folders = data.folders;
-    renderFolders('');
+    renderFolders($('folderSearch').value);
+    // Image/pick counts fill in via background scans on the server — poll
+    // until they're done, re-rendering in place (selection/search preserved).
+    clearTimeout(foldersPollTimer);
+    if (data.counting) foldersPollTimer = setTimeout(loadFolders, 1500);
   } catch (e) {
     $('folderList').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
   }
@@ -269,13 +275,16 @@ function renderFolders(filter) {
   const list = folders.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()));
   $('folderList').innerHTML = list.map(f => {
     const picked = f.picked || 0;
+    const imgCount = f.images === null ? '…' : f.images;
     const pickInfo = picked
-      ? ` · <span style="color:#f9a825">★ ${picked}/${f.images}</span>`
+      ? ` · <span style="color:#f9a825">★ ${picked}/${imgCount}</span>`
       : '';
+    const descTag = f.has_description === null ? ''
+      : f.has_description ? '<span class="has-desc">· description.txt ✓</span>' : '· no description';
     return `
     <div class="folder ${currentFolder === f.name ? 'active' : ''}" data-folder="${escAttr(f.name)}">
       <div class="name">${esc(f.name)}</div>
-      <div class="meta">${f.images} images${pickInfo} ${f.has_description ? '<span class="has-desc">· description.txt ✓</span>' : '· no description'}</div>
+      <div class="meta">${imgCount} images${pickInfo} ${descTag}</div>
     </div>`;
   }).join('') || '<div class="empty">No folders match.</div>';
   document.querySelectorAll('.folder').forEach(el =>
@@ -286,12 +295,14 @@ async function selectFolder(name) {
   currentFolder = name;
   renderFolders($('folderSearch').value);
   const f = folders.find(x => x.name === name);
-  $('folderLabel').textContent = `${name} (${f.images} images)`;
+  $('folderLabel').textContent = `${name} (${f.images === null ? '…' : f.images} images)`;
   ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery','btnDesc','btnPublish','btnSync'].forEach(id => $(id).disabled = false);
   $('grid').innerHTML = '<div class="empty">Loading images…</div>';
   if ($('descPanel').classList.contains('open')) loadDescription();
   try {
     // list images via the admin dir API (also resolves the output folder)
+    // — independent of the folders-list background scans, so clicking a
+    // folder is never blocked by them.
     const resp = await api(`/api/admin/dir?dir=${encodeURIComponent(name)}`);
     currentImages = resp.images || [];
     currentOutputDir = resp.output_dir || null;

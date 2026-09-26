@@ -18,6 +18,7 @@ Usage:
 
 import argparse
 import json
+import os
 import queue
 import sys
 import threading
@@ -569,60 +570,143 @@ def admin_roots():
 
 @app.get("/api/admin/folders")
 def admin_folders():
-    """List album folders in the photos root (name + image count + description presence).
+    """List album folders in the photos root — progressive loading.
 
-    The scan stats every file in every folder (70k+ files), so the result is
-    cached for a short while — the folder set rarely changes between clicks.
-    Also reports how many images have a preferred-variant pick (for the
-    Immich album) by scanning the album's analysis JSONs in the enhanced root.
+    Folder names come from a single bare `os.listdir()` (one readdir syscall,
+    no per-entry stat — essentially free even over slow/network storage).
+    Everything that needs a stat() or file read per folder (is_dir, image
+    counts, description.txt, Albumnaam, pick counts) is expensive here — this
+    volume's storage takes ~20ms PER STAT CALL, so 500+ synchronous stats
+    made this endpoint take 10-180+ seconds. All of that is now done by
+    background threads that fill in results folder by folder; this endpoint
+    always returns immediately with whatever is known so far plus a
+    `counting` flag while those scans are still running.
     """
-    photos_root, enhanced_root = _admin_roots()
+    photos_root, _ = _admin_roots()
     if not photos_root.is_dir():
         return _err(f"Photos root not found: {photos_root}", 500)
 
-    cache = getattr(admin_folders, "_cache", None)
+    names_cache = getattr(admin_folders, "_names_cache", None)
     root_mtime = photos_root.stat().st_mtime
-    if cache and cache[0] == root_mtime and (time.time() - cache[2]) < 300:
-        return jsonify({"folders": cache[1]})
+    if not (names_cache and names_cache[0] == root_mtime):
+        names = sorted(n for n in os.listdir(photos_root) if not n.startswith("."))
+        admin_folders._names_cache = (root_mtime, names)
+    else:
+        names = names_cache[1]
+
+    _ensure_folder_count_thread(photos_root, root_mtime)
+    picks_done = _ensure_picks_cache_thread()
+    counts_done = getattr(_ensure_folder_count_thread, "_done_mtime", None) == root_mtime
+    image_counts = getattr(_ensure_folder_count_thread, "_cache", {}) or {}
+    picks = getattr(_ensure_picks_cache_thread, "_cache", {}) or {}
 
     folders = []
+    for name in names:
+        info = image_counts.get(name)
+        n_images = info["images"] if info else None
+        if n_images == 0:
+            continue  # known-empty folder, hide it (unknown yet = keep visible)
+        folders.append({
+            "name": name,
+            "path": str(photos_root / name),
+            "images": n_images,
+            "has_description": info["has_description"] if info else None,
+            "picked": picks.get(info["album"] if info else name, 0),
+        })
+    return jsonify({"folders": folders, "counting": not (counts_done and picks_done)})
+
+
+def _scan_folder_counts(photos_root: Path, root_mtime: float) -> None:
+    """Background job: count images per folder, one folder at a time.
+
+    Updates the shared cache after each folder so partial results are usable
+    immediately rather than only once the whole 70k-file scan completes.
+    """
+    counts: dict[str, dict] = {}
     for sub in sorted(photos_root.iterdir()):
         if not sub.is_dir() or sub.name.startswith("."):
             continue
-        n_images = 0
-        for f in sub.iterdir():
-            if f.is_file() and f.suffix.lower() in SUPPORTED_FORMATS:
-                n_images += 1
-        if n_images == 0:
-            continue
-        # Count preferred picks: analysis JSONs in the album's output folder
-        # that carry a preferred_variant. Album routing follows description.txt.
-        album = sub.name
-        desc = sub / "description.txt"
-        if desc.exists():
-            import re
-            m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
-            if m and m.group(1).strip():
-                album = m.group(1).strip()
-        out_dir = enhanced_root / album
-        n_picked = 0
-        if out_dir.is_dir():
-            for jf in out_dir.glob("*_analyzed.json"):
-                try:
-                    data = json.loads(jf.read_text(encoding="utf-8"))
-                    if data.get("preferred_variant"):
-                        n_picked += 1
-                except (json.JSONDecodeError, OSError):
-                    continue
-        folders.append({
-            "name": sub.name,
-            "path": str(sub),
+        n_images = sum(
+            1 for f in sub.iterdir()
+            if f.is_file() and f.suffix.lower() in SUPPORTED_FORMATS
+        )
+        counts[sub.name] = {
             "images": n_images,
-            "picked": n_picked,
             "has_description": (sub / "description.txt").exists(),
-        })
-    admin_folders._cache = (root_mtime, folders, time.time())
-    return jsonify({"folders": folders})
+            "album": _album_name_for_folder(sub),
+        }
+        _ensure_folder_count_thread._cache = dict(counts)
+    _ensure_folder_count_thread._done_mtime = root_mtime
+
+
+def _ensure_folder_count_thread(photos_root: Path, root_mtime: float) -> None:
+    """Kick off a folder image-count scan in the background if needed."""
+    if getattr(_ensure_folder_count_thread, "_done_mtime", None) == root_mtime:
+        return
+    running = getattr(_ensure_folder_count_thread, "_thread", None)
+    if running and running.is_alive():
+        return
+    t = threading.Thread(
+        target=_scan_folder_counts, args=(photos_root, root_mtime),
+        daemon=True, name="folder-count-scan",
+    )
+    _ensure_folder_count_thread._thread = t
+    t.start()
+
+
+def _album_name_for_folder(folder: Path) -> str:
+    """Resolve a photos-root folder to its Albumnaam (or the folder name)."""
+    desc = folder / "description.txt"
+    if desc.exists():
+        import re
+        m = re.search(r"(?im)^albumnaam\s*:\s*(.+)$", desc.read_text(encoding="utf-8"))
+        if m and m.group(1).strip():
+            return m.group(1).strip()
+    return folder.name
+
+
+def _refresh_picks_cache() -> None:
+    """Background job: count preferred picks per album by scanning analysis JSONs.
+
+    Runs in its own thread so it never blocks HTTP requests — this scan reads
+    16k+ small files and can take minutes on the enhanced root's storage.
+    """
+    _, enhanced_root = _admin_roots()
+    if not enhanced_root.is_dir():
+        return
+    counts: dict[str, int] = {}
+    for out_dir in enhanced_root.iterdir():
+        if not out_dir.is_dir():
+            continue
+        n_picked = 0
+        for jf in out_dir.glob("*_analyzed.json"):
+            try:
+                # Substring check avoids a full json.loads() per file — the
+                # field is only ever written when a pick is set (see
+                # admin_set_preferred, which pop()s it when cleared).
+                if b'"preferred_variant"' in jf.read_bytes():
+                    n_picked += 1
+            except OSError:
+                continue
+        counts[out_dir.name] = n_picked
+        _ensure_picks_cache_thread._cache = dict(counts)
+    _ensure_picks_cache_thread._done = True
+
+
+def _ensure_picks_cache_thread() -> bool:
+    """Kick off a picks-cache refresh in the background if one isn't already running.
+
+    Returns True once at least one full scan has completed.
+    """
+    running = getattr(_ensure_picks_cache_thread, "_thread", None)
+    if running and running.is_alive():
+        return False
+    if not getattr(_ensure_picks_cache_thread, "_done", False):
+        t = threading.Thread(target=_refresh_picks_cache, daemon=True, name="picks-cache-refresh")
+        _ensure_picks_cache_thread._thread = t
+        t.start()
+        return False
+    return True
 
 
 @app.get("/api/admin/dir")
