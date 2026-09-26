@@ -51,3 +51,10 @@ output:
 
 batch_size: 5
 log_level: "INFO"
+
+# Immich album publishing (publish-immich / sync-immich commands)
+# api_key is a secret — set it via .env (PA_IMMICH__API_KEY=...) instead of here.
+immich:
+  url: "http://127.0.0.1:2283"
+  picks_root: "/home/leen/bigfoot/NieuwVolume/picks"   # host path of the picks external library
+  immich_picks_root: "/import/picks"

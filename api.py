@@ -1043,9 +1043,13 @@ def _immich_cfg():
         cfg = yaml.safe_load((Path(__file__).parent / "config.yaml").read_text(encoding="utf-8"))
     except Exception as e:
         raise ValueError(f"cannot read config.yaml: {e}")
-    immich = (cfg or {}).get("immich") or {}
+    immich = dict((cfg or {}).get("immich") or {})
+    # api_key is a secret and is not stored in config.yaml — load it from .env instead.
+    from dotenv import load_dotenv
+    load_dotenv()
+    immich.setdefault("api_key", os.getenv("PA_IMMICH__API_KEY"))
     if not immich.get("api_key"):
-        raise ValueError("immich.api_key not configured in config.yaml")
+        raise ValueError("immich.api_key not configured (set PA_IMMICH__API_KEY in .env)")
     if not immich.get("picks_root"):
         raise ValueError("immich.picks_root not configured in config.yaml")
     return immich
