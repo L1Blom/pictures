@@ -128,6 +128,10 @@ class ImmichClient:
                 return asset
         return None
 
+    def update_asset(self, asset_id: str, **fields) -> dict:
+        """Update asset fields (dateTimeOriginal, isFavorite, rating, ...)."""
+        return self._put(f"/api/assets/{asset_id}", json=fields)
+
     # ── albums ───────────────────────────────────────────────────────
 
     def list_albums(self) -> list[dict]:

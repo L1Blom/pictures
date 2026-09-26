@@ -25,6 +25,7 @@ import threading
 import time
 import traceback
 import uuid
+from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -784,6 +785,107 @@ def admin_dir():
             "preferred_variant": preferred,
         })
     return jsonify({"folder": rel, "album": album, "output_dir": str(out_dir), "images": images})
+
+
+@app.post("/api/admin/reorder")
+def admin_reorder():
+    """Swap the Immich date-sort position of two filename-adjacent images.
+
+    Immich albums are always sorted by capture date/time, with no manual
+    ordering. This nudges an image's ``date_taken`` to swap places with its
+    neighbor (up = earlier, down = later) in the folder's filename order —
+    only allowed when NEITHER image carries a real camera EXIF date, so
+    genuinely dated photos are never touched.
+
+    Request body (JSON):
+        dir        string  required  Folder name under the photos root
+        stem       string  required  Filename stem of the image to move
+        direction  string  required  "up" (earlier) or "down" (later)
+    """
+    body = request.get_json(silent=True) or {}
+    missing = _require_fields(body, "dir", "stem", "direction")
+    if missing:
+        return _err(f"Missing required fields: {missing}")
+    if body["direction"] not in ("up", "down"):
+        return _err("direction must be 'up' or 'down'")
+
+    photos_root, enhanced_root = _admin_roots()
+    folder = (photos_root / body["dir"]).resolve()
+    try:
+        folder.relative_to(photos_root.resolve())
+    except ValueError:
+        return _err("Invalid folder path", 403)
+    if not folder.is_dir():
+        return _err(f"Folder not found: {body['dir']}", 404)
+
+    files = sorted(f for f in folder.iterdir() if f.is_file() and f.suffix.lower() in SUPPORTED_FORMATS)
+    stems = [f.stem for f in files]
+    if body["stem"] not in stems:
+        return _err(f"Image not found in folder: {body['stem']}", 404)
+    idx = stems.index(body["stem"])
+    n_idx = idx - 1 if body["direction"] == "up" else idx + 1
+    if n_idx < 0 or n_idx >= len(files):
+        return _err("Already at the edge of the folder", 400)
+
+    img_a, img_b = files[idx], files[n_idx]
+
+    sys.path.insert(0, str(Path(__file__).parent / "src"))
+    from picture_analyzer.cli.app import _read_image_exif_date, _apply_date_taken
+
+    for img in (img_a, img_b):
+        if _read_image_exif_date(img) is not None:
+            return _err(
+                f"Cannot reorder: {img.name} has a real camera date "
+                "(only images without one — e.g. scanned slides — can be reordered)",
+                400,
+            )
+
+    album = _album_name_for_folder(folder)
+    out_dir = enhanced_root / album
+    json_a, json_b = out_dir / f"{img_a.stem}_analyzed.json", out_dir / f"{img_b.stem}_analyzed.json"
+    if not json_a.is_file() or not json_b.is_file():
+        return _err("Analysis JSON missing for one of the images — run analyze first", 400)
+
+    try:
+        date_a = json.loads(json_a.read_text(encoding="utf-8")).get("date_taken")
+        date_b = json.loads(json_b.read_text(encoding="utf-8")).get("date_taken")
+    except (json.JSONDecodeError, OSError) as e:
+        return _err(f"Cannot read analysis JSON: {e}", 500)
+    if not date_a or not date_b:
+        return _err("Missing date_taken in one of the images' analysis JSON", 400)
+
+    from picture_analyzer.config.settings import get_settings
+    language = get_settings().metadata.language
+    _apply_date_taken(json_a, date_b, language)
+    _apply_date_taken(json_b, date_a, language)
+
+    immich_warning = None
+    try:
+        immich = _immich_cfg()
+        from picture_analyzer.immich.client import ImmichClient, ImmichError
+        client = ImmichClient(immich["url"], immich["api_key"])
+        picks_root = Path(immich["picks_root"])
+        immich_root = str(immich.get("immich_picks_root") or immich["picks_root"]).rstrip("/")
+        for img, new_date in ((img_a, date_b), (img_b, date_a)):
+            pick = picks_root / album / f"{img.stem}.jpg"
+            if not pick.is_file():
+                continue  # not published yet — nothing to push
+            immich_path = f"{immich_root}/{album}/{pick.name}"
+            asset = client.get_asset_by_path(immich_path)
+            if asset:
+                iso = datetime.strptime(new_date, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%S.000Z")
+                client.update_asset(asset["id"], dateTimeOriginal=iso)
+    except ValueError:
+        pass  # Immich not configured — local swap already done, nothing more to do
+    except Exception as e:  # noqa: BLE001 — local files are already swapped; report, don't fail
+        immich_warning = f"Local files updated, but Immich push failed: {e}"
+
+    return jsonify({
+        "status": "ok",
+        "swapped": [img_a.name, img_b.name],
+        "dates": {img_a.name: date_b, img_b.name: date_a},
+        "immich_warning": immich_warning,
+    })
 
 
 @app.get("/api/admin/variants")

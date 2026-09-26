@@ -95,6 +95,10 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
 .badge.has-rest { background: #1565c0; color: white; }
 .badge.gen { background: #5d4037; color: #ffe0b2; font-family: var(--mono); }
 .badge.pref { background: #f9a825; color: #1e1e2e; font-weight: 600; }
+.cell .reorder { display: flex; gap: 4px; padding: 0 8px 4px; }
+.move-btn { background: var(--panel2); color: var(--muted); border: none; border-radius: 4px;
+            padding: 1px 8px; font-size: 10px; cursor: pointer; }
+.move-btn:hover { background: var(--accent); color: white; }
 
 /* ── Viewer overlay ───────────────────────────────── */
 .viewer { position: fixed; inset: 0; background: rgba(10,10,16,0.92); z-index: 100;
@@ -329,13 +333,34 @@ function renderGrid() {
     // (the original is just the unprocessed scan). Off: always the original.
     const thumb = ($('optShowPicks').checked && img.thumb_src) ? img.thumb_src : src;
     const gen = img.latest_generated ? fmtDate(img.latest_generated) : null;
-    return `<div class="cell" data-src="${escAttr(src)}">
+    const stem = img.name.replace(/\.[^/.]+$/, '');
+    return `<div class="cell" data-src="${escAttr(src)}" data-stem="${escAttr(stem)}">
       <img loading="lazy" src="/api/admin/thumb?path=${encodeURIComponent(thumb)}" onerror="this.src='/api/admin/thumb?path=${encodeURIComponent(src)}'; this.onerror=()=>this.style.opacity=0.15">
       <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}${img.preferred_variant ? `<span class="badge pref">★ ${esc(img.preferred_variant)}</span>` : ''}${gen ? `<span class="badge gen">${gen}</span>` : ''}</div>
+      <div class="reorder">
+        <button class="move-btn" data-dir="up" title="Move earlier in Immich order">▲</button>
+        <button class="move-btn" data-dir="down" title="Move later in Immich order">▼</button>
+      </div>
       <div class="cap" title="${escAttr(img.name)}">${esc(img.name)}</div>
     </div>`;
   }).join('');
   document.querySelectorAll('.cell').forEach(el => el.onclick = () => openViewer(el.dataset.src));
+  document.querySelectorAll('.move-btn').forEach(btn => btn.onclick = (e) => {
+    e.stopPropagation();
+    moveImage(btn.closest('.cell').dataset.stem, btn.dataset.dir);
+  });
+}
+
+async function moveImage(stem, direction) {
+  try {
+    const res = await api('/api/admin/reorder', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dir: currentFolder, stem, direction }),
+    });
+    if (res.immich_warning) alert(res.immich_warning);
+  } catch (e) {
+    alert(`Could not reorder: ${e.message}`);
+  }
 }
 
 /* ── Viewer ───────────────────────────────────────── */

@@ -1743,6 +1743,39 @@ def _update_exif_for_json(
             click.echo(f"    → Copied EXIF to {d.name}")
 
 
+def _apply_date_taken(json_path: Path, new_date_taken: str, language: str) -> None:
+    """Set ``date_taken`` in one image's analysis JSON and rewrite EXIF (+ propagate).
+
+    Only touches the date — unlike ``_update_exif_for_json``, does not
+    re-derive location/GPS from description.txt. Used for manually nudging
+    an image's position in Immich's date-sorted album view.
+    """
+    from ..metadata.exif_writer import ExifWriter
+
+    analyzed_jpg = json_path.with_suffix(".jpg")
+    if not analyzed_jpg.exists():
+        raise FileNotFoundError(f"No image found at {analyzed_jpg}")
+
+    analysis = json.loads(json_path.read_text(encoding="utf-8"))
+    analysis["date_taken"] = new_date_taken
+    json_path.write_text(json.dumps(analysis, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    ExifWriter(language=language).write_from_dict(analyzed_jpg, analyzed_jpg, analysis)
+
+    base = analyzed_jpg.stem.removesuffix("_analyzed")
+    out_dir = analyzed_jpg.parent
+    derived = [
+        *out_dir.glob(f"{base}_enhanced.jpg"),
+        *out_dir.glob(f"{base}_restored_*.jpg"),
+    ]
+    if derived:
+        _inject_project_root()
+        from metadata_manager import MetadataManager  # type: ignore[import-untyped]
+        mm = MetadataManager()
+        for d in derived:
+            mm.copy_exif(str(analyzed_jpg), str(d), str(d))
+
+
 @cli.command(name="update-exif")
 @click.argument("output_dir", type=click.Path(exists=True, file_okay=False))
 @click.argument("source_dir", type=click.Path(exists=True, file_okay=False), default=".")
