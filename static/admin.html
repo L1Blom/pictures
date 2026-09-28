@@ -95,10 +95,16 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
 .badge.has-rest { background: #1565c0; color: white; }
 .badge.gen { background: #5d4037; color: #ffe0b2; font-family: var(--mono); }
 .badge.pref { background: #f9a825; color: #1e1e2e; font-weight: 600; }
+.badge.date { background: #37474f; color: #b0bec5; font-family: var(--mono); }
 .cell .reorder { display: flex; gap: 4px; padding: 0 8px 4px; }
 .move-btn { background: var(--panel2); color: var(--muted); border: none; border-radius: 4px;
             padding: 1px 8px; font-size: 10px; cursor: pointer; }
 .move-btn:hover { background: var(--accent); color: white; }
+.cell.just-moved { animation: just-moved-flash 1.5s ease-out; }
+@keyframes just-moved-flash {
+  0% { border-color: #f9a825; box-shadow: 0 0 0 2px #f9a825; }
+  100% { border-color: transparent; box-shadow: none; }
+}
 
 /* ── Viewer overlay ───────────────────────────────── */
 .viewer { position: fixed; inset: 0; background: rgba(10,10,16,0.92); z-index: 100;
@@ -193,6 +199,7 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
       <button id="btnGallery" disabled title="Generate gallery markdown">Gallery</button>
       <button id="btnPublish" disabled title="Publish this folder's picked bests into the Immich picks library">📤 Immich publish</button>
       <button id="btnSync" disabled title="Sync Immich albums with the picks library (scan + album update)">🔄 Immich sync</button>
+      <button id="btnFixSequence" disabled title="Fix duplicate/colliding dates so ▲▼ reordering works again (only touches images without a real camera date)">🔧 Fix sequence</button>
       <button id="btnDesc" disabled title="Edit this folder's description.txt">📝 Description</button>
     </div>
     <div class="job-bar" id="jobBar"></div>
@@ -300,7 +307,7 @@ async function selectFolder(name) {
   renderFolders($('folderSearch').value);
   const f = folders.find(x => x.name === name);
   $('folderLabel').textContent = `${name} (${f.images === null ? '…' : f.images} images)`;
-  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery','btnDesc','btnPublish','btnSync'].forEach(id => $(id).disabled = false);
+  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery','btnDesc','btnPublish','btnSync','btnFixSequence'].forEach(id => $(id).disabled = false);
   $('grid').innerHTML = '<div class="empty">Loading images…</div>';
   if ($('descPanel').classList.contains('open')) loadDescription();
   try {
@@ -336,7 +343,7 @@ function renderGrid() {
     const stem = img.name.replace(/\.[^/.]+$/, '');
     return `<div class="cell" data-src="${escAttr(src)}" data-stem="${escAttr(stem)}">
       <img loading="lazy" src="/api/admin/thumb?path=${encodeURIComponent(thumb)}" onerror="this.src='/api/admin/thumb?path=${encodeURIComponent(src)}'; this.onerror=()=>this.style.opacity=0.15">
-      <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}${img.preferred_variant ? `<span class="badge pref">★ ${esc(img.preferred_variant)}</span>` : ''}${gen ? `<span class="badge gen">${gen}</span>` : ''}</div>
+      <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}${img.preferred_variant ? `<span class="badge pref">★ ${esc(img.preferred_variant)}</span>` : ''}${img.date_taken ? `<span class="badge date" title="date_taken — drives the Immich order">${esc(img.date_taken)}</span>` : ''}${gen ? `<span class="badge gen">${gen}</span>` : ''}</div>
       <div class="reorder">
         <button class="move-btn" data-dir="up" title="Move earlier in Immich order">▲</button>
         <button class="move-btn" data-dir="down" title="Move later in Immich order">▼</button>
@@ -358,8 +365,40 @@ async function moveImage(stem, direction) {
       body: JSON.stringify({ dir: currentFolder, stem, direction }),
     });
     if (res.immich_warning) alert(res.immich_warning);
+    // Reload so the grid reflects the new date_taken order, then flash the
+    // two images that swapped places so the move is visibly confirmed.
+    const resp = await api(`/api/admin/dir?dir=${encodeURIComponent(currentFolder)}`);
+    currentImages = resp.images || [];
+    renderGrid();
+    for (const name of res.swapped || []) {
+      const s = name.replace(/\.[^/.]+$/, '');
+      const cell = document.querySelector(`.cell[data-stem="${CSS.escape(s)}"]`);
+      if (cell) {
+        cell.classList.add('just-moved');
+        setTimeout(() => cell.classList.remove('just-moved'), 1500);
+      }
+    }
   } catch (e) {
     alert(`Could not reorder: ${e.message}`);
+  }
+}
+
+async function fixSequence() {
+  if (!currentFolder) return;
+  if (!confirm('Re-number this folder\'s dates to a clean 1-second sequence? '
+    + 'Only affects images without a real camera date; safe to run anytime.')) return;
+  try {
+    const res = await api('/api/admin/resequence', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dir: currentFolder }),
+    });
+    const resp = await api(`/api/admin/dir?dir=${encodeURIComponent(currentFolder)}`);
+    currentImages = resp.images || [];
+    renderGrid();
+    if (res.immich_warning) alert(res.immich_warning);
+    else alert(res.count ? `Fixed ${res.count} image date(s).` : 'Already in a clean sequence — nothing to fix.');
+  } catch (e) {
+    alert(`Could not fix sequence: ${e.message}`);
   }
 }
 
@@ -711,6 +750,7 @@ $('btnReport').onclick = () => runCommand('report');
 $('btnGallery').onclick = () => runCommand('gallery');
 $('btnPublish').onclick = () => runCommand('immich-publish');
 $('btnSync').onclick = () => runCommand('immich-sync');
+$('btnFixSequence').onclick = () => fixSequence();
 $('btnProcessImage').onclick = () => runCommand('image-process');
 $('btnEnhanceImage').onclick = () => runCommand('image-enhance');
 $('btnPrevImage').onclick = () => viewerStep(-1);

@@ -14,6 +14,7 @@ from __future__ import annotations
 import gc
 import json
 import mimetypes
+import os
 import re
 import shutil
 import sys
@@ -1749,6 +1750,10 @@ def _apply_date_taken(json_path: Path, new_date_taken: str, language: str) -> No
     Only touches the date — unlike ``_update_exif_for_json``, does not
     re-derive location/GPS from description.txt. Used for manually nudging
     an image's position in Immich's date-sorted album view.
+
+    File mtimes are restored after the EXIF rewrite so the admin grid's
+    "last generated" badge isn't bumped to today by what is just a metadata
+    nudge, not a real re-processing.
     """
     from ..metadata.exif_writer import ExifWriter
 
@@ -1760,7 +1765,9 @@ def _apply_date_taken(json_path: Path, new_date_taken: str, language: str) -> No
     analysis["date_taken"] = new_date_taken
     json_path.write_text(json.dumps(analysis, indent=2, ensure_ascii=False), encoding="utf-8")
 
+    orig_mtime = analyzed_jpg.stat().st_mtime
     ExifWriter(language=language).write_from_dict(analyzed_jpg, analyzed_jpg, analysis)
+    os.utime(analyzed_jpg, (orig_mtime, orig_mtime))
 
     base = analyzed_jpg.stem.removesuffix("_analyzed")
     out_dir = analyzed_jpg.parent
@@ -1773,7 +1780,60 @@ def _apply_date_taken(json_path: Path, new_date_taken: str, language: str) -> No
         from metadata_manager import MetadataManager  # type: ignore[import-untyped]
         mm = MetadataManager()
         for d in derived:
+            d_mtime = d.stat().st_mtime
             mm.copy_exif(str(analyzed_jpg), str(d), str(d))
+            os.utime(d, (d_mtime, d_mtime))
+
+
+def _resequence_dates(source_folder: Path, out_dir: Path, language: str) -> list[tuple[str, str, str]]:
+    """Reassign strictly increasing, 1-second-apart ``date_taken`` values.
+
+    Fixes duplicate/colliding dates (which make individual up/down nudges a
+    no-op) by walking the folder in filename order and re-numbering every
+    ELIGIBLE image (no real camera EXIF) from the earliest currently-known
+    date, 1 second apart — the same scheme the batch analyze pipeline uses
+    for fresh scans. Images with a real camera EXIF date are left untouched
+    and don't consume a slot. Idempotent: re-running it is a no-op.
+
+    Returns a list of (filename, old_date_taken, new_date_taken) for images
+    that were actually changed.
+    """
+    files = sorted(
+        f for f in source_folder.iterdir()
+        if f.is_file() and f.suffix.lower() in DEFAULT_SUPPORTED_FORMATS
+    )
+    entries = []
+    for f in files:
+        jf = out_dir / f"{f.stem}_analyzed.json"
+        if not jf.is_file():
+            continue
+        try:
+            date_taken = json.loads(jf.read_text(encoding="utf-8")).get("date_taken")
+        except (json.JSONDecodeError, OSError):
+            continue
+        entries.append({
+            "file": f,
+            "json": jf,
+            "date_taken": date_taken,
+            "eligible": _read_image_exif_date(f) is None,
+        })
+
+    dated = [e for e in entries if e["date_taken"]]
+    if not dated:
+        return []
+    anchor_pool = [e["date_taken"] for e in dated if e["eligible"]] or [e["date_taken"] for e in dated]
+    timestamp = datetime.strptime(min(anchor_pool)[:10], "%Y-%m-%d")
+
+    changes: list[tuple[str, str, str]] = []
+    for e in entries:
+        if not e["eligible"]:
+            continue
+        new_date = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        if new_date != e["date_taken"]:
+            _apply_date_taken(e["json"], new_date, language)
+            changes.append((e["file"].name, e["date_taken"], new_date))
+        timestamp += timedelta(seconds=1)
+    return changes
 
 
 @cli.command(name="update-exif")

@@ -669,6 +669,30 @@ def _album_name_for_folder(folder: Path) -> str:
     return folder.name
 
 
+def _ordered_images(folder: Path, out_dir: Path) -> list[dict]:
+    """Return this folder's images in the same order Immich would show them.
+
+    Sorted by ``date_taken`` (from the analysis JSON) when known — this is
+    the order the up/down reorder buttons operate on, so a swap here always
+    matches what the admin grid displays. Images without an analysis JSON
+    yet (no date_taken) sort after the dated ones, in filename order.
+    """
+    entries = []
+    for f in sorted(folder.iterdir()):
+        if not f.is_file() or f.suffix.lower() not in SUPPORTED_FORMATS:
+            continue
+        date_taken = None
+        jf = out_dir / f"{f.stem}_analyzed.json"
+        if jf.is_file():
+            try:
+                date_taken = json.loads(jf.read_text(encoding="utf-8")).get("date_taken")
+            except (json.JSONDecodeError, OSError):
+                pass
+        entries.append({"path": f, "date_taken": date_taken})
+    entries.sort(key=lambda e: (e["date_taken"] is None, e["date_taken"] or "", e["path"].name))
+    return entries
+
+
 def _refresh_picks_cache() -> None:
     """Background job: count preferred picks per album by scanning analysis JSONs.
 
@@ -743,9 +767,8 @@ def admin_dir():
     out_dir = enhanced_root / album
 
     images = []
-    for f in sorted(folder.iterdir()):
-        if not f.is_file() or f.suffix.lower() not in SUPPORTED_FORMATS:
-            continue
+    for entry in _ordered_images(folder, out_dir):
+        f = entry["path"]
         has_enhanced = (out_dir / f"{f.stem}_enhanced.jpg").is_file()
         restored_count = len(list(out_dir.glob(f"{glob_escape(f.stem)}_restored_*.jpg"))) if out_dir.is_dir() else 0
         # Latest generation timestamp across all output variants
@@ -783,19 +806,20 @@ def admin_dir():
             "restored_count": restored_count,
             "latest_generated": latest,  # unix timestamp or null
             "preferred_variant": preferred,
+            "date_taken": entry["date_taken"],  # drives the display/reorder order
         })
     return jsonify({"folder": rel, "album": album, "output_dir": str(out_dir), "images": images})
 
 
 @app.post("/api/admin/reorder")
 def admin_reorder():
-    """Swap the Immich date-sort position of two filename-adjacent images.
+    """Swap the Immich date-sort position of two adjacent images.
 
     Immich albums are always sorted by capture date/time, with no manual
     ordering. This nudges an image's ``date_taken`` to swap places with its
-    neighbor (up = earlier, down = later) in the folder's filename order —
-    only allowed when NEITHER image carries a real camera EXIF date, so
-    genuinely dated photos are never touched.
+    neighbor (up = earlier, down = later) in the same chronological order
+    the admin grid displays — only allowed when NEITHER image carries a
+    real camera EXIF date, so genuinely dated photos are never touched.
 
     Request body (JSON):
         dir        string  required  Folder name under the photos root
@@ -818,7 +842,10 @@ def admin_reorder():
     if not folder.is_dir():
         return _err(f"Folder not found: {body['dir']}", 404)
 
-    files = sorted(f for f in folder.iterdir() if f.is_file() and f.suffix.lower() in SUPPORTED_FORMATS)
+    album = _album_name_for_folder(folder)
+    out_dir = enhanced_root / album
+    entries = _ordered_images(folder, out_dir)
+    files = [e["path"] for e in entries]
     stems = [f.stem for f in files]
     if body["stem"] not in stems:
         return _err(f"Image not found in folder: {body['stem']}", 404)
@@ -840,17 +867,11 @@ def admin_reorder():
                 400,
             )
 
-    album = _album_name_for_folder(folder)
-    out_dir = enhanced_root / album
     json_a, json_b = out_dir / f"{img_a.stem}_analyzed.json", out_dir / f"{img_b.stem}_analyzed.json"
     if not json_a.is_file() or not json_b.is_file():
         return _err("Analysis JSON missing for one of the images — run analyze first", 400)
 
-    try:
-        date_a = json.loads(json_a.read_text(encoding="utf-8")).get("date_taken")
-        date_b = json.loads(json_b.read_text(encoding="utf-8")).get("date_taken")
-    except (json.JSONDecodeError, OSError) as e:
-        return _err(f"Cannot read analysis JSON: {e}", 500)
+    date_a, date_b = entries[idx]["date_taken"], entries[n_idx]["date_taken"]
     if not date_a or not date_b:
         return _err("Missing date_taken in one of the images' analysis JSON", 400)
 
@@ -859,15 +880,31 @@ def admin_reorder():
     _apply_date_taken(json_a, date_b, language)
     _apply_date_taken(json_b, date_a, language)
 
-    immich_warning = None
+    immich_warning = _push_dates_to_immich(album, {img_a.stem: date_b, img_b.stem: date_a})
+
+    return jsonify({
+        "status": "ok",
+        "swapped": [img_a.name, img_b.name],
+        "dates": {img_a.name: date_b, img_b.name: date_a},
+        "immich_warning": immich_warning,
+    })
+
+
+def _push_dates_to_immich(album: str, stem_dates: dict[str, str]) -> str | None:
+    """Push updated ``date_taken`` values to Immich for any published picks.
+
+    Silently does nothing when Immich isn't configured. Returns a warning
+    string on failure — local files are already updated regardless, so this
+    is never fatal to the caller.
+    """
     try:
         immich = _immich_cfg()
-        from picture_analyzer.immich.client import ImmichClient, ImmichError
+        from picture_analyzer.immich.client import ImmichClient
         client = ImmichClient(immich["url"], immich["api_key"])
         picks_root = Path(immich["picks_root"])
         immich_root = str(immich.get("immich_picks_root") or immich["picks_root"]).rstrip("/")
-        for img, new_date in ((img_a, date_b), (img_b, date_a)):
-            pick = picks_root / album / f"{img.stem}.jpg"
+        for stem, new_date in stem_dates.items():
+            pick = picks_root / album / f"{stem}.jpg"
             if not pick.is_file():
                 continue  # not published yet — nothing to push
             immich_path = f"{immich_root}/{album}/{pick.name}"
@@ -875,15 +912,52 @@ def admin_reorder():
             if asset:
                 iso = datetime.strptime(new_date, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%S.000Z")
                 client.update_asset(asset["id"], dateTimeOriginal=iso)
+        return None
     except ValueError:
-        pass  # Immich not configured — local swap already done, nothing more to do
-    except Exception as e:  # noqa: BLE001 — local files are already swapped; report, don't fail
-        immich_warning = f"Local files updated, but Immich push failed: {e}"
+        return None  # Immich not configured — nothing more to do
+    except Exception as e:  # noqa: BLE001 — local files are already updated; report, don't fail
+        return f"Local files updated, but Immich push failed: {e}"
 
+
+@app.post("/api/admin/resequence")
+def admin_resequence():
+    """Fix duplicate/colliding date_taken values in a folder (up/down no-ops).
+
+    Re-numbers every eligible image (no real camera EXIF) to strictly
+    increasing, 1-second-apart dates starting from the earliest date
+    currently in the folder — same scheme fresh batch analyze uses. Images
+    with a real camera EXIF date are left untouched. Safe to re-run.
+
+    Request body (JSON):
+        dir  string  required  Folder name under the photos root
+    """
+    body = request.get_json(silent=True) or {}
+    missing = _require_fields(body, "dir")
+    if missing:
+        return _err(f"Missing required fields: {missing}")
+
+    photos_root, enhanced_root = _admin_roots()
+    folder = (photos_root / body["dir"]).resolve()
+    try:
+        folder.relative_to(photos_root.resolve())
+    except ValueError:
+        return _err("Invalid folder path", 403)
+    if not folder.is_dir():
+        return _err(f"Folder not found: {body['dir']}", 404)
+
+    album = _album_name_for_folder(folder)
+    out_dir = enhanced_root / album
+
+    sys.path.insert(0, str(Path(__file__).parent / "src"))
+    from picture_analyzer.cli.app import _resequence_dates
+    from picture_analyzer.config.settings import get_settings
+
+    changes = _resequence_dates(folder, out_dir, get_settings().metadata.language)
+    immich_warning = _push_dates_to_immich(album, {Path(n).stem: new for n, _old, new in changes})
     return jsonify({
         "status": "ok",
-        "swapped": [img_a.name, img_b.name],
-        "dates": {img_a.name: date_b, img_b.name: date_a},
+        "changed": [{"name": n, "old": o, "new": new} for n, o, new in changes],
+        "count": len(changes),
         "immich_warning": immich_warning,
     })
 
