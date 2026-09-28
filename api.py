@@ -845,47 +845,134 @@ def admin_reorder():
     album = _album_name_for_folder(folder)
     out_dir = enhanced_root / album
     entries = _ordered_images(folder, out_dir)
-    files = [e["path"] for e in entries]
-    stems = [f.stem for f in files]
+    stems = [e["path"].stem for e in entries]
     if body["stem"] not in stems:
         return _err(f"Image not found in folder: {body['stem']}", 404)
     idx = stems.index(body["stem"])
     n_idx = idx - 1 if body["direction"] == "up" else idx + 1
-    if n_idx < 0 or n_idx >= len(files):
+    if n_idx < 0 or n_idx >= len(entries):
         return _err("Already at the edge of the folder", 400)
 
-    img_a, img_b = files[idx], files[n_idx]
+    name_a, name_b = entries[idx]["path"].name, entries[n_idx]["path"].name
 
     sys.path.insert(0, str(Path(__file__).parent / "src"))
-    from picture_analyzer.cli.app import _read_image_exif_date, _apply_date_taken
-
-    for img in (img_a, img_b):
-        if _read_image_exif_date(img) is not None:
-            return _err(
-                f"Cannot reorder: {img.name} has a real camera date "
-                "(only images without one — e.g. scanned slides — can be reordered)",
-                400,
-            )
-
-    json_a, json_b = out_dir / f"{img_a.stem}_analyzed.json", out_dir / f"{img_b.stem}_analyzed.json"
-    if not json_a.is_file() or not json_b.is_file():
-        return _err("Analysis JSON missing for one of the images — run analyze first", 400)
-
-    date_a, date_b = entries[idx]["date_taken"], entries[n_idx]["date_taken"]
-    if not date_a or not date_b:
-        return _err("Missing date_taken in one of the images' analysis JSON", 400)
-
+    from picture_analyzer.cli.app import _apply_date_taken
     from picture_analyzer.config.settings import get_settings
     language = get_settings().metadata.language
-    _apply_date_taken(json_a, date_b, language)
-    _apply_date_taken(json_b, date_a, language)
 
-    immich_warning = _push_dates_to_immich(album, {img_a.stem: date_b, img_b.stem: date_a})
+    changes, reason = _swap_step(entries, min(idx, n_idx), out_dir, language, _apply_date_taken)
+    if changes is None:
+        return _err(f"Cannot reorder: {reason}", 400)
 
+    immich_warning = _push_dates_to_immich(album, changes)
     return jsonify({
         "status": "ok",
-        "swapped": [img_a.name, img_b.name],
-        "dates": {img_a.name: date_b, img_b.name: date_a},
+        "swapped": [name_a, name_b],
+        "dates": changes,
+        "immich_warning": immich_warning,
+    })
+
+
+def _swap_step(entries, i, out_dir, language, apply_date_taken):
+    """Swap entries[i] and entries[i+1]'s date_taken (in-memory + on disk).
+
+    Returns ({stem: new_date} for both, None) on success, or (None, reason)
+    when blocked (real camera EXIF on either side, or missing analysis data).
+    """
+    from picture_analyzer.cli.app import _read_image_exif_date
+    a, b = entries[i], entries[i + 1]
+    for e in (a, b):
+        if _read_image_exif_date(e["path"]) is not None:
+            return None, (
+                f"{e['path'].name} has a real camera date "
+                "(only images without one — e.g. scanned slides — can be reordered)"
+            )
+    date_a, date_b = a["date_taken"], b["date_taken"]
+    if not date_a or not date_b:
+        return None, "missing date_taken in analysis JSON"
+    json_a = out_dir / f"{a['path'].stem}_analyzed.json"
+    json_b = out_dir / f"{b['path'].stem}_analyzed.json"
+    if not json_a.is_file() or not json_b.is_file():
+        return None, "analysis JSON missing — run analyze first"
+
+    apply_date_taken(json_a, date_b, language)
+    apply_date_taken(json_b, date_a, language)
+    a["date_taken"], b["date_taken"] = date_b, date_a
+    # Keep `entries` sorted: the object now holding the earlier date (b)
+    # occupies the earlier slot, so subsequent steps see a consistent order.
+    entries[i], entries[i + 1] = b, a
+    return {a["path"].stem: date_b, b["path"].stem: date_a}, None
+
+
+@app.post("/api/admin/move")
+def admin_move():
+    """Move an image to a new position relative to another (drag-and-drop).
+
+    Implemented as a chain of adjacent swaps (same primitive as ▲/▼), so it
+    stops — reporting how far it got — if it hits an image with a real
+    camera EXIF date along the way.
+
+    Request body (JSON):
+        dir          string  required  Folder name under the photos root
+        stem         string  required  Filename stem of the image being moved
+        target_stem  string  required  Filename stem of the drop target
+        position     string  required  "before" or "after" the target
+    """
+    body = request.get_json(silent=True) or {}
+    missing = _require_fields(body, "dir", "stem", "target_stem", "position")
+    if missing:
+        return _err(f"Missing required fields: {missing}")
+    if body["position"] not in ("before", "after"):
+        return _err("position must be 'before' or 'after'")
+
+    photos_root, enhanced_root = _admin_roots()
+    folder = (photos_root / body["dir"]).resolve()
+    try:
+        folder.relative_to(photos_root.resolve())
+    except ValueError:
+        return _err("Invalid folder path", 403)
+    if not folder.is_dir():
+        return _err(f"Folder not found: {body['dir']}", 404)
+
+    album = _album_name_for_folder(folder)
+    out_dir = enhanced_root / album
+    entries = _ordered_images(folder, out_dir)
+    stems = [e["path"].stem for e in entries]
+    if body["stem"] not in stems or body["target_stem"] not in stems:
+        return _err("Image not found in folder", 404)
+    if body["stem"] == body["target_stem"]:
+        return _err("Cannot move an image relative to itself", 400)
+
+    src_idx = stems.index(body["stem"])
+    target_idx = stems.index(body["target_stem"])
+    dst_idx = target_idx if body["position"] == "before" else target_idx + 1
+    if src_idx < dst_idx:
+        dst_idx -= 1  # removing src shifts everything after it back by one
+
+    sys.path.insert(0, str(Path(__file__).parent / "src"))
+    from picture_analyzer.cli.app import _apply_date_taken
+    from picture_analyzer.config.settings import get_settings
+    language = get_settings().metadata.language
+
+    all_changes: dict[str, str] = {}
+    idx = src_idx
+    step = 1 if dst_idx > src_idx else -1
+    blocked_reason = None
+    while idx != dst_idx:
+        changes, reason = _swap_step(entries, min(idx, idx + step), out_dir, language, _apply_date_taken)
+        if changes is None:
+            blocked_reason = reason
+            break
+        all_changes.update(changes)
+        idx += step
+
+    immich_warning = _push_dates_to_immich(album, all_changes) if all_changes else None
+    return jsonify({
+        "status": "ok",
+        "moved_steps": abs(idx - src_idx),
+        "blocked": blocked_reason is not None,
+        "blocked_reason": blocked_reason,
+        "changed": all_changes,
         "immich_warning": immich_warning,
     })
 

@@ -105,6 +105,9 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
   0% { border-color: #f9a825; box-shadow: 0 0 0 2px #f9a825; }
   100% { border-color: transparent; box-shadow: none; }
 }
+.cell.drop-before { box-shadow: inset 3px 0 0 0 #7c6cf0; }
+.cell.drop-after { box-shadow: inset -3px 0 0 0 #7c6cf0; }
+.grid.busy .cell { pointer-events: none; opacity: 0.6; }
 
 /* ── Viewer overlay ───────────────────────────────── */
 .viewer { position: fixed; inset: 0; background: rgba(10,10,16,0.92); z-index: 100;
@@ -357,7 +360,7 @@ function renderGrid() {
     const thumb = ($('optShowPicks').checked && img.thumb_src) ? img.thumb_src : src;
     const gen = img.latest_generated ? fmtDate(img.latest_generated) : null;
     const stem = img.name.replace(/\.[^/.]+$/, '');
-    return `<div class="cell" data-src="${escAttr(src)}" data-stem="${escAttr(stem)}">
+    return `<div class="cell" draggable="true" data-src="${escAttr(src)}" data-stem="${escAttr(stem)}">
       <img loading="lazy" src="/api/admin/thumb?path=${encodeURIComponent(thumb)}" onerror="this.src='/api/admin/thumb?path=${encodeURIComponent(src)}'; this.onerror=()=>this.style.opacity=0.15">
       <div class="badges">${img.has_enhanced ? '<span class="badge has-enh">enh</span>' : ''}${(img.restored_count||0) ? `<span class="badge has-rest">${img.restored_count} rest</span>` : ''}${img.preferred_variant ? `<span class="badge pref">★ ${esc(img.preferred_variant)}</span>` : ''}${img.date_taken ? `<span class="badge date" title="date_taken — drives the Immich order">${esc(img.date_taken)}</span>` : ''}${gen ? `<span class="badge gen">${gen}</span>` : ''}</div>
       <div class="reorder">
@@ -367,14 +370,105 @@ function renderGrid() {
       <div class="cap" title="${escAttr(img.name)}">${esc(img.name)}</div>
     </div>`;
   }).join('');
-  document.querySelectorAll('.cell').forEach(el => el.onclick = () => openViewer(el.dataset.src));
+  document.querySelectorAll('.cell').forEach(el => el.onclick = () => {
+    // Browsers can fire a spurious click right after a drag-drop completes;
+    // suppress it so the viewer doesn't pop open over the freshly reordered grid.
+    if (justDragged) return;
+    openViewer(el.dataset.src);
+  });
   document.querySelectorAll('.move-btn').forEach(btn => btn.onclick = (e) => {
     e.stopPropagation();
     moveImage(btn.closest('.cell').dataset.stem, btn.dataset.dir);
   });
+  wireDragAndDrop();
+}
+
+/* ── Drag-and-drop reordering ─────────────────────── */
+// Drag a thumbnail onto another to move it there — a chain of adjacent
+// swaps happens server-side, so this works across any distance, not just
+// one step. Stops (with a message) if it hits a real-camera-dated photo.
+let dragSrcStem = null;
+let justDragged = false;
+
+function wireDragAndDrop() {
+  document.querySelectorAll('.cell').forEach(cell => {
+    cell.ondragstart = (e) => {
+      if (moveBusy) { e.preventDefault(); return; }
+      dragSrcStem = cell.dataset.stem;
+      justDragged = true;
+      e.dataTransfer.effectAllowed = 'move';
+    };
+    cell.ondragover = (e) => {
+      if (!dragSrcStem || dragSrcStem === cell.dataset.stem) return;
+      e.preventDefault();
+      const before = (e.clientX - cell.getBoundingClientRect().left) < cell.offsetWidth / 2;
+      cell.classList.toggle('drop-before', before);
+      cell.classList.toggle('drop-after', !before);
+    };
+    cell.ondragleave = () => cell.classList.remove('drop-before', 'drop-after');
+    cell.ondrop = (e) => {
+      e.preventDefault();
+      const position = cell.classList.contains('drop-before') ? 'before' : 'after';
+      cell.classList.remove('drop-before', 'drop-after');
+      if (dragSrcStem && dragSrcStem !== cell.dataset.stem) {
+        moveImageTo(dragSrcStem, cell.dataset.stem, position);
+      }
+      dragSrcStem = null;
+    };
+    cell.ondragend = () => {
+      dragSrcStem = null;
+      document.querySelectorAll('.cell').forEach(c => c.classList.remove('drop-before', 'drop-after'));
+      // Clear the click-suppression flag on the next tick, after any
+      // spurious click the browser fires following the drop has passed.
+      setTimeout(() => { justDragged = false; }, 300);
+    };
+  });
+}
+
+// Guards against overlapping moves: two concurrent reorder/move requests
+// against the same folder would race (each reads current dates from disk
+// before the other's writes land), which can corrupt the sequence. Only
+// one move runs at a time; new drags/clicks are ignored until it finishes.
+let moveBusy = false;
+
+async function moveImageTo(stem, targetStem, position) {
+  if (moveBusy) return;
+  moveBusy = true;
+  $('grid').classList.add('busy');
+  const line = showRunning('Moving image');
+  try {
+    const res = await api('/api/admin/move', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ dir: currentFolder, stem, target_stem: targetStem, position }),
+    });
+    if (res.immich_warning) alert(res.immich_warning);
+    const resp = await api(`/api/admin/dir?dir=${encodeURIComponent(currentFolder)}`);
+    currentImages = resp.images || [];
+    renderGrid();
+    for (const name of Object.keys(res.changed || {})) {
+      const s = name.replace(/\.[^/.]+$/, '');
+      const cell = document.querySelector(`.cell[data-stem="${CSS.escape(s)}"]`);
+      if (cell) {
+        cell.classList.add('just-moved');
+        setTimeout(() => cell.classList.remove('just-moved'), 1500);
+      }
+    }
+    finishSyncStatus(line, 'Move image', true, `${res.moved_steps} step(s)`);
+    if (res.blocked) alert(`Moved ${res.moved_steps} step(s), then stopped: ${res.blocked_reason}`);
+  } catch (e) {
+    finishSyncStatus(line, 'Move image', false, e.message);
+    alert(`Could not move: ${e.message}`);
+  } finally {
+    moveBusy = false;
+    $('grid').classList.remove('busy');
+  }
 }
 
 async function moveImage(stem, direction) {
+  if (moveBusy) return;
+  moveBusy = true;
+  $('grid').classList.add('busy');
+  const line = showRunning('Reorder image');
   try {
     const res = await api('/api/admin/reorder', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -394,8 +488,13 @@ async function moveImage(stem, direction) {
         setTimeout(() => cell.classList.remove('just-moved'), 1500);
       }
     }
+    finishSyncStatus(line, 'Reorder image', true);
   } catch (e) {
+    finishSyncStatus(line, 'Reorder image', false, e.message);
     alert(`Could not reorder: ${e.message}`);
+  } finally {
+    moveBusy = false;
+    $('grid').classList.remove('busy');
   }
 }
 

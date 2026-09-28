@@ -1744,14 +1744,36 @@ def _update_exif_for_json(
             click.echo(f"    → Copied EXIF to {d.name}")
 
 
+def _patch_exif_date(image_path: Path, exif_date: str) -> None:
+    """Patch only the EXIF date fields of a JPEG, in place.
+
+    Uses ``piexif.insert()`` — rewrites just the APP1/EXIF segment without
+    decoding/re-encoding the pixel data. A full PIL open+save (as
+    ``ExifWriter``/``MetadataManager.copy_exif`` do) took 1-2s PER FILE on
+    this project's storage; with 5-6 derived variants per image and 2
+    images per swap step, a single ▲/▼ click took 7-8s. This is near
+    instant and also avoids repeated JPEG generation loss.
+    """
+    import piexif
+    try:
+        exif_dict = piexif.load(str(image_path))
+    except Exception:
+        return  # no EXIF to patch — leave the file as-is
+    date_bytes = exif_date.encode("utf-8")
+    exif_dict.setdefault("0th", {})[piexif.ImageIFD.DateTime] = date_bytes
+    exif_dict.setdefault("Exif", {})[piexif.ExifIFD.DateTimeOriginal] = date_bytes
+    exif_dict["Exif"][piexif.ExifIFD.DateTimeDigitized] = date_bytes
+    piexif.insert(piexif.dump(exif_dict), str(image_path))
+
+
 def _apply_date_taken(json_path: Path, new_date_taken: str, language: str) -> None:
-    """Set ``date_taken`` in one image's analysis JSON and rewrite EXIF (+ propagate).
+    """Set ``date_taken`` in one image's analysis JSON and patch EXIF (+ propagate).
 
     Only touches the date — unlike ``_update_exif_for_json``, does not
     re-derive location/GPS from description.txt. Used for manually nudging
     an image's position in Immich's date-sorted album view.
 
-    File mtimes are restored after the EXIF rewrite so the admin grid's
+    File mtimes are restored after the EXIF patch so the admin grid's
     "last generated" badge isn't bumped to today by what is just a metadata
     nudge, not a real re-processing.
     """
@@ -1765,24 +1787,13 @@ def _apply_date_taken(json_path: Path, new_date_taken: str, language: str) -> No
     analysis["date_taken"] = new_date_taken
     json_path.write_text(json.dumps(analysis, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    orig_mtime = analyzed_jpg.stat().st_mtime
-    ExifWriter(language=language).write_from_dict(analyzed_jpg, analyzed_jpg, analysis)
-    os.utime(analyzed_jpg, (orig_mtime, orig_mtime))
-
+    exif_date = ExifWriter._format_exif_datetime(new_date_taken) or new_date_taken
     base = analyzed_jpg.stem.removesuffix("_analyzed")
     out_dir = analyzed_jpg.parent
-    derived = [
-        *out_dir.glob(f"{base}_enhanced.jpg"),
-        *out_dir.glob(f"{base}_restored_*.jpg"),
-    ]
-    if derived:
-        _inject_project_root()
-        from metadata_manager import MetadataManager  # type: ignore[import-untyped]
-        mm = MetadataManager()
-        for d in derived:
-            d_mtime = d.stat().st_mtime
-            mm.copy_exif(str(analyzed_jpg), str(d), str(d))
-            os.utime(d, (d_mtime, d_mtime))
+    for f in (analyzed_jpg, *out_dir.glob(f"{base}_enhanced.jpg"), *out_dir.glob(f"{base}_restored_*.jpg")):
+        orig_mtime = f.stat().st_mtime
+        _patch_exif_date(f, exif_date)
+        os.utime(f, (orig_mtime, orig_mtime))
 
 
 def _resequence_dates(source_folder: Path, out_dir: Path, language: str) -> list[tuple[str, str, str]]:
