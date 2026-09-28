@@ -149,7 +149,10 @@ class ImmichClient:
         """Create a new album and return it.
 
         ``order``: "asc" = oldest first (old→new), "desc" = newest first
-        (Immich's default).
+        (Immich's default). NOTE: Immich's create-album endpoint silently
+        ignores this field — the album is always created with the default
+        order. Callers must follow up with ``update_album(id, order=...)``
+        to actually apply it.
         """
         return self._post("/api/albums", json={
             "albumName": name,

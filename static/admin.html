@@ -198,7 +198,7 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
       <button id="btnReport" disabled title="Generate markdown report">Report</button>
       <button id="btnGallery" disabled title="Generate gallery markdown">Gallery</button>
       <button id="btnPublish" disabled title="Publish this folder's picked bests into the Immich picks library">📤 Immich publish</button>
-      <button id="btnSync" disabled title="Sync Immich albums with the picks library (scan + album update)">🔄 Immich sync</button>
+      <button id="btnSync" disabled title="Sync Immich albums with the picks library (scan + album update). Library-wide — enabled once this folder has published picks.">🔄 Immich sync</button>
       <button id="btnFixSequence" disabled title="Fix duplicate/colliding dates so ▲▼ reordering works again (only touches images without a real camera date)">🔧 Fix sequence</button>
       <button id="btnDesc" disabled title="Edit this folder's description.txt">📝 Description</button>
     </div>
@@ -307,7 +307,9 @@ async function selectFolder(name) {
   renderFolders($('folderSearch').value);
   const f = folders.find(x => x.name === name);
   $('folderLabel').textContent = `${name} (${f.images === null ? '…' : f.images} images)`;
-  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery','btnDesc','btnPublish','btnSync','btnFixSequence'].forEach(id => $(id).disabled = false);
+  ['btnProcessFolder','btnAnalyzeFolder','btnReport','btnGallery','btnDesc','btnPublish','btnFixSequence'].forEach(id => $(id).disabled = false);
+  $('btnSync').disabled = true;  // re-enabled below once we know this folder has published picks
+  refreshSyncAvailability();
   $('grid').innerHTML = '<div class="empty">Loading images…</div>';
   if ($('descPanel').classList.contains('open')) loadDescription();
   try {
@@ -320,6 +322,20 @@ async function selectFolder(name) {
     renderGrid();
   } catch (e) {
     $('grid').innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
+}
+
+async function refreshSyncAvailability() {
+  // Immich Sync is library-wide, not per-folder — disable it until the
+  // SELECTED folder has actually been published, since clicking it before
+  // that is a no-op for this folder (it only touches whatever else has
+  // been published elsewhere).
+  const folder = currentFolder;
+  try {
+    const status = await api(`/api/admin/immich/status?dir=${encodeURIComponent(folder)}`);
+    if (folder === currentFolder) $('btnSync').disabled = !status.published;
+  } catch (e) {
+    if (folder === currentFolder) $('btnSync').disabled = true;
   }
 }
 
@@ -683,6 +699,7 @@ async function runCommand(kind) {
     // differ from the source folder name.
     showSyncStatus(`Immich publish → ${r.album}`, true,
       `${r.published} published · ${r.skipped} no pick yet${r.errors.length ? ` · ${r.errors.length} errors` : ''}`);
+    refreshSyncAvailability();
     return;
   } else if (kind === 'immich-sync') {
     endpoint = '/api/admin/immich/sync';

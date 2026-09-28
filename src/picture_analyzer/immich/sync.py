@@ -134,6 +134,10 @@ def sync_albums(
             if not dry_run:
                 try:
                     album = client.create_album(album_name, order=album_order, description=description)
+                    # Immich's create-album endpoint has no "order" field —
+                    # only the album carries a default (desc). Must PATCH it
+                    # right after creation for the requested order to stick.
+                    client.update_album(album["id"], order=album_order)
                 except ImmichError as exc:
                     errors.append(f"{album_name}: cannot create album ({exc})")
                     continue

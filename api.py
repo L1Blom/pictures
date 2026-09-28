@@ -1234,6 +1234,40 @@ def _immich_cfg():
     return immich
 
 
+@app.get("/api/admin/immich/status")
+def admin_immich_status():
+    """Return whether a folder's picks have been published to the picks root.
+
+    Immich Sync is library-wide, not per-folder — this lets the admin UI
+    disable the Sync button until the SELECTED folder actually has
+    something published, since clicking it before that is a no-op for
+    this folder (it only touches whatever else has been published).
+
+    Query params:
+        dir  string  required  Folder name under the photos root
+    """
+    rel = request.args.get("dir")
+    if not rel:
+        return _err("Missing required query param: dir")
+    photos_root, _ = _admin_roots()
+    folder = (photos_root / rel).resolve()
+    try:
+        folder.relative_to(photos_root.resolve())
+    except ValueError:
+        return _err("Invalid folder path", 403)
+    if not folder.is_dir():
+        return _err(f"Folder not found: {rel}", 404)
+
+    try:
+        immich = _immich_cfg()
+    except ValueError:
+        return jsonify({"published": False, "configured": False})
+
+    picks_dir = Path(immich["picks_root"]) / _album_name_for_folder(folder)
+    published = picks_dir.is_dir() and any(picks_dir.iterdir())
+    return jsonify({"published": published, "configured": True})
+
+
 @app.post("/api/admin/immich/publish")
 def admin_immich_publish():
     """Publish the picks of one folder into the picks root (sync, fast).
