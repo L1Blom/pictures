@@ -397,6 +397,22 @@ def _read_image_exif_date(image_path: Path) -> datetime | None:
     return None
 
 
+def _read_own_date_taken(json_path: Path, base: datetime) -> datetime | None:
+    """Return *json_path*'s existing ``date_taken`` if it's on the same day as *base*.
+
+    Used so reprocessing (single-image or full-folder batch) reuses an
+    image's own previously-assigned timestamp instead of resetting it —
+    otherwise it would silently undo manual reordering (admin ▲▼/drag-drop/
+    fix-sequence), which only ever adjusts the time within the same day.
+    """
+    try:
+        data = json.loads(json_path.read_text(encoding="utf-8"))
+        dt = datetime.strptime(str(data.get("date_taken", "")), "%Y-%m-%d %H:%M:%S")
+    except (ValueError, OSError, json.JSONDecodeError):
+        return None
+    return dt if dt.date() == base.date() else None
+
+
 def _next_sequential_timestamp(output_dir: Path, parsed_date: str, own_json: Path | None = None) -> datetime:
     """Return the timestamp to use for a single-image processing run.
 
@@ -409,16 +425,9 @@ def _next_sequential_timestamp(output_dir: Path, parsed_date: str, own_json: Pat
     """
     base = datetime.strptime(parsed_date, "%Y-%m-%d")
 
-    def _read_date(jf: Path) -> datetime | None:
-        try:
-            data = json.loads(jf.read_text(encoding="utf-8"))
-            return datetime.strptime(str(data.get("date_taken", "")), "%Y-%m-%d %H:%M:%S")
-        except (ValueError, OSError, json.JSONDecodeError):
-            return None
-
     if own_json is not None and own_json.is_file():
-        own_dt = _read_date(own_json)
-        if own_dt is not None and own_dt.date() == base.date():
+        own_dt = _read_own_date_taken(own_json, base)
+        if own_dt is not None:
             return own_dt
 
     max_existing = _max_existing_date_taken(str(output_dir), base)
@@ -1119,8 +1128,17 @@ def _batch_analyze(
                         use_timestamp = gt_timestamp
                         gt_timestamp += timedelta(seconds=1)
                 else:
-                    use_timestamp = gt_timestamp
-                    gt_timestamp += timedelta(seconds=1)
+                    # Reuse this image's own previous same-day date_taken when it
+                    # has one — a full-folder reprocess must not silently undo
+                    # manual reordering (admin ▲▼/drag-drop/fix-sequence).
+                    own_dt = _read_own_date_taken(json_path, gt_timestamp)
+                    if own_dt is not None:
+                        use_timestamp = own_dt
+                        if own_dt >= gt_timestamp:
+                            gt_timestamp = own_dt + timedelta(seconds=1)
+                    else:
+                        use_timestamp = gt_timestamp
+                        gt_timestamp += timedelta(seconds=1)
                 _apply_description_ground_truth(analysis, ground_truth, use_timestamp)
 
             del analysis_result  # release model result immediately
