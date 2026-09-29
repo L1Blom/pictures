@@ -21,7 +21,7 @@ import sys
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import click
 
@@ -982,8 +982,15 @@ def _batch_analyze(
     skip_existing: bool = False,
     only_steps: list[str] | None = None,
     update_existing: bool = False,
+    progress_callback: Callable[[int, int, str], None] | None = None,
 ) -> None:
-    """Batch-analyze all images in a directory."""
+    """Batch-analyze all images in a directory.
+
+    ``progress_callback(idx, total, filename)``, when given, is called right
+    before each image starts (including skipped ones) so a caller (e.g. the
+    admin API's job tracker) can report which picture is currently being
+    processed.
+    """
     _, SmartEnhancer, SlideRestoration, MetadataManager, _ = _get_legacy_modules()
 
     if not directory.is_dir():
@@ -1076,6 +1083,8 @@ def _batch_analyze(
         shared_pipeline = build_pipeline(settings)
 
     for idx, img in enumerate(image_files, 1):
+        if progress_callback:
+            progress_callback(idx, total, img.name)
         json_path = Path(output_dir) / f"{img.stem}_analyzed.json"
         if skip_existing and _is_complete_analysis(json_path):
             click.echo(f"[{idx}/{total}] Skipping (already done): {img.name}")

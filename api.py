@@ -92,10 +92,18 @@ _worker_thread.start()
 def _start_job(fn, args_ns: SimpleNamespace) -> str:
     """Enqueue a job and return its id immediately."""
     job_id = str(uuid.uuid4())
+    args_ns.job_id = job_id  # lets the job function report progress via _set_job_progress()
     with _jobs_lock:
-        _jobs[job_id] = {"status": "queued", "result": None, "error": None}
+        _jobs[job_id] = {"status": "queued", "result": None, "error": None, "progress": None}
     _job_queue.put((job_id, fn, args_ns))
     return job_id
+
+
+def _set_job_progress(job_id: str, current: int, total: int, name: str) -> None:
+    """Record which item a running batch job is currently on."""
+    with _jobs_lock:
+        if job_id in _jobs:
+            _jobs[job_id]["progress"] = {"current": current, "total": total, "name": name}
 
 
 # ---------------------------------------------------------------------------
@@ -173,6 +181,7 @@ def _run_batch_analyze(args: SimpleNamespace) -> None:
         provider=getattr(args, "provider", None),
         pipeline_mode=args.pipeline_mode,
         skip_existing=args.skip_existing,
+        progress_callback=lambda idx, total, name: _set_job_progress(args.job_id, idx, total, name),
     )
 
 

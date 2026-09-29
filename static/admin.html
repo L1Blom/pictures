@@ -108,6 +108,7 @@ body.has-jobs .viewer .top { margin-top: var(--jobbar-h, 34px); }
 .cell.drop-before { box-shadow: inset 3px 0 0 0 #7c6cf0; }
 .cell.drop-after { box-shadow: inset -3px 0 0 0 #7c6cf0; }
 .grid.busy .cell { pointer-events: none; opacity: 0.6; }
+.folder-list.busy { pointer-events: none; opacity: 0.6; }
 
 /* ── Viewer overlay ───────────────────────────────── */
 .viewer { position: fixed; inset: 0; background: rgba(10,10,16,0.92); z-index: 100;
@@ -306,6 +307,7 @@ function renderFolders(filter) {
 }
 
 async function selectFolder(name) {
+  if (globalBusy) return;
   currentFolder = name;
   renderFolders($('folderSearch').value);
   const f = folders.find(x => x.name === name);
@@ -701,6 +703,26 @@ function showJobBar() {
   updateJobBarHeight();
 }
 
+// A folder/image job (batch analyze, process, enhance, ...) writes files a
+// concurrent action (reorder, publish, description edit, ...) could race
+// against — block everything else until it finishes.
+let globalBusy = false;
+const BUSY_LOCKED_BUTTONS = ['btnProcessFolder', 'btnAnalyzeFolder', 'btnReport', 'btnGallery',
+  'btnDesc', 'btnPublish', 'btnFixSequence', 'btnProcessImage', 'btnEnhanceImage'];
+
+function setGlobalBusy(busy) {
+  globalBusy = busy;
+  if (busy) {
+    BUSY_LOCKED_BUTTONS.forEach(id => $(id).disabled = true);
+    $('btnSync').disabled = true;
+  } else if (currentFolder) {
+    BUSY_LOCKED_BUTTONS.forEach(id => $(id).disabled = false);
+    refreshSyncAvailability();
+  }
+  $('folderList').classList.toggle('busy', busy);
+  $('grid').classList.toggle('busy', busy);
+}
+
 function updateJobBarHeight() {
   const bar = $('jobBar');
   if (bar.style.display === 'none') return;
@@ -720,6 +742,7 @@ new ResizeObserver(updateJobBarHeight).observe(document.getElementById('jobBar')
 
 function startJobPolling(jobId, label) {
   showJobBar();
+  setGlobalBusy(true);
   const bar = $('jobBar');
   const el = document.createElement('div');
   el.className = 'job';
@@ -732,11 +755,13 @@ function startJobPolling(jobId, label) {
       const span = document.getElementById(`job-${jobId}`);
       if (!span) { clearInterval(timer); return; }
       span.className = `st-${j.status}`;
-      span.textContent = j.status === 'running' ? `🔄 ${label} — running…`
+      const progress = j.progress ? ` (${j.progress.current}/${j.progress.total} · ${esc(j.progress.name)})` : '';
+      span.textContent = j.status === 'running' ? `🔄 ${label} — running…${progress}`
         : j.status === 'completed' ? `✓ ${label} — completed`
         : `✗ ${label} — failed`;
       if (j.status === 'completed' || j.status === 'failed') {
         clearInterval(timer);
+        setGlobalBusy(false);
         if (j.error) span.title = j.error;
         if (viewerImage) openViewer(viewerImage); // refresh viewer
         if (currentFolder) selectFolder(currentFolder); // refresh grid
