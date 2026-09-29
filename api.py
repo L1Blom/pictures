@@ -1392,24 +1392,34 @@ def admin_immich_publish():
     sys.path.insert(0, str(Path(__file__).parent / "src"))
     from picture_analyzer.immich.publisher import publish_folder, _album_for_folder
 
-    # enhanced root: same resolution as _admin_roots
-    enhanced_root = None
-    try:
-        cfg = yaml.safe_load((Path(__file__).parent / "config.yaml").read_text(encoding="utf-8"))
-        enhanced_root = (cfg.get("output") or {}).get("enhanced_root")
-    except Exception:
-        pass
-    if not enhanced_root or not Path(enhanced_root).is_dir():
-        enhanced_root = Path.home() / "enhanced"
+    _, enhanced_root = _admin_roots()
 
-    result = publish_folder(folder, Path(enhanced_root), Path(immich["picks_root"]))
+    result = publish_folder(folder, enhanced_root, Path(immich["picks_root"]))
+    album = _album_for_folder(folder)
+
+    immich_warning = None
+    exclude_album = immich.get("exclude_album_libraries") or []
+    exclude_source = immich.get("exclude_source_libraries") or []
+    if exclude_album or exclude_source:
+        try:
+            from picture_analyzer.immich.client import ImmichClient
+            from picture_analyzer.immich.publisher import exclude_folder_from_libraries
+            client = ImmichClient(immich["url"], immich["api_key"])
+            if exclude_album:
+                exclude_folder_from_libraries(client, album, exclude_album)
+            if exclude_source:
+                exclude_folder_from_libraries(client, folder.name, exclude_source)
+        except Exception as e:  # noqa: BLE001 — publish already succeeded; report, don't fail
+            immich_warning = f"Published, but Immich library exclusion update failed: {e}"
+
     return jsonify({
         "status": "ok",
-        "album": _album_for_folder(folder),
+        "album": album,
         "published": len(result.published),
         "removed": len(result.removed),
         "skipped": len(result.skipped),
         "errors": result.errors,
+        "immich_warning": immich_warning,
     })
 
 

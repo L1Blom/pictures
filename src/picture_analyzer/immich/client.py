@@ -93,6 +93,23 @@ class ImmichClient:
                     return lib
         return None
 
+    def get_library_by_name(self, name: str) -> Optional[dict]:
+        """Return the first library named *name*, or None.
+
+        More reliable than ``find_library_by_path`` when a library's import
+        path doesn't share a directory name with anything on the host side
+        (e.g. a "Media" library mounted from a host folder literally named
+        something else).
+        """
+        for lib in self.list_libraries():
+            if lib.get("name") == name:
+                return lib
+        return None
+
+    def update_library(self, library_id: str, **fields) -> dict:
+        """Update library fields (importPaths, exclusionPatterns, ...)."""
+        return self._request("PUT", f"/api/libraries/{library_id}", json=fields)
+
     def scan_library(self, library_id: str) -> None:
         """Trigger an (async) scan of a library — watches for new/changed files."""
         self._post(f"/api/libraries/{library_id}/scan")

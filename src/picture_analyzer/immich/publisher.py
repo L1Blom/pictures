@@ -39,6 +39,46 @@ def _album_for_folder(folder: Path) -> str:
     return folder.name
 
 
+def exclude_folder_from_libraries(client, folder_name: str, library_names: list[str]) -> dict[str, bool]:
+    """Add a ``**/<folder_name>/**`` exclusion pattern to each named library.
+
+    Once an album's picks are published, its other libraries (e.g. the raw
+    "Media" source and the "Enhanced pictures" output, both of which still
+    hold every variant) no longer need to clutter the main timeline — the
+    picks library already represents it there. Immich treats an excluded
+    file the same as a deleted one on rescan: already-imported assets move
+    to trash (recoverable for 30 days; nothing on disk is touched, since
+    these are read-only external libraries).
+
+    *folder_name* must match the actual subfolder name under that library's
+    import path — this is the Albumnaam for the enhanced/picks output
+    libraries, but the literal SOURCE folder name (which may differ from
+    Albumnaam) for a library that imports the photos root directly. Callers
+    with mixed library types should call this once per naming scheme.
+
+    Idempotent — safe to call on every publish. Only libraries that were
+    actually found AND changed get rescanned.
+
+    Returns {library_name: changed} for every name that was found (missing
+    library names are silently skipped).
+    """
+    pattern = f"**/{folder_name}/**"
+    results: dict[str, bool] = {}
+    for name in library_names:
+        lib = client.get_library_by_name(name)
+        if lib is None:
+            continue
+        patterns = list(lib.get("exclusionPatterns") or [])
+        if pattern in patterns:
+            results[name] = False
+            continue
+        patterns.append(pattern)
+        client.update_library(lib["id"], exclusionPatterns=patterns)
+        client.scan_library(lib["id"])
+        results[name] = True
+    return results
+
+
 def _link_or_copy(src: Path, dst: Path) -> None:
     """Hardlink *src* to *dst* when possible, else copy."""
     try:

@@ -2129,7 +2129,8 @@ def publish_immich(directory: str, dry_run: bool):
     result = publish_folder(
         Path(directory), settings.output.enhanced_root, cfg.picks_root, dry_run
     )
-    click.echo(f"Album: {_album_name(Path(directory))}")
+    album = _album_name(Path(directory))
+    click.echo(f"Album: {album}")
     click.echo(f"  published: {len(result.published)}")
     click.echo(f"  removed:   {len(result.removed)}")
     click.echo(f"  skipped:   {len(result.skipped)} (no pick yet)")
@@ -2137,6 +2138,25 @@ def publish_immich(directory: str, dry_run: bool):
         click.echo(f"  ✗ {e}", err=True)
     if dry_run:
         click.echo("(dry run — nothing written)")
+        return
+
+    if cfg.exclude_album_libraries or cfg.exclude_source_libraries:
+        from ..immich.client import ImmichClient, ImmichError
+        from ..immich.publisher import exclude_folder_from_libraries
+        client = ImmichClient(cfg.url, cfg.api_key)
+        try:
+            if cfg.exclude_album_libraries:
+                r = exclude_folder_from_libraries(client, album, cfg.exclude_album_libraries)
+                for name, changed in r.items():
+                    if changed:
+                        click.echo(f"  excluded '{album}' from library '{name}'")
+            if cfg.exclude_source_libraries:
+                r = exclude_folder_from_libraries(client, Path(directory).name, cfg.exclude_source_libraries)
+                for name, changed in r.items():
+                    if changed:
+                        click.echo(f"  excluded '{Path(directory).name}' from library '{name}'")
+        except ImmichError as exc:
+            click.echo(f"  ⚠ Could not update Immich library exclusions: {exc}", err=True)
 
 
 def _album_name(folder: Path) -> str:

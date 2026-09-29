@@ -61,3 +61,10 @@ immich:
   url: "http://127.0.0.1:2283"
   picks_root: "/home/leen/bigfoot/NieuwVolume/picks"   # host path of the picks external library
   immich_picks_root: "/import/picks"
+  # Once a folder's picks are published, exclude that folder from these other
+  # libraries so they stop cluttering the timeline (picks already represents
+  # it there). Immich moves already-imported assets to trash on rescan.
+  exclude_album_libraries:
+    - "Enhanced pictures"
+  exclude_source_libraries:
+    - "Media"

@@ -121,6 +121,16 @@ pipeline:
 #   api_key: ""            # Immich → Settings → API Keys → Create key
 #   picks_root: "/path/to/picks"      # host path of the picks external library
 #   immich_picks_root: "/data/picks"  # same path as Immich sees it (Docker container path)
+#   # Once a folder's picks are published, automatically add a "**/<folder>/**"
+#   # exclusion pattern to these OTHER Immich libraries (by exact library name)
+#   # so they stop cluttering the main timeline with every raw/enhanced/restored
+#   # variant — the picks library already represents that folder there. Immich
+#   # treats excluded files like deleted ones on rescan: existing assets move to
+#   # trash (30-day recovery), nothing on disk is touched (read-only libraries).
+#   exclude_album_libraries:    # matched by Albumnaam (output/enhanced-root libraries)
+#     - "Enhanced pictures"
+#   exclude_source_libraries:   # matched by the literal source folder name (may differ from Albumnaam)
+#     - "Media"
 # supported_formats:
 #   - ".jpg"
 #   - ".jpeg"

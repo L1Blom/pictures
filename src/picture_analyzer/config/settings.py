@@ -197,6 +197,17 @@ class ImmichConfig(BaseModel):
         default=None,
         description="The picks library path as Immich sees it (container path for Docker)",
     )
+    exclude_album_libraries: list[str] = Field(
+        default_factory=list,
+        description="Immich library names (e.g. 'Enhanced pictures') to auto-exclude a "
+        "published album's folder from, by Albumnaam, once its picks are published",
+    )
+    exclude_source_libraries: list[str] = Field(
+        default_factory=list,
+        description="Immich library names (e.g. 'Media') to auto-exclude a published "
+        "album's SOURCE folder from, by its literal folder name (may differ from "
+        "Albumnaam), once its picks are published",
+    )
 
 
 class Settings(BaseSettings):
