@@ -10,14 +10,17 @@ class TestPromptLoaderLoad:
     """Test the load() method in isolation."""
 
     def test_load_metadata_template(self):
+        # metadata.txt intentionally always responds in English (hardcoded
+        # "RESPOND IN ENGLISH") — translation happens later in the pipeline
+        # via translate_analysis_dict(), so it has no {language} placeholder.
         text = PromptLoader().load("metadata", language="Dutch")
         assert "METADATA SECTION" in text
-        assert "Dutch" in text
+        assert "RESPOND IN ENGLISH" in text
 
     def test_load_location_template(self):
         text = PromptLoader().load("location", language="English")
         assert "LOCATION DETECTION" in text
-        assert "HIGHEST PRIORITY" in text  # location now uses description as ground truth
+        assert "highest priority" in text.lower()  # location now uses description as ground truth
 
     def test_load_enhancement_template(self):
         text = PromptLoader().load("enhancement", language="ignored")
@@ -40,7 +43,9 @@ class TestPromptLoaderLoad:
             PromptLoader().load("nonexistent")
 
     def test_language_substitution(self):
-        text = PromptLoader().load("metadata", language="Spanish")
+        # metadata.txt has no {language} placeholder (see test_load_metadata_
+        # template) — preamble.txt is the one that actually substitutes it.
+        text = PromptLoader().load("preamble", language="Spanish")
         assert "Spanish" in text
         assert "{language}" not in text
 

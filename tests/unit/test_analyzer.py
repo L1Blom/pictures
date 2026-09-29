@@ -108,7 +108,9 @@ class TestParseJson:
     def test_plain_code_fence(self, analyzer):
         response = '```\n{"key": "value"}\n```'
         result = analyzer._parse_json(response)
-        assert result["key"] == "value"
+        # _normalise_response() files unrecognized flat keys under "metadata"
+        # and back-fills the other expected sections with defaults.
+        assert result["metadata"]["key"] == "value"
 
     def test_raw_json(self, analyzer):
         response = 'Here is the analysis:\n{"metadata": {"scene_type": "landscape"}}'

@@ -236,8 +236,10 @@ class TestGeocodingStep:
         partial = AnalysisResult(location=loc)
         step = GeocodingStep(settings_stepped)
         coords = GeoLocation(latitude=52.37, longitude=4.89)
+        # GeocodingStep calls geocode_from_location_info() (supports landmark
+        # matching), not the plain geocode() — mock that method.
         with patch("picture_analyzer.pipeline.geo_step.NominatimGeocoder") as MockGeo:
-            MockGeo.return_value.geocode.return_value = coords
+            MockGeo.return_value.geocode_from_location_info.return_value = coords
             result = step.run(image, context, partial)
         assert result.location is not None
         assert result.location.coordinates == coords
@@ -247,7 +249,7 @@ class TestGeocodingStep:
         partial = AnalysisResult(location=loc)
         step = GeocodingStep(settings_stepped)
         with patch("picture_analyzer.pipeline.geo_step.NominatimGeocoder") as MockGeo:
-            MockGeo.return_value.geocode.return_value = None
+            MockGeo.return_value.geocode_from_location_info.return_value = None
             result = step.run(image, context, partial)
         assert result.location.coordinates is None
 

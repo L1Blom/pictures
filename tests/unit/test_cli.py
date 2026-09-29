@@ -595,10 +595,12 @@ class TestAnalyzeDescriptionGate:
         assert "Batch complete" in result.output
         assert list(out.glob("*_analyzed.json"))
 
-    def test_disables_llm_location_when_ground_truth_ok(
+    def test_llm_location_runs_even_with_ground_truth(
         self, runner, tmp_path, mock_legacy, mock_provider_analysis
     ):
-        """When description.txt provides location/date, the LLM location step is skipped."""
+        """description.txt location/date no longer disables the LLM location
+        step — it still runs so it can find a more specific location (e.g. a
+        landmark) within the general area description.txt provides."""
         d = self._make_album(
             tmp_path, "Locatie: Wien, Austria\nDatum: Juni 1984\n", n_images=1
         )
@@ -608,7 +610,7 @@ class TestAnalyzeDescriptionGate:
             result = runner.invoke(cli, ["analyze", str(d), "--batch", "-o", str(out)])
         assert result.exit_code == 0
         analyze_mock = mock_provider_analysis["analyze"]
-        assert analyze_mock.call_args.kwargs.get("detect_location") is False
+        assert analyze_mock.call_args.kwargs.get("detect_location") is None
 
     def test_keeps_llm_location_when_no_description_txt(
         self, runner, tmp_path, mock_legacy, mock_provider_analysis
