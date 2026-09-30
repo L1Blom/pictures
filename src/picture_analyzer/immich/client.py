@@ -66,6 +66,16 @@ class ImmichClient:
         except ImmichError:
             return False
 
+    def library_job_status(self) -> dict:
+        """Return the "library" job queue's current status (active/waiting counts).
+
+        Used to tell the user *why* Immich's own UI might feel sluggish
+        right after a publish (a background library rescan is running),
+        instead of leaving them guessing.
+        """
+        jobs = self._get("/api/jobs") or {}
+        return jobs.get("library", {})
+
     # ── libraries ────────────────────────────────────────────────────
 
     def list_libraries(self) -> list[dict]:

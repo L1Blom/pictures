@@ -1398,6 +1398,7 @@ def admin_immich_publish():
     album = _album_for_folder(folder)
 
     immich_warning = None
+    immich_scan_note = None
     exclude_album = immich.get("exclude_album_libraries") or []
     exclude_source = immich.get("exclude_source_libraries") or []
     if exclude_album or exclude_source:
@@ -1405,10 +1406,23 @@ def admin_immich_publish():
             from picture_analyzer.immich.client import ImmichClient
             from picture_analyzer.immich.publisher import exclude_folder_from_libraries
             client = ImmichClient(immich["url"], immich["api_key"])
+            changed_any = False
             if exclude_album:
-                exclude_folder_from_libraries(client, album, exclude_album)
+                r = exclude_folder_from_libraries(client, album, exclude_album)
+                changed_any = changed_any or any(r.values())
             if exclude_source:
-                exclude_folder_from_libraries(client, folder.name, exclude_source)
+                r = exclude_folder_from_libraries(client, folder.name, exclude_source)
+                changed_any = changed_any or any(r.values())
+            if changed_any:
+                counts = client.library_job_status().get("jobCounts", {})
+                pending = (counts.get("active", 0) or 0) + (counts.get("waiting", 0) or 0)
+                if pending:
+                    immich_scan_note = (
+                        "Immich is rescanning libraries in the background to hide this "
+                        "folder's other variants from its timeline — Immich's own UI "
+                        "(not this app) may load thumbnails slowly for a bit; that's "
+                        "expected, not an error."
+                    )
         except Exception as e:  # noqa: BLE001 — publish already succeeded; report, don't fail
             immich_warning = f"Published, but Immich library exclusion update failed: {e}"
 
@@ -1420,6 +1434,7 @@ def admin_immich_publish():
         "skipped": len(result.skipped),
         "errors": result.errors,
         "immich_warning": immich_warning,
+        "immich_scan_note": immich_scan_note,
     })
 
 

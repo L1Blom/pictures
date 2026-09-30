@@ -2144,17 +2144,28 @@ def publish_immich(directory: str, dry_run: bool):
         from ..immich.client import ImmichClient, ImmichError
         from ..immich.publisher import exclude_folder_from_libraries
         client = ImmichClient(cfg.url, cfg.api_key)
+        changed_any = False
         try:
             if cfg.exclude_album_libraries:
                 r = exclude_folder_from_libraries(client, album, cfg.exclude_album_libraries)
                 for name, changed in r.items():
                     if changed:
                         click.echo(f"  excluded '{album}' from library '{name}'")
+                changed_any = changed_any or any(r.values())
             if cfg.exclude_source_libraries:
                 r = exclude_folder_from_libraries(client, Path(directory).name, cfg.exclude_source_libraries)
                 for name, changed in r.items():
                     if changed:
                         click.echo(f"  excluded '{Path(directory).name}' from library '{name}'")
+                changed_any = changed_any or any(r.values())
+            if changed_any:
+                counts = client.library_job_status().get("jobCounts", {})
+                pending = (counts.get("active", 0) or 0) + (counts.get("waiting", 0) or 0)
+                if pending:
+                    click.echo(
+                        "  ⏳ Immich is rescanning libraries in the background — its "
+                        "own UI may load thumbnails slowly for a bit; expected, not an error."
+                    )
         except ImmichError as exc:
             click.echo(f"  ⚠ Could not update Immich library exclusions: {exc}", err=True)
 

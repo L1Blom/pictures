@@ -821,8 +821,9 @@ async function runCommand(kind) {
       body: JSON.stringify({ dir: currentFolder }) });
     // Show the ALBUM name (Albumnaam) — the picks land there, which may
     // differ from the source folder name.
-    showSyncStatus(`Immich publish → ${r.album}`, true,
-      `${r.published} published · ${r.skipped} no pick yet${r.errors.length ? ` · ${r.errors.length} errors` : ''}`);
+    let detail = `${r.published} published · ${r.skipped} no pick yet${r.errors.length ? ` · ${r.errors.length} errors` : ''}`;
+    if (r.immich_scan_note) detail += ` · ⏳ ${r.immich_scan_note}`;
+    showSyncStatus(`Immich publish → ${r.album}`, true, detail);
     refreshSyncAvailability();
     return;
   } else if (kind === 'immich-sync') {
